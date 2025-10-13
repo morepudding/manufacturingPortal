@@ -14,7 +14,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BoatCarousel } from '@/components/organisms/BoatCarousel'
+import { BoatCarousel } from '@/shared/components/organisms/BoatCarousel'
 
 type Language = 'fr' | 'en'
 

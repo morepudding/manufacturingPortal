@@ -50,9 +50,9 @@ git commit -m "feat: setup architecture v2 - structure and paths"
 
 ---
 
-### ⏳ Jour 2 (Mardi 15) : Migration Atoms - EN COURS
+### ✅ Jour 2 (Mardi 15) : Migration Atoms - COMPLÉTÉ
 
-**Statut** : 🔄 EN ATTENTE
+**Statut** : ✅ TERMINÉ
 
 **Tâches à faire** :
 - [ ] Copier tous les composants `/src/components/atoms` → `/src/shared/components/atoms`

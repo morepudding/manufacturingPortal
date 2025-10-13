@@ -17,7 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { printCustomerOrder } from '@/lib/print-service'
+import { printCustomerOrder } from '@/tools/boat-configuration/services/print-service'
 import type { PrintRequest } from '@/core/types/print'
 
 export async function POST(request: NextRequest) {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       console.log(`\n📤 Returning PDF file: ${result.pdfInfo.fileName}`)
       
       // Récupérer le PDF depuis IFS (le service a déjà validé sa disponibilité)
-      const { getIFSClient } = await import('@/lib/ifs-client')
+      const { getIFSClient } = await import('@/shared/services/ifs-client')
       const client = getIFSClient()
       
       const pdfBuffer = await client.getRaw(

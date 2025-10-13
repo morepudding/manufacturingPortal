@@ -8,7 +8,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { getPrinters } from '@/lib/printer-service'
+import { getPrinters } from '@/shared/services/printer-service'
 
 export async function GET() {
   console.log('🔍 API Request: GET /api/printers')

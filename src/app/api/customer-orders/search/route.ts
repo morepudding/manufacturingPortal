@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getCustomerOrderLineBySerial, getCustomerOrderHeader } from '@/lib/customer-order-service'
+import { getCustomerOrderLineBySerial, getCustomerOrderHeader } from '@/tools/boat-configuration/services/customer-order-service'
 
 /**
  * GET /api/customer-orders/search

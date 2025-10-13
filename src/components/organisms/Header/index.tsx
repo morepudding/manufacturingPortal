@@ -6,7 +6,7 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
     navigationMenuTriggerStyle,
-} from "@/components/molecules/NavigationMenu";
+} from "@/shared/components/molecules/NavigationMenu";
 import Image from "next/image";
 import Link from "next/link";
 import AuthenticatedNav from "./AuthenticatedNav";

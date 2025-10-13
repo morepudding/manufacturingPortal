@@ -20,13 +20,13 @@ import {
 } from "@/shared/components/atoms/Table";
 import ButtonLink, {
     ButtonsActionLink,
-} from "@/components/molecules/ButtonLink";
-import ButtonWithIcon from "@/components/molecules/ButtonWithIcon";
+} from "@/shared/components/molecules/ButtonLink";
+import ButtonWithIcon from "@/shared/components/molecules/ButtonWithIcon";
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-} from "@/components/molecules/ToolTip";
+} from "@/shared/components/molecules/ToolTip";
 import { Eye } from "lucide-react";
 import { ReactNode } from "react";
 import { URL } from "url";

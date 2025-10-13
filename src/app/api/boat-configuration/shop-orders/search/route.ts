@@ -26,7 +26,7 @@
 
 import { NextResponse } from 'next/server'
 import { searchShopOrder } from '@/tools/boat-configuration/services/shop-order-service'
-import type { ShopOrderSearchParams } from '@/core/types/ifs'
+import type { ShopOrderSearchParams } from '@/shared/types/ifs'
 
 /**
  * POST /api/shop-orders/search

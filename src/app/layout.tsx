@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import HeaderWrapper from "@/components/organisms/HeaderWrapper";
+import HeaderWrapper from "@/shared/components/organisms/HeaderWrapper";
 
 import { getServerSession } from "next-auth/next";
 import { AuthProvider } from "@/contexts/auth";

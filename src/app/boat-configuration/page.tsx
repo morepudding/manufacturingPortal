@@ -11,8 +11,8 @@ import { Input } from '@/shared/components/atoms/Input'
 import { Label } from '@/shared/components/atoms/Label'
 import { PrinterSearch } from '@/shared/components/molecules/PrinterSearch'
 import { LanguageSelector } from '@/shared/components/molecules/LanguageSelector'
-import { CustomerOrderValidation, type CustomerOrderData } from '@/components/organisms/CustomerOrderValidation'
-import { PrintExecution } from '@/components/organisms/PrintExecution'
+import { CustomerOrderValidation, type CustomerOrderData } from '@/app/(tools)/boat-configuration/components/CustomerOrderValidation'
+import { PrintExecution } from '@/app/(tools)/boat-configuration/components/PrintExecution'
 
 type Step = 'entry' | 'confirmation' | 'customer-order' | 'selection' | 'print'
 

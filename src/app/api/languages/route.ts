@@ -8,7 +8,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { getLanguages } from '@/lib/language-service'
+import { getLanguages } from '@/shared/services/language-service'
 
 export async function GET() {
   console.log('🔍 API Request: GET /api/languages')

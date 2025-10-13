@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { URL } from "url";
-import { buttonVariants } from "@/components/atoms/Button";
+import { buttonVariants } from "@/shared/components/atoms/Button";
 import { Eye } from "lucide-react";
 
 export type ButtonsActionLink = {

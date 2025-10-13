@@ -1,4 +1,4 @@
-import { Button } from "@/components/atoms/Button";
+import { Button } from "@/shared/components/atoms/Button";
 import Popup, { PopUp } from "../PopUp";
 
 export type ButtonsActionList = {

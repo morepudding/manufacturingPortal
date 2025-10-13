@@ -12,7 +12,7 @@ import {
     BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbSeparator,
-} from "@/components/atoms/Breadcrumb";
+} from "@/shared/components/atoms/Breadcrumb";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 

@@ -8,8 +8,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Input } from '@/components/atoms/Input'
-import { Label } from '@/components/atoms/Label'
+import { Input } from '@/shared/components/atoms/Input'
+import { Label } from '@/shared/components/atoms/Label'
 
 interface Printer {
   PrinterId: string

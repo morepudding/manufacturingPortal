@@ -7,7 +7,7 @@
 
 'use client'
 
-import { Label } from '@/components/atoms/Label'
+import { Label } from '@/shared/components/atoms/Label'
 import Image from 'next/image'
 
 interface Language {

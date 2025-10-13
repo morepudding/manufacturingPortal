@@ -1,4 +1,4 @@
-import { Button } from "@/components/atoms/Button";
+import { Button } from "@/shared/components/atoms/Button";
 import {
     Dialog,
     DialogClose,

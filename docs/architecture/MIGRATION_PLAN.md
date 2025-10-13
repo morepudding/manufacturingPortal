@@ -24,13 +24,13 @@ Ce document détaille le plan de migration de l'architecture actuelle (v1) vers 
 
 ### Semaine 1 (14-20 Oct) : Préparation & Shared Components
 
-#### Jour 1 (Lundi 14) : Setup initial
+#### ✅ Jour 1 (Lundi 14) : Setup initial - COMPLÉTÉ
 
 **Tâches** :
-- [ ] Créer branche `feature/architecture-v2`
-- [ ] Créer nouvelle structure de dossiers
-- [ ] Mettre à jour `tsconfig.json` avec les paths
-- [ ] Créer fichier de migration tracking
+- [x] Créer branche `feature/architecture-v2`
+- [x] Créer nouvelle structure de dossiers
+- [x] Mettre à jour `tsconfig.json` avec les paths
+- [x] Créer fichier de migration tracking
 
 **Commandes** :
 ```bash

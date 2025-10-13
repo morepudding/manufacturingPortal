@@ -6,9 +6,9 @@
  */
 
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/atoms/Button'
-import { Input } from '@/components/atoms/Input'
-import { Label } from '@/components/atoms/Label'
+import { Button } from '@/shared/components/atoms/Button'
+import { Input } from '@/shared/components/atoms/Input'
+import { Label } from '@/shared/components/atoms/Label'
 import { PrinterSearch } from '@/components/molecules/PrinterSearch'
 import { LanguageSelector } from '@/components/molecules/LanguageSelector'
 import { CustomerOrderValidation, type CustomerOrderData } from '@/components/organisms/CustomerOrderValidation'

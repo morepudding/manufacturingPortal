@@ -1,15 +1,15 @@
 "use client";
 
-import { Button } from "@/components/atoms/Button";
-import { Checkbox } from "@/components/atoms/Chekbox";
-import { Input } from "@/components/atoms/Input";
+import { Button } from "@/shared/components/atoms/Button";
+import { Checkbox } from "@/shared/components/atoms/Chekbox";
+import { Input } from "@/shared/components/atoms/Input";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/atoms/Select";
+} from "@/shared/components/atoms/Select";
 import {
     Table,
     TableBody,
@@ -17,7 +17,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/atoms/Table";
+} from "@/shared/components/atoms/Table";
 import ButtonLink, {
     ButtonsActionLink,
 } from "@/components/molecules/ButtonLink";

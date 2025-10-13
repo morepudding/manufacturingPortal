@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/molecules/DropDownMenu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/Avatar";
 import { useSession, signOut } from "next-auth/react";
 
 export default function AuthenticatedNav() {

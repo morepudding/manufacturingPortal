@@ -7,7 +7,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/atoms/Button'
+import { Button } from '@/shared/components/atoms/Button'
 import type { PrintResult } from '@/core/types/print'
 
 interface PrintExecutionProps {

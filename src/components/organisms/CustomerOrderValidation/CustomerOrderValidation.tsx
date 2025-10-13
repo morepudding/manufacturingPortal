@@ -11,10 +11,10 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/atoms/Card'
-import { Button } from '@/components/atoms/Button'
-import { Badge } from '@/components/atoms/Badge'
-import { Separator } from '@/components/atoms/Separator'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/atoms/Card'
+import { Button } from '@/shared/components/atoms/Button'
+import { Badge } from '@/shared/components/atoms/Badge'
+import { Separator } from '@/shared/components/atoms/Separator'
 import { CheckCircle2, AlertCircle, Package, User, Calendar, FileText } from 'lucide-react'
 
 export interface CustomerOrderData {

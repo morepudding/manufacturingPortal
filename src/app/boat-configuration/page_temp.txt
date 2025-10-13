@@ -1,0 +1,276 @@
+'use client'
+
+/**
+ * Boat Configuration Editor - Design Futuriste
+ * 
+ * Ambiance visuelle: Océan / Maritime (tons bleus)
+ * - Particules flottantes bleues
+ * - Orbes animés avec parallax
+ * - Cartes glassmorphism
+ * - Animations fluides
+ * 
+ * Workflow en 4 étapes:
+ * 1. Entry: Saisie des clés du Shop Order
+ * 2. Confirmation: Affichage du Serial Number + confirmation utilisateur
+ * 3. Selection: Sélection imprimante + langue
+ * 4. Print: Impression du document
+ */
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/atoms/Button'
+import { Input } from '@/components/atoms/Input'
+import { Label } from '@/components/atoms/Label'
+import { PrinterSearch } from '@/components/molecules/PrinterSearch'
+import { LanguageSelector } from '@/components/molecules/LanguageSelector'
+
+type Step = 'entry' | 'confirmation' | 'selection' | 'print'
+
+// Particules flottantes
+interface Particle {
+  id: number
+  x: number
+  y: number
+  size: number
+  duration: number
+  delay: number
+}
+
+interface Printer {
+  PrinterId: string
+  Description: string
+}
+
+interface Language {
+  LangCode: string
+  Description: string
+}
+
+interface ShopOrderData {
+  orderNo: string
+  releaseNo: string
+  sequenceNo: string
+}
+
+interface ShopOrderResult {
+  found: boolean
+  shopOrder?: {
+    OrderNo: string
+    ReleaseNo: string
+    SequenceNo: string
+    DopId: string | null
+    PartNo: string
+    PartDescription: string
+    Contract: string
+  }
+  serialNumber?: string | null
+  dopHeaderId?: string | null
+  error?: string
+}
+
+export default function BoatConfigurationPage() {
+  // État du workflow
+  const [currentStep, setCurrentStep] = useState<Step>('entry')
+
+  // Particules et parallax
+  const [particles, setParticles] = useState<Particle[]>([])
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+  // Données du formulaire
+  const [shopOrder, setShopOrder] = useState<ShopOrderData>({
+    orderNo: '',
+    releaseNo: '*',
+    sequenceNo: '*',
+  })
+
+  // Résultats de la recherche
+  const [searchResult, setSearchResult] = useState<ShopOrderResult | null>(null)
+  const [serialNumber, setSerialNumber] = useState<string>('N/A')
+  const [dopHeaderId, setDopHeaderId] = useState<string>('N/A')
+
+  // Sélections Phase 2
+  const [printers, setPrinters] = useState<Printer[]>([])
+  const [languages, setLanguages] = useState<Language[]>([])
+  const [selectedPrinter, setSelectedPrinter] = useState<string>('')
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('')
+  const [loadingPrinters, setLoadingPrinters] = useState(false)
+  const [loadingLanguages, setLoadingLanguages] = useState(false)
+
+  // États UI
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Générer particules flottantes au montage
+  useEffect(() => {
+    const generatedParticles: Particle[] = Array.from({ length: 15 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1.5,
+      duration: Math.random() * 25 + 20,
+      delay: Math.random() * 5,
+    }))
+    setParticles(generatedParticles)
+  }, [])
+
+  // Parallax effect sur le mouvement de la souris
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 15
+      const y = (e.clientY / window.innerHeight - 0.5) * 15
+      setMousePosition({ x, y })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  /**
+   * Gérer la soumission du formulaire de recherche
+   */
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    console.log('🔍 Searching Shop Order:', shopOrder)
+
+    try {
+      // Appeler l'API de recherche
+      const response = await fetch('/api/shop-orders/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderNo: shopOrder.orderNo,
+          releaseNo: shopOrder.releaseNo,
+          sequenceNo: shopOrder.sequenceNo,
+        }),
+      })
+
+      const data: ShopOrderResult = await response.json()
+
+      console.log('📊 API Response:', data)
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to search Shop Order')
+      }
+
+      // Vérifier si le Shop Order a été trouvé
+      if (data.found && data.shopOrder) {
+        setSearchResult(data)
+        setSerialNumber(data.serialNumber || 'N/A')
+        setDopHeaderId(data.dopHeaderId || 'N/A')
+        setCurrentStep('confirmation')
+      } else {
+        setError(data.error || 'Shop Order not found')
+      }
+    } catch (err) {
+      console.error('❌ Search error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /**
+   * Gérer la confirmation utilisateur (Yes)
+   */
+  const handleConfirmYes = () => {
+    console.log('✅ User confirmed, moving to selection step')
+    setCurrentStep('selection')
+  }
+
+  /**
+   * Charger les imprimantes et langues pour l'étape de sélection
+   */
+  useEffect(() => {
+    if (currentStep === 'selection') {
+      loadPrintersAndLanguages()
+    }
+  }, [currentStep])
+
+  const loadPrintersAndLanguages = async () => {
+    console.log('🔍 Loading printers and languages...')
+    
+    // Charger les imprimantes
+    setLoadingPrinters(true)
+    try {
+      const printersResponse = await fetch('/api/printers')
+      const printersData = await printersResponse.json()
+      
+      if (printersData.success && printersData.data) {
+        setPrinters(printersData.data)
+        console.log(`✅ Loaded ${printersData.data.length} printer(s)`)
+      } else {
+        console.error('❌ Failed to load printers:', printersData.error)
+      }
+    } catch (err) {
+      console.error('❌ Error loading printers:', err)
+    } finally {
+      setLoadingPrinters(false)
+    }
+
+    // Charger les langues
+    setLoadingLanguages(true)
+    try {
+      const languagesResponse = await fetch('/api/languages')
+      const languagesData = await languagesResponse.json()
+      
+      if (languagesData.success && languagesData.data) {
+        setLanguages(languagesData.data)
+        console.log(`✅ Loaded ${languagesData.data.length} language(s)`)
+      } else {
+        console.error('❌ Failed to load languages:', languagesData.error)
+      }
+    } catch (err) {
+      console.error('❌ Error loading languages:', err)
+    } finally {
+      setLoadingLanguages(false)
+    }
+  }
+
+  /**
+   * Gérer la validation de la sélection
+   */
+  const handleSelectionValidate = () => {
+    if (!selectedPrinter || !selectedLanguage) {
+      setError('Please select both a printer and a language')
+      return
+    }
+
+    console.log('✅ Selection validated:', {
+      printer: selectedPrinter,
+      language: selectedLanguage,
+    })
+
+    // TODO Phase 3: Passer à l'impression
+    setCurrentStep('print')
+  }
+
+  /**
+   * Gérer le refus utilisateur (No)
+   */
+  const handleConfirmNo = () => {
+    console.log('❌ User declined, returning to entry')
+    setCurrentStep('entry')
+    setSearchResult(null)
+    setError(null)
+  }
+
+  /**
+   * Réinitialiser le workflow
+   */
+  const handleReset = () => {
+    setCurrentStep('entry')
+    setShopOrder({ orderNo: '', releaseNo: '*', sequenceNo: '*' })
+    setSearchResult(null)
+    setSerialNumber('N/A')
+    setDopHeaderId('N/A')
+    setSelectedPrinter('')
+    setSelectedLanguage('')
+    setError(null)
+  }
+
+  // ===== RENDERING =====
+
+  return (

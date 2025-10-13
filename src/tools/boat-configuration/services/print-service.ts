@@ -11,7 +11,7 @@
  * Basé sur le script validé: src/testscript/final-print-workflow.js
  */
 
-import { getIFSClient } from './ifs-client'
+import { getIFSClient } from '@/shared/services/ifs-client'
 import type {
   PrintRequest,
   PrintResult,

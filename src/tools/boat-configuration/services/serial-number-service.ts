@@ -15,7 +15,7 @@
  * - SerialSource: Origine ("Shop Order", etc.)
  */
 
-import { getIFSClient } from './ifs-client'
+import { getIFSClient } from '@/shared/services/ifs-client'
 import type { IFSODataResponse, DopHeadSerialReservation } from '@/shared/types/ifs'
 
 /**

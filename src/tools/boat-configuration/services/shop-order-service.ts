@@ -18,9 +18,9 @@
  * 5. Retourner les données enrichies
  */
 
-import { getIFSClient } from './ifs-client'
-import { extractMainDopId } from './dop-service'
-import { getFirstSerialNumberFromDop } from './serial-number-service'
+import { getIFSClient } from '@/shared/services/ifs-client'
+import { extractMainDopId } from '@/tools/boat-configuration/services/dop-service'
+import { getFirstSerialNumberFromDop } from '@/tools/boat-configuration/services/serial-number-service'
 import type {
   IFSODataResponse,
   IFSShopOrder,

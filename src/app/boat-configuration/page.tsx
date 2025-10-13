@@ -77,7 +77,7 @@ export default function BoatConfigurationPage() {
     setError(null)
 
     try {
-      const response = await fetch('/api/shop-orders/search', {
+      const response = await fetch('/api/boat-configuration/shop-orders/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(shopOrder),
@@ -113,7 +113,7 @@ export default function BoatConfigurationPage() {
         if (searchResult?.shopOrder?.CustomerOrderNo && searchResult?.shopOrder?.CustomerLineNo) {
           console.log('🔍 Loading Customer Order from Shop Order data...')
           const response = await fetch(
-            `/api/customer-orders?orderNo=${searchResult.shopOrder.CustomerOrderNo}&lineNo=${searchResult.shopOrder.CustomerLineNo}&serialNumber=${serialNumber}`
+            `/api/boat-configuration/customer-orders?orderNo=${searchResult.shopOrder.CustomerOrderNo}&lineNo=${searchResult.shopOrder.CustomerLineNo}&serialNumber=${serialNumber}`
           )
 
           const data = await response.json()
@@ -131,7 +131,7 @@ export default function BoatConfigurationPage() {
         // Fallback: Chercher via Serial Number (plus lent mais fonctionne toujours)
         console.log('🔍 Loading Customer Order via Serial Number...')
         const response = await fetch(
-          `/api/customer-orders?serialNumber=${serialNumber}`
+          `/api/boat-configuration/customer-orders?serialNumber=${serialNumber}`
         )
 
         const data = await response.json()
@@ -177,7 +177,7 @@ export default function BoatConfigurationPage() {
   const loadPrintersAndLanguages = async () => {
     setLoadingPrinters(true)
     try {
-      const printersResponse = await fetch('/api/printers')
+      const printersResponse = await fetch('/api/shared/printers')
       const printersData = await printersResponse.json()
       if (printersData.success && printersData.data) {
         setPrinters(printersData.data)
@@ -190,7 +190,7 @@ export default function BoatConfigurationPage() {
 
     setLoadingLanguages(true)
     try {
-      const languagesResponse = await fetch('/api/languages')
+      const languagesResponse = await fetch('/api/shared/languages')
       const languagesData = await languagesResponse.json()
       if (languagesData.success && languagesData.data) {
         setLanguages(languagesData.data)

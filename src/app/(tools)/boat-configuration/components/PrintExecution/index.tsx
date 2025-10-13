@@ -8,7 +8,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/shared/components/atoms/Button'
-import type { PrintResult } from '@/core/types/print'
+import type { PrintResult } from '@/tools/boat-configuration/types'
 
 interface PrintExecutionProps {
   /** Numéro de Customer Order */

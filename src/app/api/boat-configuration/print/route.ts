@@ -18,7 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { printCustomerOrder } from '@/tools/boat-configuration/services/print-service'
-import type { PrintRequest } from '@/core/types/print'
+import type { PrintRequest } from '@/tools/boat-configuration/types'
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 "use client";
 
-import ButtonsList from "@/components/molecules/ButtonsList";
-import { PopUp } from "@/components/molecules/PopUp";
+import ButtonsList from "@/shared/components/molecules/ButtonsList";
+import { PopUp } from "@/shared/components/molecules/PopUp";
 import { useState } from "react";
 import DataTable, { DataTableProps } from "../DataTable";
 

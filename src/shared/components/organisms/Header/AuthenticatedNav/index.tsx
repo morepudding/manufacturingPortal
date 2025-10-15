@@ -5,8 +5,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  // DropdownMenuLabel,
+  // DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/molecules/DropDownMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/Avatar";
@@ -14,6 +14,21 @@ import { useSession, signOut } from "next-auth/react";
 
 export default function AuthenticatedNav() {
   const { data: session } = useSession();
+
+  // ⚠️ TEMPORAIRE : Désactiver l'authentification pour les tests Vercel
+  const DISABLE_AUTH = process.env.NEXT_PUBLIC_DISABLE_AUTH === "true";
+
+  if (DISABLE_AUTH) {
+    return (
+      <div className="flex items-center px-4">
+        <div className="px-3 py-1 bg-amber-500/20 border border-amber-500/50 rounded-md">
+          <span className="text-xs text-amber-200 font-medium">
+            🔓 Mode Test (Auth désactivée)
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <DropdownMenu>

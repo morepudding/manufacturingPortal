@@ -104,7 +104,7 @@ export function PrintDialog({
         <DialogHeader>
           <DialogTitle className="text-2xl">🖨️ Impression des étiquettes</DialogTitle>
           <DialogDescription>
-            Sélectionnez une imprimante pour lancer l'impression
+            Sélectionnez une imprimante pour lancer l&apos;impression
           </DialogDescription>
         </DialogHeader>
 
@@ -192,7 +192,7 @@ export function PrintDialog({
               </>
             ) : (
               <>
-                🖨️ Lancer l'impression
+                🖨️ Lancer l&apos;impression
               </>
             )}
           </Button>

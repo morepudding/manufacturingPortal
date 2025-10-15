@@ -1,0 +1,248 @@
+/**
+ * Service Part Label - Consolidation des données pour étiquettes
+ * 
+ * Phase 3.4 - Consolidation des données
+ * 
+ * Ce service orchestre la récupération de toutes les données nécessaires
+ * pour générer les étiquettes Part Printer :
+ * 
+ * 1. Shop Order (base)
+ * 2. Operation 10 (Block ID + Raw Material)
+ * 3. Master Part (GENERIC CODE, LENGTH SETUP, VARNISH CODE)
+ * 4. Range (Range ID par site/date)
+ * 5. Barcode (généré à partir du Generic Code + Revision)
+ */
+
+import { getOperation10Data } from './operation-service'
+import { getMasterPartAttributes } from './master-part-service'
+import { getRangeId } from './range-service'
+import type { IFSShopOrderExtended, PartLabel } from '../types'
+
+/**
+ * Générer les données d'étiquette pour un Shop Order
+ * 
+ * @param shopOrder - Shop Order IFS
+ * @param site - Site (pour récupération du Range)
+ * @returns Données complètes pour une étiquette (PartLabel)
+ * 
+ * @example
+ * ```typescript
+ * const label = await generatePartLabel(shopOrder, "BDR")
+ * console.log("Étiquette complète:", label)
+ * ```
+ */
+export async function generatePartLabel(
+  shopOrder: IFSShopOrderExtended,
+  site: string
+): Promise<PartLabel> {
+  console.log(`🏷️ [Part Label Service] Génération étiquette pour ${shopOrder.OrderNo}-${shopOrder.ReleaseNo}-${shopOrder.SequenceNo}`)
+
+  try {
+    // 1. Récupérer données Operation 10
+    console.log('📊 [Part Label Service] Étape 1/4 - Operation 10...')
+    const op10 = await getOperation10Data(
+      shopOrder.OrderNo,
+      shopOrder.ReleaseNo,
+      shopOrder.SequenceNo
+    )
+
+    // 2. Récupérer attributs Master Part
+    console.log('📊 [Part Label Service] Étape 2/4 - Master Part...')
+    const masterPart = await getMasterPartAttributes(shopOrder.PartNo)
+
+    // 3. Récupérer Range ID (avec CBlockDates pour déterminer Redébit/Débit)
+    console.log('📊 [Part Label Service] Étape 3/4 - Range ID...')
+    const isRecutting = shopOrder.CBlockDates === false // false = Redébit (R), true = Débit (A)
+    const rangeId = await getRangeId(site, shopOrder.RevisedStartDate, isRecutting) || 'N/A'
+
+    // 4. Générer barcode
+    console.log('📊 [Part Label Service] Étape 4/4 - Barcode...')
+    const barcode = generateBarcodeData(
+      masterPart.genericCode,
+      masterPart.engineeringPartRev
+    )
+
+    const label: PartLabel = {
+      // Shop Order
+      orderNo: shopOrder.OrderNo,
+      releaseNo: shopOrder.ReleaseNo,
+      sequenceNo: shopOrder.SequenceNo,
+      partNo: shopOrder.PartNo,
+      startDate: shopOrder.RevisedStartDate,
+
+      // Operation 10
+      rawMaterial: op10.rawMaterial,
+      blockId: op10.blockId,
+
+      // Master Part
+      genericCode: masterPart.genericCode,
+      lengthSetup: masterPart.lengthSetup,
+      varnishCode: masterPart.varnishCode,
+      engineeringPartRev: masterPart.engineeringPartRev,
+
+      // Range
+      rangeId,
+
+      // Barcode
+      barcode,
+    }
+
+    console.log(`✅ [Part Label Service] Étiquette générée avec succès`)
+
+    return label
+  } catch (error) {
+    console.error(`❌ [Part Label Service] Erreur génération étiquette:`, error)
+    throw new Error(`Failed to generate part label: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+/**
+ * Générer les données d'étiquette pour plusieurs Shop Orders
+ * 
+ * @param shopOrders - Liste de Shop Orders IFS
+ * @param site - Site (pour récupération des Ranges)
+ * @returns Liste de données d'étiquettes (PartLabel[])
+ * 
+ * @example
+ * ```typescript
+ * const labels = await generatePartLabels(shopOrders, "BDR")
+ * console.log(`${labels.length} étiquettes générées`)
+ * ```
+ */
+export async function generatePartLabels(
+  shopOrders: IFSShopOrderExtended[],
+  site: string
+): Promise<PartLabel[]> {
+  console.log(`🏷️ [Part Label Service] Génération de ${shopOrders.length} étiquettes...`)
+
+  const labels: PartLabel[] = []
+  const errors: Array<{ order: string; error: string }> = []
+
+  // Traitement séquentiel pour éviter de surcharger IFS
+  // TODO: Optimiser avec Promise.all() par batches si nécessaire
+  for (const shopOrder of shopOrders) {
+    try {
+      const label = await generatePartLabel(shopOrder, site)
+      labels.push(label)
+      
+      console.log(`✅ [Part Label Service] ${labels.length}/${shopOrders.length} étiquettes générées`)
+    } catch (error) {
+      const orderKey = `${shopOrder.OrderNo}-${shopOrder.ReleaseNo}-${shopOrder.SequenceNo}`
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      
+      console.error(`❌ [Part Label Service] Erreur pour ${orderKey}:`, errorMsg)
+      errors.push({ order: orderKey, error: errorMsg })
+    }
+  }
+
+  console.log(`✅ [Part Label Service] Génération terminée: ${labels.length} succès, ${errors.length} erreurs`)
+
+  if (errors.length > 0) {
+    console.warn('⚠️ [Part Label Service] Erreurs rencontrées:', errors)
+  }
+
+  return labels
+}
+
+/**
+ * Générer la donnée pour le barcode
+ * 
+ * Format: GENERIC_CODE_REVISION
+ * Exemple: "1000014690_Rev_02"
+ * 
+ * @param genericCode - Code générique de la pièce
+ * @param revision - Révision de la pièce
+ * @returns Donnée du barcode (string)
+ */
+export function generateBarcodeData(
+  genericCode: string,
+  revision: string
+): string {
+  // Format simple pour l'instant
+  // TODO: Vérifier le format exact requis pour les codes-barres
+  const barcodeData = `${genericCode}_${revision}`
+  
+  console.log(`🔢 [Part Label Service] Barcode data: ${barcodeData}`)
+  
+  return barcodeData
+}
+
+/**
+ * Grouper les étiquettes par (Raw Material, Varnish Code)
+ * 
+ * Nécessaire pour la génération PDF : 1 page par couple (Raw Material, Varnish Code)
+ * 
+ * @param labels - Liste d'étiquettes
+ * @returns Map groupée par clé "rawMaterial_varnishCode"
+ */
+export function groupLabelsByMaterialAndVarnish(
+  labels: PartLabel[]
+): Map<string, PartLabel[]> {
+  console.log(`📊 [Part Label Service] Groupement de ${labels.length} étiquettes...`)
+
+  const grouped = new Map<string, PartLabel[]>()
+
+  for (const label of labels) {
+    const key = `${label.rawMaterial}_${label.varnishCode}`
+    
+    if (!grouped.has(key)) {
+      grouped.set(key, [])
+    }
+    
+    grouped.get(key)!.push(label)
+  }
+
+  console.log(`✅ [Part Label Service] ${grouped.size} groupes créés`)
+
+  // Log des groupes pour debug
+  for (const [key, group] of grouped.entries()) {
+    console.log(`  📦 ${key}: ${group.length} étiquettes`)
+  }
+
+  return grouped
+}
+
+/**
+ * Trier les étiquettes par Length Setup (décroissant)
+ * 
+ * Requis pour l'affichage sur les étiquettes
+ * 
+ * @param labels - Liste d'étiquettes
+ * @returns Liste triée par Length Setup décroissant
+ */
+export function sortLabelsByLengthSetup(labels: PartLabel[]): PartLabel[] {
+  return labels.sort((a, b) => {
+    const lengthA = parseFloat(a.lengthSetup) || 0
+    const lengthB = parseFloat(b.lengthSetup) || 0
+    return lengthB - lengthA // Décroissant
+  })
+}
+
+/**
+ * Préparer les étiquettes pour l'impression
+ * 
+ * Groupe et trie les étiquettes selon les règles Part Printer :
+ * - Groupement par (Raw Material, Varnish Code)
+ * - Tri par Length Setup décroissant dans chaque groupe
+ * 
+ * @param labels - Liste d'étiquettes
+ * @returns Map de groupes triés
+ */
+export function prepareLabelsForPrinting(
+  labels: PartLabel[]
+): Map<string, PartLabel[]> {
+  console.log(`🖨️ [Part Label Service] Préparation ${labels.length} étiquettes pour impression...`)
+
+  const grouped = groupLabelsByMaterialAndVarnish(labels)
+
+  // Trier chaque groupe par Length Setup
+  for (const [key, group] of grouped.entries()) {
+    const sorted = sortLabelsByLengthSetup(group)
+    grouped.set(key, sorted)
+    console.log(`  ✅ Groupe ${key}: ${sorted.length} étiquettes triées`)
+  }
+
+  console.log(`✅ [Part Label Service] Préparation terminée`)
+
+  return grouped
+}

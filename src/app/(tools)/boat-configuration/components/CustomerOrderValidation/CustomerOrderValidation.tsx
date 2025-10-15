@@ -59,7 +59,7 @@ export function CustomerOrderValidation({
           <div>
             <CardTitle className="text-2xl">Customer Order Validation</CardTitle>
             <CardDescription>
-              Vérifiez les informations avant de lancer l'impression
+              Vérifiez les informations avant de lancer l&apos;impression
             </CardDescription>
           </div>
           {serialNumberMatch ? (

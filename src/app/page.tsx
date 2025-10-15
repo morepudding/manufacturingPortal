@@ -40,10 +40,10 @@ const TRANSLATIONS = {
         description: 'Gestion des ordres de fabrication et impression des documents de configuration.',
         action: 'Accéder',
       },
-      wood: {
-        title: 'Wood Part Printer',
+      part: {
+        title: 'Part Printer',
         description: 'Impression des étiquettes pour les pièces en bois.',
-        badge: 'Bientôt',
+        action: 'Accéder',
       },
     },
     carousel: {
@@ -61,10 +61,10 @@ const TRANSLATIONS = {
         description: 'Manage manufacturing orders and print configuration documents.',
         action: 'Access',
       },
-      wood: {
-        title: 'Wood Part Printer',
+      part: {
+        title: 'Part Printer',
         description: 'Print labels for wood parts.',
-        badge: 'Soon',
+        action: 'Access',
       },
     },
     carousel: {
@@ -74,7 +74,7 @@ const TRANSLATIONS = {
 }
 
 export default function Home() {
-  const [lang, setLang] = useState<Language>('fr')
+  const [lang, setLang] = useState<Language>('en')  // Défaut: anglais
   const [particles, setParticles] = useState<Particle[]>([])
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const t = TRANSLATIONS[lang]
@@ -215,34 +215,41 @@ export default function Home() {
               </div>
             </Link>
 
-            {/* Wood Part - Animation entrée décalée */}
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-xl border border-gray-700/30 p-8 transition-all duration-300 cursor-not-allowed opacity-60 animate-in fade-in slide-in-from-bottom duration-700 delay-300">
-              <div className="absolute top-6 right-6 z-10">
-                <span className="px-3 py-1 rounded-md bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-xs font-medium">
-                  {t.apps.wood.badge}
-                </span>
-              </div>
+            {/* Part Printer - Animation entrée décalée */}
+            <Link href="/part-printer" className="animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-600/30 hover:border-amber-600/50 cursor-pointer active:scale-[0.98]">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-600/0 to-orange-600/0 group-hover:from-amber-600/10 group-hover:to-orange-600/10 transition-all duration-300" />
+                
+                <div className="relative mb-6 flex justify-center">
+                  <div className="relative w-32 h-32 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-2">
+                    <Image
+                      src="/app/WoodPartPrinter.png"
+                      alt="Part Printer"
+                      fill
+                      className="object-contain drop-shadow-2xl"
+                    />
+                  </div>
+                </div>
 
-              <div className="relative mb-6 flex justify-center grayscale">
-                <div className="relative w-32 h-32">
-                  <Image
-                    src="/app/WoodPartPrinter.png"
-                    alt="Wood Part Printer"
-                    fill
-                    className="object-contain"
-                  />
+                <div className="relative space-y-3">
+                  <h3 className="text-xl font-semibold text-white group-hover:text-amber-300 transition-colors duration-300">
+                    {t.apps.part.title}
+                  </h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    {t.apps.part.description}
+                  </p>
+
+                  <div className="pt-4">
+                    <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium shadow-lg group-hover:shadow-amber-600/50 transition-all duration-200 active:scale-95">
+                      <span>{t.apps.part.action}</span>
+                      <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div className="relative space-y-3">
-                <h3 className="text-xl font-semibold text-gray-500">
-                  {t.apps.wood.title}
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {t.apps.wood.description}
-                </p>
-              </div>
-            </div>
+            </Link>
 
             {/* Placeholder - Animation entrée décalée */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/20 to-gray-900/20 backdrop-blur-xl border-2 border-dashed border-gray-700/40 p-8 flex flex-col items-center justify-center min-h-[400px] animate-in fade-in slide-in-from-bottom duration-700 delay-400">

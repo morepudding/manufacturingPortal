@@ -1,0 +1,1079 @@
+394688-*-*	C000001179771G108	-		Invalid Date	
+Non
+	394689-*-*	C000001179773G108	-		Invalid Date	
+Non
+	394706-*-*	C000001179692G108	-		Invalid Date	
+Non
+	394707-*-*	C000001179763G108	-		Invalid Date	
+Non
+	394708-*-*	C000001179765G108	-		Invalid Date	
+Non
+	394709-*-*	C000001179769G108	-		Invalid Date	
+Non
+	394729-*-*	C000001416155G108	-		Invalid Date	
+Non
+	394755-*-*	C000001599607G117	-		Invalid Date	
+Non
+	394773-*-*	C000001640060G117	-		Invalid Date	
+Non
+	394835-*-*	C000000931442G124	-		Invalid Date	
+Non
+	395099-*-*	C000001742737G136	-		Invalid Date	
+Non
+	395104-*-*	C000001744764G136	-		Invalid Date	
+Non
+	395105-*-*	C000001744992G136	-		Invalid Date	
+Non
+	395109-*-*	C000001742735G136	-		Invalid Date	
+Non
+	395377-*-*	C000001542033G117	-		Invalid Date	
+Non
+	395391-*-*	C000001480940G117	-		Invalid Date	
+Non
+	395425-*-*	C000001297026G134	-		Invalid Date	
+Non
+	395427-*-*	C000001297028G134	-		Invalid Date	
+Non
+	395484-*-*	C000000720993G116	-		Invalid Date	
+Non
+	395485-*-*	C000000720993G116	-		Invalid Date	
+Non
+	395498-*-*	C000000963150G110	-		Invalid Date	
+Non
+	395500-*-*	C000000963157G110	-		Invalid Date	
+Non
+	395502-*-*	C000000963148G110	-		Invalid Date	
+Non
+	395577-*-*	C000001743990G134	-		Invalid Date	
+Non
+	395861-*-*	C000000977259G125	-		Invalid Date	
+Non
+	395862-*-*	C000000977263G125	-		Invalid Date	
+Non
+	395981-*-*	C000000917297G125	-		Invalid Date	
+Non
+	396142-*-*	C000000842338G124	-		Invalid Date	
+Non
+	396143-*-*	C000000842338G124	-		Invalid Date	
+Non
+	396144-*-*	C000000842338G124	-		Invalid Date	
+Non
+	396168-*-*	C000000842340G124	-		Invalid Date	
+Non
+	396194-*-*	C000000842345G124	-		Invalid Date	
+Non
+	396195-*-*	C000000842345G124	-		Invalid Date	
+Non
+	396196-*-*	C000000842345G124	-		Invalid Date	
+Non
+	396198-*-*	C000001639766G117	-		Invalid Date	
+Non
+	396356-*-*	C000000896070G125	-		Invalid Date	
+Non
+	396369-*-*	C000000917979G125	-		Invalid Date	
+Non
+	396433-*-*	C000000896139G125	-		Invalid Date	
+Non
+	396801-*-*	C000000972450G125	-		Invalid Date	
+Non
+	396820-*-*	C000001708907G136	-		Invalid Date	
+Non
+	396821-*-*	C000001705133G136	-		Invalid Date	
+Non
+	396822-*-*	C000001710475G136	-		Invalid Date	
+Non
+	396826-*-*	C000000942408G125	-		Invalid Date	
+Non
+	396866-*-*	C000000951004G125	-		Invalid Date	
+Non
+	396867-*-*	C000001692355G117	-		Invalid Date	
+Non
+	396868-*-*	C000001692360G117	-		Invalid Date	
+Non
+	396907-*-*	C000000950983G125	-		Invalid Date	
+Non
+	396952-*-*	C000001067892G108	-		Invalid Date	
+Non
+	396957-*-*	C000001705062G136	-		Invalid Date	
+Non
+	396958-*-*	C000001705062G136	-		Invalid Date	
+Non
+	396963-*-*	C000001152566G125	-		Invalid Date	
+Non
+	396968-*-*	C000001152569G125	-		Invalid Date	
+Non
+	396970-*-*	C000001043100G108	-		Invalid Date	
+Non
+	396971-*-*	C000001043100G108	-		Invalid Date	
+Non
+	396972-*-*	C000001043107G108	-		Invalid Date	
+Non
+	396973-*-*	C000001043107G108	-		Invalid Date	
+Non
+	397078-*-*	C000001054921G108	-		Invalid Date	
+Non
+	397079-*-*	C000001074864G134	-		Invalid Date	
+Non
+	397106-*-*	C000001067745G134	-		Invalid Date	
+Non
+	397183-*-*	C000000867977G116	-		Invalid Date	
+Non
+	397469-*-*	C000000931435G124	-		Invalid Date	
+Non
+	397590-*-*	C000001708388G136	-		Invalid Date	
+Non
+	397591-*-*	C000001708388G136	-		Invalid Date	
+Non
+	397592-*-*	C000001708384G136	-		Invalid Date	
+Non
+	397593-*-*	C000001708384G136	-		Invalid Date	
+Non
+	397594-*-*	C000001708391G136	-		Invalid Date	
+Non
+	397595-*-*	C000001708391G136	-		Invalid Date	
+Non
+	397779-*-*	C000001026473G110	-		Invalid Date	
+Non
+	397800-*-*	C000001266083G110	-		Invalid Date	
+Non
+	397963-*-*	C000001297524G110	-		Invalid Date	
+Non
+	398066-*-*	C000001310350G110	-		Invalid Date	
+Non
+	398185-*-*	C000001742786G136	-		Invalid Date	
+Non
+	398448-*-*	C000000897437G124	-		Invalid Date	
+Non
+	398449-*-*	C000000897437G124	-		Invalid Date	
+Non
+	398498-*-*	C000001651746G110	-		Invalid Date	
+Non
+	398544-*-*	C000001617474G116	-		Invalid Date	
+Non
+	398545-*-*	C000001617474G116	-		Invalid Date	
+Non
+	398590-*-*	C000001415270G110	-		Invalid Date	
+Non
+	398619-*-*	C000001058993G116	-		Invalid Date	
+Non
+	398638-*-*	C000001059011G116	-		Invalid Date	
+Non
+	398639-*-*	C000001075095G134	-		Invalid Date	
+Non
+	398641-*-*	C000001075097G134	-		Invalid Date	
+Non
+	398649-*-*	C000000634584G116	-		Invalid Date	
+Non
+	398650-*-*	C000000634584G116	-		Invalid Date	
+Non
+	398652-*-*	C000001054764G110	-		Invalid Date	
+Non
+	398656-*-*	C000001075109G134	-		Invalid Date	
+Non
+	398725-*-*	C000001255964G108	-		Invalid Date	
+Non
+	398726-*-*	C000001255964G108	-		Invalid Date	
+Non
+	398727-*-*	C000001255972G108	-		Invalid Date	
+Non
+	398728-*-*	C000001255973G108	-		Invalid Date	
+Non
+	398729-*-*	C000001255973G108	-		Invalid Date	
+Non
+	399000-*-*	C000001026105G110	-		Invalid Date	
+Non
+	399002-*-*	C000001026105G110	-		Invalid Date	
+Non
+	399003-*-*	C000001026105G110	-		Invalid Date	
+Non
+	399011-*-*	C000001026108G110	-		Invalid Date	
+Non
+	399012-*-*	C000001026108G110	-		Invalid Date	
+Non
+	399013-*-*	C000001026108G110	-		Invalid Date	
+Non
+	399021-*-*	C000001026112G110	-		Invalid Date	
+Non
+	399025-*-*	C000001026464G110	-		Invalid Date	
+Non
+	399026-*-*	C000001026464G110	-		Invalid Date	
+Non
+	399038-*-*	C000001026113G110	-		Invalid Date	
+Non
+	399039-*-*	C000001026113G110	-		Invalid Date	
+Non
+	399040-*-*	C000001026113G110	-		Invalid Date	
+Non
+	399112-*-*	C000000931441G124	-		Invalid Date	
+Non
+	399182-*-*	C000001026483G110	-		Invalid Date	
+Non
+	399183-*-*	C000001026483G110	-		Invalid Date	
+Non
+	399192-*-*	C000001026473G110	-		Invalid Date	
+Non
+	399209-*-*	C000001273893G110	-		Invalid Date	
+Non
+	399210-*-*	C000001273896G110	-		Invalid Date	
+Non
+	399214-*-*	C000001273890G110	-		Invalid Date	
+Non
+	399216-*-*	C000001266012G110	-		Invalid Date	
+Non
+	399304-*-*	C000000728074G110	-		Invalid Date	
+Non
+	399305-*-*	C000000772282G110	-		Invalid Date	
+Non
+	399306-*-*	C000000772282G110	-		Invalid Date	
+Non
+	399307-*-*	C000000772282G110	-		Invalid Date	
+Non
+	399309-*-*	C000000772283G110	-		Invalid Date	
+Non
+	399310-*-*	C000000772283G110	-		Invalid Date	
+Non
+	399311-*-*	C000000772283G110	-		Invalid Date	
+Non
+	399315-*-*	C000000728072G110	-		Invalid Date	
+Non
+	399318-*-*	C000001481350G116	-		Invalid Date	
+Non
+	399476-*-*	C000000963157G110	-		Invalid Date	
+Non
+	399478-*-*	C000000963148G110	-		Invalid Date	
+Non
+	399479-*-*	C000000963150G110	-		Invalid Date	
+Non
+	399691-*-*	C000001027519G124	-		Invalid Date	
+Non
+	399724-*-*	C000000958626G124	-		Invalid Date	
+Non
+	399940-*-*	C000000960030G125	-		Invalid Date	
+Non
+	399941-*-*	C000000960030G125	-		Invalid Date	
+Non
+	399942-*-*	C000000960030G125	-		Invalid Date	
+Non
+	399943-*-*	C000000960030G125	-		Invalid Date	
+Non
+	399944-*-*	C000000960030G125	-		Invalid Date	
+Non
+	399965-*-*	C000001651745G110	-		Invalid Date	
+Non
+	400012-*-*	C000001728201G134	-		Invalid Date	
+Non
+	400013-*-*	C000001728205G134	-		Invalid Date	
+Non
+	400035-*-*	C000001415270G110	-		Invalid Date	
+Non
+	400048-*-*	C000001184155G134	-		Invalid Date	
+Non
+	400203-*-*	C000001500547G116	-		Invalid Date	
+Non
+	400204-*-*	C000001500547G116	-		Invalid Date	
+Non
+	400207-*-*	C000001500549G116	-		Invalid Date	
+Non
+	400208-*-*	C000001500549G116	-		Invalid Date	
+Non
+	400216-*-*	C000001475685G108	-		Invalid Date	
+Non
+	400217-*-*	C000001475685G108	-		Invalid Date	
+Non
+	400218-*-*	C000001475685G108	-		Invalid Date	
+Non
+	400219-*-*	C000001475685G108	-		Invalid Date	
+Non
+	400357-*-*	C000000898137G110	-		Invalid Date	
+Non
+	400377-*-*	C000001319070G110	-		Invalid Date	
+Non
+	400378-*-*	C000001595726G116	-		Invalid Date	
+Non
+	400379-*-*	C000001595726G116	-		Invalid Date	
+Non
+	400389-*-*	C000001602024G108	-		Invalid Date	
+Non
+	400391-*-*	C000001602024G108	-		Invalid Date	
+Non
+	400392-*-*	C000001602026G108	-		Invalid Date	
+Non
+	400393-*-*	C000001602026G108	-		Invalid Date	
+Non
+	400394-*-*	C000001602026G108	-		Invalid Date	
+Non
+	400407-*-*	C000001677537G108	-		Invalid Date	
+Non
+	400419-*-*	C000000822862G124	-		Invalid Date	
+Non
+	400421-*-*	C000000822879G124	-		Invalid Date	
+Non
+	400435-*-*	C000000850227G124	-		Invalid Date	
+Non
+	400444-*-*	C000001616504G108	-		Invalid Date	
+Non
+	400445-*-*	C000001620874G108	-		Invalid Date	
+Non
+	400479-*-*	C000001740597G136	-		Invalid Date	
+Non
+	400604-*-*	C000000728060G110	-		Invalid Date	
+Non
+	400605-*-*	C000000728060G110	-		Invalid Date	
+Non
+	400606-*-*	C000000728060G110	-		Invalid Date	
+Non
+	400607-*-*	C000000728060G110	-		Invalid Date	
+Non
+	400610-*-*	C000001481350G116	-		Invalid Date	
+Non
+	401231-*-*	C000001728207G134	-		Invalid Date	
+Non
+	401248-*-*	C000001422618G110	-		Invalid Date	
+Non
+	401256-*-*	C000001422616G110	-		Invalid Date	
+Non
+	401275-*-*	C000001652294G110	-		Invalid Date	
+Non
+	401306-*-*	C000001426399G110	-		Invalid Date	
+Non
+	401368-*-*	C000001184152G134	-		Invalid Date	
+Non
+	401369-*-*	C000001057923G110	-		Invalid Date	
+Non
+	401462-*-*	C000001706391G136	-		Invalid Date	
+Non
+	401486-*-*	C000001601799G117	-		Invalid Date	
+Non
+	401569-*-*	C000000722812G108	-		Invalid Date	
+Non
+	401586-*-*	C000000766838G108	-		Invalid Date	
+Non
+	401761-*-*	C000001458043G108	-		Invalid Date	
+Non
+	401764-*-*	C000001458045G108	-		Invalid Date	
+Non
+	401796-*-*	C000000715617G110	-		Invalid Date	
+Non
+	401798-*-*	C000000715564G110	-		Invalid Date	
+Non
+	401799-*-*	C000000715574G110	-		Invalid Date	
+Non
+	401801-*-*	C000000715575G110	-		Invalid Date	
+Non
+	401802-*-*	C000000715615G110	-		Invalid Date	
+Non
+	401814-*-*	C000000716759G108	-		Invalid Date	
+Non
+	402012-*-*	C000001249008G134	-		Invalid Date	
+Non
+	402013-*-*	C000001249008G134	-		Invalid Date	
+Non
+	402015-*-*	C000000963148G110	-		Invalid Date	
+Non
+	402017-*-*	C000000963150G110	-		Invalid Date	
+Non
+	402018-*-*	C000000963157G110	-		Invalid Date	
+Non
+	402054-*-*	C000001743967G134	-		Invalid Date	
+Non
+	402122-*-*	C000001181252G116	-		Invalid Date	
+Non
+	402178-*-*	C000000958458G125	-		Invalid Date	
+Non
+	402179-*-*	C000000958458G125	-		Invalid Date	
+Non
+	402180-*-*	C000000958458G125	-		Invalid Date	
+Non
+	402186-*-*	C000000958458G125	-		Invalid Date	
+Non
+	402236-*-*	C000000842338G124	-		Invalid Date	
+Non
+	402237-*-*	C000000842338G124	-		Invalid Date	
+Non
+	402238-*-*	C000000842338G124	-		Invalid Date	
+Non
+	402245-*-*	C000000842340G124	-		Invalid Date	
+Non
+	402246-*-*	C000000842340G124	-		Invalid Date	
+Non
+	402247-*-*	C000000842340G124	-		Invalid Date	
+Non
+	402251-*-*	C000000842345G124	-		Invalid Date	
+Non
+	402252-*-*	C000000842345G124	-		Invalid Date	
+Non
+	402253-*-*	C000000842345G124	-		Invalid Date	
+Non
+	402283-*-*	C000001512951G117	-		Invalid Date	
+Non
+	402284-*-*	C000001512951G117	-		Invalid Date	
+Non
+	402285-*-*	C000001512951G117	-		Invalid Date	
+Non
+	402329-*-*	C000001426399G110	-		Invalid Date	
+Non
+	402371-*-*	C000001649574G117	-		Invalid Date	
+Non
+	402403-*-*	C000001057923G110	-		Invalid Date	
+Non
+	402404-*-*	C000001184159G134	-		Invalid Date	
+Non
+	402467-*-*	C000001254702G134	-		Invalid Date	
+Non
+	402518-*-*	C000001706413G136	-		Invalid Date	
+Non
+	402519-*-*	C000000731030G127	-		Invalid Date	
+Non
+	402523-*-*	C000001182712G108	-		Invalid Date	
+Non
+	402530-*-*	C000001706427G136	-		Invalid Date	
+Non
+	402531-*-*	C000001706427G136	-		Invalid Date	
+Non
+	402548-*-*	C000001222941G108	-		Invalid Date	
+Non
+	402551-*-*	C000001296291G116	-		Invalid Date	
+Non
+	402552-*-*	C000001296291G116	-		Invalid Date	
+Non
+	402605-*-*	C000001182742G108	-		Invalid Date	
+Non
+	402606-*-*	C000001349031G134	-		Invalid Date	
+Non
+	402700-*-*	C000000896541G110	-		Invalid Date	
+Non
+	402702-*-*	C000000897385G110	-		Invalid Date	
+Non
+	402703-*-*	C000000727916G110	-		Invalid Date	
+Non
+	402704-*-*	C000000727904G110	-		Invalid Date	
+Non
+	402705-*-*	C000000727911G110	-		Invalid Date	
+Non
+	402706-*-*	C000000727901G110	-		Invalid Date	
+Non
+	402707-*-*	C000000727912G110	-		Invalid Date	
+Non
+	402719-*-*	C000001054765G110	-		Invalid Date	
+Non
+	402765-*-*	C000001648472G116	-		Invalid Date	
+Non
+	403046-*-*	C000000716761G108	-		Invalid Date	
+Non
+	403047-*-*	C000000716763G108	-		Invalid Date	
+Non
+	403048-*-*	C000000716765G108	-		Invalid Date	
+Non
+	403060-*-*	C000001026473G110	-		Invalid Date	
+Non
+	403068-*-*	C000001266012G110	-		Invalid Date	
+Non
+	403071-*-*	C000001273896G110	-		Invalid Date	
+Non
+	403072-*-*	C000001273893G110	-		Invalid Date	
+Non
+	403073-*-*	C000001266083G110	-		Invalid Date	
+Non
+	403076-*-*	C000001273890G110	-		Invalid Date	
+Non
+	403129-*-*	C000000728072G110	-		Invalid Date	
+Non
+	403138-*-*	C000000772283G110	-		Invalid Date	
+Non
+	403222-*-*	C000001253436G110	-		Invalid Date	
+Non
+	403223-*-*	C000001253436G110	-		Invalid Date	
+Non
+	403224-*-*	C000001299250G134	-		Invalid Date	
+Non
+	403225-*-*	C000001299250G134	-		Invalid Date	
+Non
+	403242-*-*	C000001249902G134	-		Invalid Date	
+Non
+	403253-*-*	C000001249887G134	-		Invalid Date	
+Non
+	403274-*-*	C000001252902G134	-		Invalid Date	
+Non
+	403275-*-*	C000001252907G134	-		Invalid Date	
+Non
+	403278-*-*	C000001310333G110	-		Invalid Date	
+Non
+	403279-*-*	C000001310341G110	-		Invalid Date	
+Non
+	403373-*-*	C000001739737G136	-		Invalid Date	
+Non
+	403374-*-*	C000001739745G136	-		Invalid Date	
+Non
+	403402-*-*	C000001744082G136	-		Invalid Date	
+Non
+	403403-*-*	C000001744083G136	-		Invalid Date	
+Non
+	403435-*-*	C000000958458G125	-		Invalid Date	
+Non
+	403436-*-*	C000000958458G125	-		Invalid Date	
+Non
+	403557-*-*	C000001584284G110	-		Invalid Date	
+Non
+	403570-*-*	C000001348771G134	-		Invalid Date	
+Non
+	403571-*-*	C000001348771G134	-		Invalid Date	
+Non
+	403573-*-*	C000001348777G134	-		Invalid Date	
+Non
+	403575-*-*	C000001348801G134	-		Invalid Date	
+Non
+	403608-*-*	C000001725786G134	-		Invalid Date	
+Non
+	403609-*-*	C000001727178G134	-		Invalid Date	
+Non
+	403635-*-*	C000001397584G116	-		Invalid Date	
+Non
+	403636-*-*	C000001397584G116	-		Invalid Date	
+Non
+	403705-*-*	C000001059006G116	-		Invalid Date	
+Non
+	403706-*-*	C000001059006G116	-		Invalid Date	
+Non
+	403707-*-*	C000001059009G116	-		Invalid Date	
+Non
+	403708-*-*	C000001059009G116	-		Invalid Date	
+Non
+	403709-*-*	C000001059011G116	-		Invalid Date	
+Non
+	403710-*-*	C000001059011G116	-		Invalid Date	
+Non
+	403712-*-*	C000001073090G116	-		Invalid Date	
+Non
+	403713-*-*	C000001073090G116	-		Invalid Date	
+Non
+	403714-*-*	C000001073090G116	-		Invalid Date	
+Non
+	403715-*-*	C000001073090G116	-		Invalid Date	
+Non
+	403718-*-*	C000001059014G116	-		Invalid Date	
+Non
+	403719-*-*	C000001059014G116	-		Invalid Date	
+Non
+	403725-*-*	C000001059017G116	-		Invalid Date	
+Non
+	403726-*-*	C000001059017G116	-		Invalid Date	
+Non
+	403732-*-*	C000001057370G116	-		Invalid Date	
+Non
+	403733-*-*	C000001057370G116	-		Invalid Date	
+Non
+	403734-*-*	C000001181215G116	-		Invalid Date	
+Non
+	403736-*-*	C000001057437G116	-		Invalid Date	
+Non
+	403737-*-*	C000001057453G116	-		Invalid Date	
+Non
+	403738-*-*	C000001057453G116	-		Invalid Date	
+Non
+	403739-*-*	C000001057453G116	-		Invalid Date	
+Non
+	403740-*-*	C000001057453G116	-		Invalid Date	
+Non
+	403744-*-*	C000001066510G116	-		Invalid Date	
+Non
+	403746-*-*	C000001058676G116	-		Invalid Date	
+Non
+	403747-*-*	C000001058676G116	-		Invalid Date	
+Non
+	403748-*-*	C000001058676G116	-		Invalid Date	
+Non
+	403749-*-*	C000001058676G116	-		Invalid Date	
+Non
+	403750-*-*	C000001057467G116	-		Invalid Date	
+Non
+	403751-*-*	C000001057467G116	-		Invalid Date	
+Non
+	403752-*-*	C000001057467G116	-		Invalid Date	
+Non
+	403758-*-*	C000001057479G116	-		Invalid Date	
+Non
+	403760-*-*	C000001054762G110	-		Invalid Date	
+Non
+	403765-*-*	C000001058686G116	-		Invalid Date	
+Non
+	403766-*-*	C000001058686G116	-		Invalid Date	
+Non
+	403773-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403774-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403775-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403776-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403777-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403778-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403779-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403780-*-*	C000001058694G116	-		Invalid Date	
+Non
+	403788-*-*	C000001058983G116	-		Invalid Date	
+Non
+	403789-*-*	C000001058983G116	-		Invalid Date	
+Non
+	403790-*-*	C000001058993G116	-		Invalid Date	
+Non
+	403791-*-*	C000001058993G116	-		Invalid Date	
+Non
+	403793-*-*	C000001059002G116	-		Invalid Date	
+Non
+	403794-*-*	C000001059002G116	-		Invalid Date	
+Non
+	403805-*-*	C000001222942G108	-		Invalid Date	
+Non
+	403806-*-*	C000001222943G108	-		Invalid Date	
+Non
+	403808-*-*	C000001222944G108	-		Invalid Date	
+Non
+	403809-*-*	C000001222945G108	-		Invalid Date	
+Non
+	403837-*-*	C000001349038G134	-		Invalid Date	
+Non
+	403862-*-*	C000001182734G108	-		Invalid Date	
+Non
+	403863-*-*	C000001182736G108	-		Invalid Date	
+Non
+	403864-*-*	C000001182738G108	-		Invalid Date	
+Non
+	403865-*-*	C000001182740G108	-		Invalid Date	
+Non
+	403885-*-*	C000001213981G116	-		Invalid Date	
+Non
+	403886-*-*	C000001213981G116	-		Invalid Date	
+Non
+	403887-*-*	C000001213981G116	-		Invalid Date	
+Non
+	403888-*-*	C000001213981G116	-		Invalid Date	
+Non
+	403889-*-*	C000001213981G116	-		Invalid Date	
+Non
+	403890-*-*	C000001213981G116	-		Invalid Date	
+Non
+	403902-*-*	C000001701896G127	-		Invalid Date	
+Non
+	403903-*-*	C000001701900G127	-		Invalid Date	
+Non
+	403960-*-*	C000001349035G134	-		Invalid Date	
+Non
+	403961-*-*	C000001349035G134	-		Invalid Date	
+Non
+	403962-*-*	C000001349035G134	-		Invalid Date	
+Non
+	404026-*-*	C000001026464G110	-		Invalid Date	
+Non
+	404027-*-*	C000001537141G124	-		Invalid Date	
+Non
+	404028-*-*	C000001537149G124	-		Invalid Date	
+Non
+	404029-*-*	C000001026483G110	-		Invalid Date	
+Non
+	404030-*-*	C000000772282G110	-		Invalid Date	
+Non
+	404031-*-*	C000000728074G110	-		Invalid Date	
+Non
+	404032-*-*	C000000653806G110	-		Invalid Date	
+Non
+	404033-*-*	C000000963117G110	-		Invalid Date	
+Non
+	404034-*-*	C000000963126G110	-		Invalid Date	
+Non
+	404035-*-*	C000000723744G110	-		Invalid Date	
+Non
+	404036-*-*	C000000723745G110	-		Invalid Date	
+Non
+	404037-*-*	C000000715372G110	-		Invalid Date	
+Non
+	404872-*-*	C000000931435G124	-		Invalid Date	
+Non
+	404873-*-*	C000000931435G124	-		Invalid Date	
+Non
+	404880-*-*	C000000931441G124	-		Invalid Date	
+Non
+	404908-*-*	C000000931442G124	-		Invalid Date	
+Non
+	404909-*-*	C000000931442G124	-		Invalid Date	
+Non
+	413524-*-*	C000001026473G110	-		Invalid Date	
+Non
+	413525-*-*	C000001026483G110	-		Invalid Date	
+Non
+	413906-*-*	C000000822862G124	-		Invalid Date	
+Non
+	413907-*-*	C000000822862G124	-		Invalid Date	
+Non
+	413923-*-*	C000000822879G124	-		Invalid Date	
+Non
+	413924-*-*	C000000822879G124	-		Invalid Date	
+Non
+	414105-*-*	C000000850227G124	-		Invalid Date	
+Non
+	414106-*-*	C000000850227G124	-		Invalid Date	
+Non
+	414873-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414874-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414875-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414876-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414877-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414878-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414879-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414880-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414881-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414882-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414883-*-*	C000000842345G124	-		Invalid Date	
+Non
+	414884-*-*	C000000842345G124	-		Invalid Date	
+Non
+	415008-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415009-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415010-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415011-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415012-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415013-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415014-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415021-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415022-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415023-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415024-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415025-*-*	C000000842338G124	-		Invalid Date	
+Non
+	415068-*-*	C000000842340G124	-		Invalid Date	
+Non
+	415069-*-*	C000000842340G124	-		Invalid Date	
+Non
+	415070-*-*	C000000842340G124	-		Invalid Date	
+Non
+	415071-*-*	C000000842340G124	-		Invalid Date	
+Non
+	415072-*-*	C000000842340G124	-		Invalid Date	
+Non
+	415073-*-*	C000000842340G124	-		Invalid Date	
+Non
+	415074-*-*	C000000842340G124	-		Invalid Date	
+Non
+	415088-*-*	C000000842340G124	-		Invalid Date	
+Non
+	416538-*-*	C000000720993G116	-		Invalid Date	
+Non
+	416539-*-*	C000000720993G116	-		Invalid Date	
+Non
+	416540-*-*	C000000720993G116	-		Invalid Date	
+Non
+	416541-*-*	C000000720993G116	-		Invalid Date	
+Non
+	423666-*-*	C000001027519G124	-		Invalid Date	
+Non
+	423667-*-*	C000001027519G124	-		Invalid Date	
+Non
+	427610-*-*	C000000991465G124	-		Invalid Date	
+Non
+	430328-*-*	C000001181252G116	-		Invalid Date	
+Non
+	430329-*-*	C000001181252G116	-		Invalid Date	
+Non
+	434923-*-*	C000000958626G124	-		Invalid Date	
+Non
+	434924-*-*	C000000958626G124	-		Invalid Date	
+Non
+	435394-*-*	C000000917979G125	-		Invalid Date	
+Non
+	435395-*-*	C000000917979G125	-		Invalid Date	
+Non
+	435542-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435543-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435544-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435545-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435546-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435547-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435548-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435549-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435550-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435551-*-*	C000000960030G125	-		Invalid Date	
+Non
+	435728-*-*	C000000977259G125	-		Invalid Date	
+Non
+	435729-*-*	C000000977259G125	-		Invalid Date	
+Non
+	435978-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435979-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435980-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435981-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435982-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435983-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435984-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435985-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435986-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435987-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435988-*-*	C000000958458G125	-		Invalid Date	
+Non
+	435989-*-*	C000000958458G125	-		Invalid Date	
+Non
+	436030-*-*	C000000896070G125	-		Invalid Date	
+Non
+	436031-*-*	C000000896070G125	-		Invalid Date	
+Non
+	436116-*-*	C000000977263G125	-		Invalid Date	
+Non
+	436117-*-*	C000000977263G125	-		Invalid Date	
+Non
+	436284-*-*	C000000917297G125	-		Invalid Date	
+Non
+	436285-*-*	C000000917297G125	-		Invalid Date	
+Non
+	436836-*-*	C000000933204G116	-		Invalid Date	
+Non
+	436837-*-*	C000000933204G116	-		Invalid Date	
+Non
+	436838-*-*	C000000933204G116	-		Invalid Date	
+Non
+	436839-*-*	C000000933204G116	-		Invalid Date	
+Non
+	441352-*-*	C000000897437G124	-		Invalid Date	
+Non
+	441353-*-*	C000000897437G124	-		Invalid Date	
+Non
+	441354-*-*	C000000897437G124	-		Invalid Date	
+Non
+	441355-*-*	C000000897437G124	-		Invalid Date	
+Non
+	444378-*-*	C000000896139G125	-		Invalid Date	
+Non
+	444379-*-*	C000000896139G125	-		Invalid Date	
+Non
+	450720-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450721-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450722-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450723-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450724-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450725-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450726-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450727-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450728-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450729-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450730-*-*	C000001213981G116	-		Invalid Date	
+Non
+	450731-*-*	C000001213981G116	-		Invalid Date	
+Non
+	451128-*-*	C000001152566G125	-		Invalid Date	
+Non
+	451129-*-*	C000001152566G125	-		Invalid Date	
+Non
+	451263-*-*	C000001152569G125	-		Invalid Date	
+Non
+	451264-*-*	C000001152569G125	-		Invalid Date	
+Non
+	451341-*-*	C000000951004G125	-		Invalid Date	
+Non
+	451342-*-*	C000000951004G125	-		Invalid Date	
+Non
+	451403-*-*	C000001320063G123	-		Invalid Date	
+Non
+	451880-*-*	C000000972450G125	-		Invalid Date	
+Non
+	451881-*-*	C000000972450G125	-		Invalid Date	
+Non
+	451925-*-*	C000000950983G125	-		Invalid Date	
+Non
+	451926-*-*	C000000950983G125	-		Invalid Date	
+Non
+	452349-*-*	C000000942408G125	-		Invalid Date	
+Non
+	452350-*-*	C000000942408G125	-		Invalid Date	
+Non
+	452813-*-*	C000000934481G125	-		Invalid Date	
+Non
+	452814-*-*	C000000934481G125	-		Invalid Date	
+Non
+	452815-*-*	C000000934481G125	-		Invalid Date	
+Non
+	452816-*-*	C000000934481G125	-		Invalid Date	
+Non
+	452828-*-*	C000000934484G125	-		Invalid Date	
+Non
+	452871-*-*	C000000934486G125	-		Invalid Date	
+Non
+	452872-*-*	C000000934486G125	-		Invalid Date	
+Non
+	452873-*-*	C000000934486G125	-		Invalid Date	
+Non
+	452874-*-*	C000000934486G125	-		Invalid Date	
+Non
+	452886-*-*	C000000934488G125	-		Invalid Date	
+Non
+	453151-*-*	C000000916133G125	-		Invalid Date	
+Non
+	453152-*-*	C000000916133G125	-		Invalid Date	
+Non
+	453153-*-*	C000000916133G125	-		Invalid Date	
+Non
+	453154-*-*	C000000916133G125	-		Invalid Date	
+Non
+	453155-*-*	C000000916133G125	-		Invalid Date	
+Non
+	454975-*-*	C000001739737G136	-		Invalid Date	
+Non
+	454976-*-*	C000001739745G136	-		Invalid Date	
+Non
+	456794-*-*	C000001742786G136	-		Invalid Date	
+Non
+	457308-*-*	C000001744082G136	-		Invalid Date	
+Non
+	457309-*-*	C000001744083G136	-		Invalid Date	
+Non
+	458532-*-*	C000001701896G127	-		Invalid Date	
+Non
+	458533-*-*	C000001701896G127	-		Invalid Date	
+Non
+	458534-*-*	C000001701900G127	-		Invalid Date	
+Non
+	458535-*-*	C000001701900G127	-		Invalid Date	
+Non
+	458596-*-*	C000001706413G136	-		Invalid Date	
+Non
+	458658-*-*	C000000731030G127	-		Invalid Date	
+Non
+	458742-*-*	C000001706391G136	-		Invalid Date	
+Non
+	458756-*-*	C000001705062G136	-		Invalid Date	
+Non
+	458757-*-*	C000001705062G136	-		Invalid Date	
+Non
+	458758-*-*	C000001705062G136	-		Invalid Date	
+Non
+	458759-*-*	C000001705062G136	-		Invalid Date	
+Non
+	458760-*-*	C000001710475G136	-		Invalid Date	
+Non
+	458762-*-*	C000001705133G136	-		Invalid Date	
+Non
+	458788-*-*	C000001708907G136	-		Invalid Date	
+Non
+	458827-*-*	C000001706427G136	-		Invalid Date	
+Non
+	458828-*-*	C000001706427G136	-		Invalid Date	
+Non
+	458960-*-*	C000001741168G136	-		Invalid Date	
+Non
+	458963-*-*	C000001741188G136	-		Invalid Date	
+Non
+	459154-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459155-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459156-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459157-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459158-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459159-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459165-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459166-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459167-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459168-*-*	C000001705740G125	-		Invalid Date	
+Non
+	459313-*-*	93423SG125	-		Invalid Date	
+Non
+	459314-*-*	93423SG125	-		Invalid Date	
+Non
+	459315-*-*	93423SG125	-		Invalid Date	
+Non
+	459316-*-*	93423SG125	-		Invalid Date	
+Non
+	459317-*-*	93423SG125	-		Invalid Date	
+Non
+	459318-*-*	93423SG125	-		Invalid Date	
+Non
+	459319-*-*	93423SG125	-		Invalid Date	
+Non
+	459320-*-*	93423SG125	-		Invalid Date	
+Non
+	459321-*-*	93423SG125	-		Invalid Date	
+Non
+	459322-*-*	93423SG125	-		Invalid Date	
+Non
+	459400-*-*	C000001708562G136	-		Invalid Date	
+Non
+	459401-*-*	C000001708572G136	-		Invalid Date	
+Non
+	459402-*-*	C000001708572G136	-		Invalid Date	
+Non
+	459405-*-*	C000001708913G136	-		Invalid Date	
+Non
+	459406-*-*	C000001705133G136	-		Invalid Date	
+Non
+	459415-*-*	C000001710549G136	-		Invalid Date	
+Non
+	459418-*-*	C000001707111G136	-		Invalid Date	
+Non
+	459423-*-*	C000001705062G136	-		Invalid Date	
+Non
+	459424-*-*	C000001705062G136	-		Invalid Date	
+Non
+	459425-*-*	C000001705062G136	-		Invalid Date	
+Non
+	459426-*-*	C000001705062G136	-		Invalid Date	
+Non
+	459427-*-*	C000001705106G136	-		Invalid Date	
+Non
+	459431-*-*

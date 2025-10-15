@@ -71,7 +71,9 @@ src/
 
 ## 🚀 Quick Start
 
-### Prérequis
+### Développement Local
+
+#### Prérequis
 
 - Node.js 18+
 - pnpm 8+
@@ -80,7 +82,7 @@ src/
 - Accès IFS Cloud (AST ou PROD)
 - Azure AD App Registration
 
-### Installation
+#### Installation
 
 ```bash
 # Cloner le repo
@@ -100,6 +102,24 @@ pnpm run dev
 # Accéder à l'application
 # http://localhost:3000
 ```
+
+### Déploiement sur Vercel
+
+Le Manufacturing Portal peut être déployé sur Vercel pour les tests et le développement.
+
+- **⚡ Quick Start** : [Guide de démarrage rapide (10 min)](docs/QUICK_START_VERCEL.md)
+- **📖 Guide complet** : [Documentation de déploiement complète](docs/DEPLOYMENT.md)
+
+```bash
+# Via Vercel CLI
+npm i -g vercel
+vercel login
+vercel
+
+# Ou via l'interface web : https://vercel.com/new
+```
+
+**Note** : Le déploiement final sera sur Azure (documentation à venir).
 
 ### Configuration BDD (Développement local)
 

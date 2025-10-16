@@ -73,7 +73,15 @@ export interface PrintRequest {
 export interface PrintResult {
   success: boolean
   message?: string
-  resultKey?: string
+  resultKey?: string | number
+  reportTitle?: string
+  layoutName?: string
+  pdfInfo?: {
+    fileName: string
+    size: number
+    created: string
+    id: string
+  }
   error?: string
 }
 

@@ -29,6 +29,9 @@ export interface PrintRequest {
   /** Nombre de copies (par défaut: 1) */
   copies?: number
   
+  /** Layout personnalisé (optionnel, ex: "BEN_COrderConfirmation-BAT.rdl") */
+  layoutName?: string
+  
   /** Si true, télécharge le PDF généré */
   downloadPdf?: boolean
 }

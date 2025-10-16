@@ -72,6 +72,7 @@ export async function generatePartLabel(
 
       // Operation 10
       rawMaterial: op10.rawMaterial,
+      opId: op10.opId, // ✅ Operation ID (utilisé temporairement en AST)
       blockId: op10.blockId,
 
       // Master Part
@@ -88,6 +89,10 @@ export async function generatePartLabel(
     }
 
     console.log(`✅ [Part Label Service] Étiquette générée avec succès`)
+    console.log(`   📦 Shop Order: ${label.orderNo}-${label.releaseNo}-${label.sequenceNo}`)
+    console.log(`   🏭 Raw Material: ${label.rawMaterial}`)
+    console.log(`   🔧 Operation ID: ${label.opId}`)
+    console.log(`   🔧 Block ID: ${label.blockId || '(vide)'}`)
 
     return label
   } catch (error) {

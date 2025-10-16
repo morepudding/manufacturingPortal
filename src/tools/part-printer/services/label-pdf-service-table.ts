@@ -180,20 +180,28 @@ function generateGroupPage(
   // ========================================
   const tableY = headerY + 20
 
+  // Sauvegarder les barcodes pour les dessiner plus tard
+  const barcodes = labels.map(label => label.barcode)
+
   // Préparer les données du tableau
   const tableData = labels.map((label, index) => {
     const genericWithRev = `${label.genericCode}-${label.engineeringPartRev || 'N/A'}`
     const length = label.lengthSetup ? parseFloat(label.lengthSetup).toFixed(1) : 'N/A'
-    const blockId = label.blockId || '(vide)'
+    
+    // ⚠️ TEMPORAIRE (AST/Dev) : Afficher OpId si blockId est vide
+    // TODO PRODUCTION : Afficher uniquement blockId quand disponible en PROD
+    const displayBlockId = label.blockId || label.opId || '(vide)'
+    
+    const shopOrderFull = `${label.orderNo}-${label.releaseNo}-${label.sequenceNo}` // ✅ Format complet
 
     return [
       (index + 1).toString(), // Index
       rawMaterial, // Raw Material
-      label.orderNo, // Shop Order
+      shopOrderFull, // Shop Order (format complet: OrderNo-ReleaseNo-SequenceNo)
       genericWithRev, // Generic Part No + revision
       length, // Length
-      label.barcode, // Barre-code (texte)
-      blockId // OP 10 Block ID
+      '', // ✅ Cellule vide - le code-barres sera dessiné par-dessus
+      displayBlockId // OP 10 Block ID (ou OpId en AST si Block ID vide)
     ]
   })
 
@@ -236,17 +244,13 @@ function generateGroupPage(
     didDrawCell: (data: any) => {
       // Dessiner les barcodes dans la colonne "Barre-code" (index 5)
       if (data.column.index === 5 && data.section === 'body') {
-        const barcode = tableData[data.row.index][5]
+        const barcode = barcodes[data.row.index] // ✅ Utiliser le barcode sauvegardé
         const cellX = data.cell.x + 5
         const cellY = data.cell.y + 2
         const cellWidth = data.cell.width - 10
         
+        // ✅ Dessiner uniquement le code-barres visuel (pas de texte)
         drawSimpleBarcode(doc, barcode, cellX, cellY, cellWidth, 8)
-        
-        // Texte du barcode
-        doc.setFont('courier', 'normal')
-        doc.setFontSize(7)
-        doc.text(`*${barcode}*`, cellX + cellWidth / 2, cellY + 12, { align: 'center' })
       }
     },
   })

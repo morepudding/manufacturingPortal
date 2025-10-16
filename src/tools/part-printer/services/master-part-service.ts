@@ -327,7 +327,14 @@ export async function getMasterPartAttributes(
     ])
 
     // Extraire les valeurs
-    const genericCode = genericResponse.value[0]?.ValueText || partNo.replace(/G\d{3,}$/, '')
+    // ✅ CORRECTION: Generic Code doit être le Part No COMPLET (avec G### si applicable)
+    // Si IFS retourne un Generic Code sans G###, on utilise le Part No complet
+    // Exemple: IFS retourne "C000001026112" → on veut "C000001026112G110"
+    const ifsGenericCode = genericResponse.value[0]?.ValueText
+    const genericCode = (ifsGenericCode && partNo.startsWith(ifsGenericCode)) 
+      ? partNo  // Utiliser le Part No complet (avec G###)
+      : (ifsGenericCode || partNo) // Sinon utiliser la valeur IFS ou le Part No
+    
     const varnishCode = varnishResponse.value[0]?.ValueText || 'N/A'
     const lengthSetup = lengthResponse.value[0]?.ValueNo?.toString() || 'N/A'
 
@@ -336,27 +343,33 @@ export async function getMasterPartAttributes(
     console.log(`  ✅ LENGTH SETUP: ${lengthSetup}`)
 
     // ---------------------------------------------------------------------------
-    // ÉTAPE 3: Engineering Part Revision (optionnel)
+    // ÉTAPE 3: Engineering Part Revision
     // ---------------------------------------------------------------------------
+    // ✅ CORRECTION: Utiliser EngPartRevisionSet avec clé composite (PartNo, PartRev)
+    // Pour Shop Order 463215, Generic Part: C000001026112G110, Revision attendue: A
     let engineeringPartRev = 'N/A'
     try {
+      // Essayer d'abord avec la révision 'A' (la plus courante)
       const revResponse = await client.get<{
-        value: Array<{ EngRevision: string }>
+        value: Array<{ PartNo: string; PartRev: string; Description: string }>
       }>(
-        `EngineeringPartRevisionHandling.svc/EngPartRevisions`,
+        `EngineeringPartRevisionsHandling.svc/EngPartRevisionSet`,
         {
           $filter: `PartNo eq '${partNo}'`,
-          $select: 'EngRevision',
+          $select: 'PartNo,PartRev,Description',
+          $orderby: 'PartRev desc', // Prendre la révision la plus récente
           $top: '1'
         }
       )
 
       if (revResponse.value && revResponse.value.length > 0) {
-        engineeringPartRev = revResponse.value[0].EngRevision || 'N/A'
-        console.log(`  ✅ ENGINEERING REV: ${engineeringPartRev}`)
+        engineeringPartRev = revResponse.value[0].PartRev || 'N/A'
+        console.log(`  ✅ ENGINEERING REV: ${engineeringPartRev} (${revResponse.value[0].Description || 'N/A'})`)
+      } else {
+        console.warn(`  ⚠️ ENGINEERING REV: Aucune révision trouvée pour ${partNo}`)
       }
     } catch (error) {
-      console.warn(`  ⚠️ ENGINEERING REV: Non disponible`)
+      console.warn(`  ⚠️ ENGINEERING REV: Non disponible (${error instanceof Error ? error.message : 'Unknown'})`)
     }
 
     const attributes: MasterPartAttributes = {

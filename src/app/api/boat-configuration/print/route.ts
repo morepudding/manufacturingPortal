@@ -1,5 +1,5 @@
 /**
- * API Route: POST /api/print
+ * API Route: POST /api/boat-configuration/print
  * 
  * Endpoint pour imprimer un document Customer Order
  * 
@@ -8,6 +8,7 @@
  * - reportId: string (par défaut: CUSTOMER_ORDER_CONF_REP)
  * - printerId: string (par défaut: PDF_PRINTER)
  * - languageCode: string (par défaut: fr)
+ * - layoutName: string (par défaut: BEN_Boat_configuration_for_production.rdl)
  * - copies: number (par défaut: 1)
  * - downloadPdf: boolean (par défaut: false)
  * 
@@ -18,7 +19,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { printCustomerOrder } from '@/tools/boat-configuration/services/print-service'
-import type { PrintRequest } from '@/tools/boat-configuration/types'
+import type { PrintRequest } from '@/shared/types/print'
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
       reportId: body.reportId || 'CUSTOMER_ORDER_CONF_REP',
       printerId: body.printerId || 'PDF_PRINTER',
       languageCode: body.languageCode || 'fr',
+      layoutName: body.layoutName || 'BEN_Boat_configuration_for_production.rdl', // ✅ Layout par défaut Boat Config
       copies: body.copies || 1,
       downloadPdf: body.downloadPdf || false,
     }
@@ -58,11 +60,12 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    console.log('\n📨 API /print request:', {
+    console.log('\n📨 API /boat-configuration/print request:', {
       orderNo: printRequest.orderNo,
       reportId: printRequest.reportId,
       printerId: printRequest.printerId,
       languageCode: printRequest.languageCode,
+      layoutName: printRequest.layoutName,
       downloadPdf: printRequest.downloadPdf,
     })
     

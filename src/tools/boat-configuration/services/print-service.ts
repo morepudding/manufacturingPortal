@@ -117,16 +117,24 @@ export async function printCustomerOrder(
       { ResultKey: resultKey }
     )
     
-    const layoutName = dialogResponse.LayoutName
+    // Utiliser le layout personnalisé si fourni, sinon celui retourné par IFS
+    const layoutName = request.layoutName || dialogResponse.LayoutName
     const reportTitle = dialogResponse.ReportTitle
     
     if (!layoutName) {
       throw new Error('No LayoutName received from PrintDialogInit')
     }
     
-    console.log(`✅ Step 3 complete: Dialog initialized`)
-    console.log(`   Layout: ${layoutName}`)
-    console.log(`   Title: ${reportTitle}`)
+    if (request.layoutName) {
+      console.log(`✅ Step 3 complete: Dialog initialized`)
+      console.log(`   Layout (custom): ${layoutName}`)
+      console.log(`   Layout (IFS default): ${dialogResponse.LayoutName}`)
+      console.log(`   Title: ${reportTitle}`)
+    } else {
+      console.log(`✅ Step 3 complete: Dialog initialized`)
+      console.log(`   Layout: ${layoutName}`)
+      console.log(`   Title: ${reportTitle}`)
+    }
     
     // ===== Étape 4 : POST ReportPrintRequest =====
     console.log('\n📤 Step 4: Sending print request...')

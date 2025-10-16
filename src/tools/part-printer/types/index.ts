@@ -105,6 +105,14 @@ export interface PartLabel {
   
   // Operation 10
   rawMaterial: string       // Part code de la matière première
+  
+  // ⚠️ TEMPORAIRE (AST/Dev) : opId utilisé comme fallback pour Block ID
+  // TODO PRODUCTION : Utiliser uniquement blockId quand disponible en PROD
+  opId: string              // Operation ID (unique identifier) - Utilisé temporairement en AST
+  
+  // ⚠️ TEMPORAIRE (AST/Dev) : blockId peut être null ou OpId
+  // TODO PRODUCTION : Remplacer par le vrai OP 10 Block ID quand disponible en PROD
+  // En AST (Dev), le Block ID n'est pas disponible dans OperationBlockId
   blockId: string | null    // Block ID de l'opération 10 (peut être null - valeur valide)
   
   // Master Part

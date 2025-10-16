@@ -24,6 +24,7 @@ export interface IFSOperation {
   ReleaseNo: string
   SequenceNo: string
   OperationNo: number
+  OpId: string // Operation ID (unique identifier)
   OperationBlockId: string | null // ⚠️ IMPORTANT: Peut être null (valeur valide)
   OperationDescription?: string
   WorkCenterNo?: string
@@ -40,7 +41,8 @@ export interface IFSMaterialLine {
   LineItemNo: number
   PartNo: string // Raw Material Part Code
   Qty?: number
-  // Autres champs selon besoin
+  QtyPerAssembly?: number
+  QtyRequired?: number
 }
 
 /**
@@ -51,8 +53,64 @@ export interface Operation10Data {
   releaseNo: string
   sequenceNo: string
   operationNo: number
+  
+  // ⚠️ TEMPORAIRE (AST/Dev) : opId utilisé comme fallback pour Block ID
+  // TODO PRODUCTION : Utiliser uniquement blockId quand disponible en PROD
+  opId: string // Operation ID (unique identifier) - Utilisé temporairement en AST
+  
+  // ⚠️ TEMPORAIRE (AST/Dev) : blockId peut être null ou OpId
+  // TODO PRODUCTION : Remplacer par le vrai OP 10 Block ID quand disponible en PROD
+  // En AST (Dev), le Block ID n'est pas disponible, on utilise OpId temporairement
   blockId: string | null // ⚠️ IMPORTANT: Peut être null (valeur valide)
-  rawMaterial: string // Part code de la première ligne de composant (TODO Phase 3.2)
+  
+  rawMaterial: string // Part code de la première ligne de composant
+}
+
+/**
+ * Récupérer le Raw Material d'un Shop Order (Material Line OP10)
+ * 
+ * Utilise la navigation OData MaterialArray sur ShopOrds
+ * 
+ * @param orderNo - Numéro d'ordre
+ * @param releaseNo - Numéro de release
+ * @param sequenceNo - Numéro de séquence
+ * @returns Part code du Raw Material (première ligne de composant OP10)
+ */
+async function getRawMaterial(
+  orderNo: string,
+  releaseNo: string,
+  sequenceNo: string
+): Promise<string> {
+  console.log(`🏭 [Operation Service] Récupération Raw Material (OP10) pour ${orderNo}`)
+
+  try {
+    const client = getIFSClient()
+
+    // Récupérer les Material Lines de l'opération 10
+    const materialResponse = await client.get<IFSODataResponse<IFSMaterialLine>>(
+      `ShopOrderHandling.svc/ShopOrds(OrderNo='${orderNo}',ReleaseNo='${releaseNo}',SequenceNo='${sequenceNo}')/MaterialArray`,
+      {
+        $filter: 'OperationNo eq 10',
+        $select: 'LineItemNo,PartNo,OperationNo',
+        $orderby: 'LineItemNo',
+        $top: '1', // On ne prend que la première ligne
+      }
+    )
+
+    const firstMaterial = materialResponse.value?.[0]
+
+    if (!firstMaterial) {
+      console.warn(`⚠️  [Operation Service] Aucun matériau OP10 trouvé pour ${orderNo}`)
+      throw new Error(`No material found for Operation 10`)
+    }
+
+    console.log(`✅ [Operation Service] Raw Material trouvé: ${firstMaterial.PartNo}`)
+    return firstMaterial.PartNo
+
+  } catch (error) {
+    console.error(`❌ [Operation Service] Erreur Raw Material pour ${orderNo}:`, error)
+    throw new Error(`Failed to fetch Raw Material: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }
 
 /**
@@ -70,7 +128,7 @@ export interface Operation10Data {
  * ```typescript
  * const op10 = await getOperation10Data("454853", "*", "*")
  * console.log("Block ID:", op10.blockId) // peut être null
- * console.log("Raw Material:", op10.rawMaterial) // TODO Phase 3.2
+ * console.log("Raw Material:", op10.rawMaterial)
  * ```
  */
 export async function getOperation10Data(
@@ -88,7 +146,7 @@ export async function getOperation10Data(
       'OperationBlockHandling.svc/Reference_ShopOrderOperation',
       {
         $filter: `OrderNo eq '${orderNo}' and OperationNo eq 10`,
-        $select: 'OrderNo,ReleaseNo,SequenceNo,OperationNo,OperationBlockId,OperationDescription,WorkCenterNo',
+        $select: 'OrderNo,ReleaseNo,SequenceNo,OperationNo,OpId,OperationBlockId,OperationDescription,WorkCenterNo',
       }
     )
 
@@ -99,19 +157,25 @@ export async function getOperation10Data(
       throw new Error(`Operation 10 not found for ${orderNo}-${releaseNo}-${sequenceNo}`)
     }
 
+    // Récupérer OpId (toujours présent)
+    const opId = operation.OpId
+    
     // ⚠️ IMPORTANT: OperationBlockId peut être null (c'est normal)
+    // ⚠️ TEMPORAIRE (AST/Dev) : On récupère l'OperationBlockId (souvent vide en AST)
+    // TODO PRODUCTION : En PROD, utiliser le vrai OP 10 Block ID
+    // En attendant, on utilise OpId comme fallback temporaire (voir types/index.ts)
     const blockId = operation.OperationBlockId || null
-    console.log(`✅ [Operation Service] OP10 trouvée - Block ID: ${blockId || '(vide)'}`)
+    console.log(`✅ [Operation Service] OP10 trouvée - OpId: ${opId}, Block ID: ${blockId || '(vide)'}`)
 
-    // 2. TODO Phase 3.2: Récupérer le Raw Material via MaterialHandling
-    // Pour l'instant, on utilise une valeur temporaire
-    const rawMaterial = `RAW_MATERIAL_${orderNo}` // TODO: Implémenter MaterialHandling
+    // 2. Récupérer le Raw Material via MaterialArray
+    const rawMaterial = await getRawMaterial(orderNo, releaseNo, sequenceNo)
 
     return {
       orderNo,
       releaseNo,
       sequenceNo,
       operationNo: 10,
+      opId, // ✅ Operation ID (utilisé temporairement en AST)
       blockId,
       rawMaterial,
     }

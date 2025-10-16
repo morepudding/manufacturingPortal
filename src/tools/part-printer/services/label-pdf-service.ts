@@ -372,10 +372,13 @@ async function generateLabelBox(
 
   // Ligne 1 : Shop Order + Range (décalée vers le bas)
   // Ligne 1 : Shop Order + Range (décalée vers le bas)
+  const shopOrderText = `Shop Order: ${label.orderNo}-${label.releaseNo}-${label.sequenceNo}`
+  console.log(`🏷️ [PDF Service] Affichage: ${shopOrderText}`)
+  
   doc
     .fontSize(fontSize.body)
     .font('Helvetica-Bold')
-    .text(`Shop Order: ${label.orderNo}-${label.releaseNo}-${label.sequenceNo}`, contentX, contentY + 25, {
+    .text(shopOrderText, contentX, contentY + 25, {
       width: contentWidth / 2,
     })
 

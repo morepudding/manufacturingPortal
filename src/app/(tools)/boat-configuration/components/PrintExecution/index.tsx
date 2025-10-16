@@ -63,6 +63,7 @@ export function PrintExecution({
           reportId: 'CUSTOMER_ORDER_CONF_REP', // AST (Dev)
           printerId,
           languageCode,
+          layoutName: 'BEN_Inventory-BAT.rdl', // ✅ Layout IFS validé (génère du contenu)
           copies: 1,
           downloadPdf,
         }),

@@ -8,13 +8,17 @@
  * - reportId: string (par défaut: CUSTOMER_ORDER_CONF_REP)
  * - printerId: string (par défaut: PDF_PRINTER)
  * - languageCode: string (par défaut: fr)
- * - layoutName: string (par défaut: BEN_Boat_configuration_for_production.rdl)
+ * - layoutName: string (par défaut: BEN_Inventory-BAT.rdl) ✅ Layout IFS validé
  * - copies: number (par défaut: 1)
  * - downloadPdf: boolean (par défaut: false)
  * 
  * Response:
  * - Si downloadPdf=false: JSON avec resultKey, reportTitle, layoutName
  * - Si downloadPdf=true: Fichier PDF en téléchargement direct
+ * 
+ * Note: Le layout BEN_Inventory-BAT.rdl est le layout par défaut retourné par IFS
+ * qui génère correctement du contenu. Le layout BEN_Boat_configuration_for_production.rdl
+ * existe dans IFS mais génère des PDFs vides (non configuré ou vide).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -43,7 +47,7 @@ export async function POST(request: NextRequest) {
       reportId: body.reportId || 'CUSTOMER_ORDER_CONF_REP',
       printerId: body.printerId || 'PDF_PRINTER',
       languageCode: body.languageCode || 'fr',
-      layoutName: body.layoutName || 'BEN_Boat_configuration_for_production.rdl', // ✅ Layout par défaut Boat Config
+      layoutName: body.layoutName || 'BEN_Inventory-BAT.rdl', // ✅ Layout par défaut IFS validé
       copies: body.copies || 1,
       downloadPdf: body.downloadPdf || false,
     }

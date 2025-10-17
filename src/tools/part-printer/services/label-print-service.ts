@@ -72,11 +72,21 @@ function detectPrintMode(forcedMode?: 'dev' | 'prod'): 'dev' | 'prod' {
     return forcedMode
   }
   
-  // Détecter automatiquement selon NODE_ENV
-  const isDev = process.env.NODE_ENV === 'development' || 
-                process.env.NODE_ENV === 'test'
+  // 🚧 TEMPORAIRE : Forcer le mode DEV même en production
+  // jusqu'à ce que le workflow d'impression IFS réel soit implémenté
+  // 
+  // Comportement actuel :
+  // - MODE DEV : Télécharge le PDF (fonctionne partout)
+  // - MODE PROD : Erreur car workflow IFS non implémenté
+  // 
+  // TODO Phase Production : Retirer ce return forcé quand le workflow IFS sera prêt
+  console.log('⚠️  [Print Mode] Mode DEV forcé (workflow IFS PROD non implémenté)')
+  return 'dev'
   
-  return isDev ? 'dev' : 'prod'
+  // Code original (à réactiver en production) :
+  // const isDev = process.env.NODE_ENV === 'development' || 
+  //               process.env.NODE_ENV === 'test'
+  // return isDev ? 'dev' : 'prod'
 }
 
 /**

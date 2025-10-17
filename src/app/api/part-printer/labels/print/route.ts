@@ -111,6 +111,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`🔍 [API] Impression PDF pour imprimante: ${body.printerId}`)
+    console.log(`   📋 Site: ${body.site}`)
+    console.log(`   📄 PDF Size: ${(body.pdfBase64.length / 1024).toFixed(2)} KB (base64)`)
+    console.log(`   📑 Copies: ${body.copies || 1}`)
+    console.log(`   🎯 Mode: ${body.mode || 'auto-detect'}`)
 
     // 3. Décoder le PDF base64 en Buffer
     let pdfBuffer: Buffer
@@ -130,14 +134,24 @@ export async function POST(request: NextRequest) {
     console.log(`   PDF décodé: ${(pdfBuffer.length / 1024).toFixed(2)} KB`)
 
     // 4. Imprimer le PDF (ou télécharger en mode DEV)
+    console.log(`\n🖨️  [API] Envoi à l'imprimante: ${body.printerId}`)
+    
     const result = await printLabels(pdfBuffer, {
       printerId: body.printerId,
       site: body.site,
       copies: body.copies || 1,
       mode: body.mode,
     })
+    
+    // 🔒 Sécurité : Vérifier que le printerId retourné est bien celui demandé
+    if (result.printerId !== body.printerId) {
+      console.warn(`⚠️  [API] ATTENTION: PrinterId modifié! Demandé: ${body.printerId} → Utilisé: ${result.printerId}`)
+    }
 
     console.log(`✅ [API] Impression réussie (mode: ${result.mode})`)
+    console.log(`   🖨️  PrinterId confirmé: ${result.printerId}`)
+    console.log(`   📊 PDF Size: ${(result.pdfSize / 1024).toFixed(2)} KB`)
+    console.log(`   📑 Copies: ${result.copies}`)
 
     // 5. Construire la réponse
     return NextResponse.json({

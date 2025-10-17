@@ -714,21 +714,6 @@ flowchart LR
 - "BDR - Ligne MASSIF - Débit"
 - "FR017 - Toutes lignes - Redébit"
 
-### 5.2 Évolutions Long Terme
-
-#### Nouveaux Outils (2026+)
-
-| Outil | Description | Priorité | Délai estimé |
-|-------|-------------|----------|--------------|
-| **Outil 3** | TBD | 🔴 P0 | Q1 2026 |
-| **Outil 4** | TBD | 🟡 P1 | Q2 2026 |
-| **Outil 5** | TBD | 🟡 P1 | Q3 2026 |
-| **5+ outils** | TBD | 🟢 P2 | 2026+ |
-
-**Fonctionnalités transverses** : Historique des impressions, notifications, tableau de bord d'utilisation
-
-**Optimisations** : Performance améliorée (cache des requêtes IFS), scalabilité automatique Azure, sécurité renforcée
-
 ---
 
 ## Conclusion

@@ -71,8 +71,8 @@ export async function generatePartLabel(
 
       // Operation 10
       rawMaterial: op10.rawMaterial,
-      opId: op10.opId, // ✅ Operation ID (utilisé temporairement en AST)
-      blockId: op10.blockId,
+      // ✅ CORRIGÉ (17 oct 2025) : Utilise OperationBlockId (conforme SFD)
+      operationBlockId: op10.operationBlockId,
 
       // Master Part
       genericCode: masterPart.genericCode,
@@ -90,8 +90,7 @@ export async function generatePartLabel(
     console.log(`✅ [Part Label Service] Étiquette générée avec succès`)
     console.log(`   📦 Shop Order: ${label.orderNo}-${label.releaseNo}-${label.sequenceNo}`)
     console.log(`   🏭 Raw Material: ${label.rawMaterial}`)
-    console.log(`   🔧 Operation ID: ${label.opId}`)
-    console.log(`   🔧 Block ID: ${label.blockId || '(vide)'}`)
+    console.log(`   🔧 OperationBlockId: ${label.operationBlockId || 'NULL'}`)
 
     return label
   } catch (error) {

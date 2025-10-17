@@ -30,7 +30,8 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
   const [productionLine, setProductionLine] = useState('')
   const [startDate, setStartDate] = useState('')
   const [blockDate, setBlockDate] = useState(true)
-  const [blockIdEmpty, setBlockIdEmpty] = useState(true) // ✅ Nouveau state
+  // ✅ CORRIGÉ (17 oct 2025) : Utilise le nouveau type union (all/empty/not-empty)
+  const [operationBlockIdFilter, setOperationBlockIdFilter] = useState<'all' | 'empty' | 'not-empty'>('all')
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -59,7 +60,7 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
       site,
       startDate,
       blockDate,
-      blockIdEmpty, // ✅ Ajout du nouveau paramètre
+      operationBlockIdFilter, // ✅ CORRIGÉ : Utilise le nouveau filtre
     }
 
     if (productionLine) {
@@ -75,7 +76,7 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
     setProductionLine('')
     setStartDate('')
     setBlockDate(true)
-    setBlockIdEmpty(true) // ✅ Reset du nouveau state
+    setOperationBlockIdFilter('all') // ✅ CORRIGÉ : Reset vers 'all'
     setErrors({})
   }
 
@@ -130,15 +131,14 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
           )}
         </div>
 
-        {/* Filtres de blocage (2 checkboxes indépendantes) */}
+        {/* Filtres de blocage */}
         <div className="md:col-span-2">
           <BlockFilters
             blockDate={blockDate}
             onBlockDateChange={setBlockDate}
-            blockIdEmpty={blockIdEmpty}
-            onBlockIdEmptyChange={setBlockIdEmpty}
+            operationBlockIdFilter={operationBlockIdFilter}
+            onOperationBlockIdFilterChange={setOperationBlockIdFilter}
             disabled={loading}
-            environment="AST"
           />
         </div>
       </div>
@@ -183,7 +183,11 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
             {productionLine && <li>• Ligne : <strong>{productionLine}</strong></li>}
             <li>• Date : <strong>{startDate}</strong></li>
             <li>• Block Date : <strong>{blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}</strong></li>
-            <li>• Block ID empty : <strong>{blockIdEmpty ? 'Actif (Block ID vide)' : 'Inactif'}</strong></li>
+            <li>• OP10 Block ID : <strong>
+              {operationBlockIdFilter === 'all' ? 'Tous' : 
+               operationBlockIdFilter === 'empty' ? 'Vides uniquement' : 
+               'Non-vides uniquement'}
+            </strong></li>
           </ul>
         </div>
       )}

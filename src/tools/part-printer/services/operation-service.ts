@@ -47,6 +47,8 @@ export interface IFSMaterialLine {
 
 /**
  * Données de l'opération 10 enrichies
+ * 
+ * ✅ MISE À JOUR (17 oct 2025) : Utilise OperationBlockId (conforme SFD)
  */
 export interface Operation10Data {
   orderNo: string
@@ -54,14 +56,9 @@ export interface Operation10Data {
   sequenceNo: string
   operationNo: number
   
-  // ⚠️ TEMPORAIRE (AST/Dev) : opId utilisé comme fallback pour Block ID
-  // TODO PRODUCTION : Utiliser uniquement blockId quand disponible en PROD
-  opId: string // Operation ID (unique identifier) - Utilisé temporairement en AST
-  
-  // ⚠️ TEMPORAIRE (AST/Dev) : blockId peut être null ou OpId
-  // TODO PRODUCTION : Remplacer par le vrai OP 10 Block ID quand disponible en PROD
-  // En AST (Dev), le Block ID n'est pas disponible, on utilise OpId temporairement
-  blockId: string | null // ⚠️ IMPORTANT: Peut être null (valeur valide)
+  // ✅ CORRIGÉ (17 oct 2025) : Utilise OperationBlockId au lieu de opId
+  // Confirmé disponible sur FR017 (Block IDs: B89, B92)
+  operationBlockId: string | null // Block ID de l'opération OP10 (ex: "B89", "B92", ou null)
   
   rawMaterial: string // Part code de la première ligne de composant
 }
@@ -157,15 +154,10 @@ export async function getOperation10Data(
       throw new Error(`Operation 10 not found for ${orderNo}-${releaseNo}-${sequenceNo}`)
     }
 
-    // Récupérer OpId (toujours présent)
-    const opId = operation.OpId
-    
-    // ⚠️ IMPORTANT: OperationBlockId peut être null (c'est normal)
-    // ⚠️ TEMPORAIRE (AST/Dev) : On récupère l'OperationBlockId (souvent vide en AST)
-    // TODO PRODUCTION : En PROD, utiliser le vrai OP 10 Block ID
-    // En attendant, on utilise OpId comme fallback temporaire (voir types/index.ts)
-    const blockId = operation.OperationBlockId || null
-    console.log(`✅ [Operation Service] OP10 trouvée - OpId: ${opId}, Block ID: ${blockId || '(vide)'}`)
+    // ✅ CORRIGÉ (17 oct 2025) : Utilise OperationBlockId (conforme SFD)
+    // Confirmé disponible sur FR017 (Block IDs: B89, B92)
+    const operationBlockId = operation.OperationBlockId || null
+    console.log(`✅ [Operation Service] OP10 trouvée - OperationBlockId: ${operationBlockId || 'NULL'}`)
 
     // 2. Récupérer le Raw Material via MaterialArray
     const rawMaterial = await getRawMaterial(orderNo, releaseNo, sequenceNo)
@@ -175,8 +167,7 @@ export async function getOperation10Data(
       releaseNo,
       sequenceNo,
       operationNo: 10,
-      opId, // ✅ Operation ID (utilisé temporairement en AST)
-      blockId,
+      operationBlockId, // ✅ CORRIGÉ : Utilise OperationBlockId au lieu de opId
       rawMaterial,
     }
   } catch (error) {

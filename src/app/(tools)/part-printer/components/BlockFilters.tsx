@@ -1,20 +1,20 @@
 /**
  * Composant BlockFilters
  * 
- * Implémentation SFD stricte avec 2 checkboxes indépendantes :
- * 1. Block Date (CBlockDates filter)
- * 2. OP10 Block ID empty (BlockId filter)
+ * ✅ MISE À JOUR (17 oct 2025) : Implémentation conforme SFD
+ * 1. Block Date (CBlockDates filter) - Checkbox
+ * 2. OP10 Block ID - Select avec 3 options (all/empty/not-empty)
  * 
- * ⚠️ Note AST : Le filtre Block ID n'est pas disponible sur l'environnement AST.
- * L'option est implémentée pour future-proof mais sera ignorée sur AST.
+ * Suite à l'analyse du 17 oct 2025, nous avons confirmé que OperationBlockId
+ * est disponible sur FR017 (B89, B92). Le filtre est désormais actif.
  * 
  * @example
  * ```tsx
  * <BlockFilters
  *   blockDate={true}
  *   onBlockDateChange={setBlockDate}
- *   blockIdEmpty={true}
- *   onBlockIdEmptyChange={setBlockIdEmpty}
+ *   operationBlockIdFilter="all"
+ *   onOperationBlockIdFilterChange={setOperationBlockIdFilter}
  *   disabled={false}
  * />
  * ```
@@ -23,32 +23,33 @@
 'use client'
 
 import { Checkbox } from '@/shared/components/atoms/Chekbox'
-import { Info } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 
 interface BlockFiltersProps {
   blockDate: boolean
   onBlockDateChange: (value: boolean) => void
-  blockIdEmpty: boolean
-  onBlockIdEmptyChange: (value: boolean) => void
+  operationBlockIdFilter: 'all' | 'empty' | 'not-empty'
+  onOperationBlockIdFilterChange: (value: 'all' | 'empty' | 'not-empty') => void
   disabled?: boolean
-  environment?: 'AST' | 'PRODUCTION' // Pour afficher le warning AST
 }
 
 export function BlockFilters({
   blockDate,
   onBlockDateChange,
-  blockIdEmpty,
-  onBlockIdEmptyChange,
+  operationBlockIdFilter,
+  onOperationBlockIdFilterChange,
   disabled = false,
-  environment = 'AST', // Default AST pour le moment
 }: BlockFiltersProps) {
   
   // Déterminer le mode actif selon les combinaisons
   const getActiveMode = () => {
-    if (blockDate && blockIdEmpty) return 'Débit classique'
-    if (!blockDate && !blockIdEmpty) return 'Redébit'
-    if (blockDate && !blockIdEmpty) return 'Débit avec pièces bloquées'
-    if (!blockDate && blockIdEmpty) return 'Toutes dates (non bloquées)'
+    const hasEmptyFilter = operationBlockIdFilter === 'empty'
+    const hasNotEmptyFilter = operationBlockIdFilter === 'not-empty'
+    
+    if (blockDate && hasEmptyFilter) return 'Débit classique'
+    if (!blockDate && !hasEmptyFilter && !hasNotEmptyFilter) return 'Redébit'
+    if (blockDate && hasNotEmptyFilter) return 'Débit avec pièces bloquées'
+    if (!blockDate && hasEmptyFilter) return 'Toutes dates (non bloquées)'
     return 'Personnalisé'
   }
 
@@ -74,12 +75,9 @@ export function BlockFilters({
         <div className="flex-1">
           <label
             htmlFor="blockDate"
-            className="text-sm font-medium text-gray-900 cursor-pointer flex items-center gap-2"
+            className="text-sm font-medium text-gray-900 cursor-pointer"
           >
             Block Date (CBlockDates)
-            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
-              Recommandé
-            </span>
           </label>
           <p className="text-xs text-gray-600 mt-1">
             {blockDate 
@@ -90,50 +88,42 @@ export function BlockFilters({
         </div>
       </div>
 
-      {/* OP10 Block ID Empty Checkbox */}
+      {/* OP10 Block ID Select - ✅ RÉACTIVÉ (17 oct 2025) */}
       <div className="flex items-start gap-3 p-3 border border-gray-200 rounded-md hover:border-blue-300 transition-colors">
-        <Checkbox
-          id="blockIdEmpty"
-          checked={blockIdEmpty}
-          onCheckedChange={onBlockIdEmptyChange}
-          disabled={disabled}
-          className="mt-0.5"
-        />
+        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-2" />
         <div className="flex-1">
           <label
-            htmlFor="blockIdEmpty"
-            className="text-sm font-medium text-gray-900 cursor-pointer flex items-center gap-2"
+            htmlFor="operationBlockIdFilter"
+            className="text-sm font-medium text-gray-900 mb-2 block"
           >
-            OP10 Block ID empty
-            {environment === 'AST' && (
-              <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
-                ⚠️ Non disponible (AST)
-              </span>
-            )}
+            OP10 Block ID
           </label>
-          <p className="text-xs text-gray-600 mt-1">
-            {blockIdEmpty 
-              ? '✅ Filtre actif : Recherche uniquement les pièces avec Block ID vide (non bloquées)'
-              : '⚪ Filtre désactivé : Accepte toutes les pièces (Block ID vide ou non)'
+          
+          <select
+            id="operationBlockIdFilter"
+            value={operationBlockIdFilter}
+            onChange={(e) => onOperationBlockIdFilterChange(e.target.value as 'all' | 'empty' | 'not-empty')}
+            disabled={disabled}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="all">Tous (Block ID vide ou non)</option>
+            <option value="empty">Vide uniquement (non bloquées)</option>
+            <option value="not-empty">Non vide uniquement (bloquées)</option>
+          </select>
+          
+          <p className="text-xs text-gray-600 mt-2">
+            {operationBlockIdFilter === 'all' && 
+              '⚪ Accepte toutes les pièces (Block ID vide ou non)'
+            }
+            {operationBlockIdFilter === 'empty' && 
+              '✅ Recherche uniquement les pièces avec Block ID vide (non bloquées)'
+            }
+            {operationBlockIdFilter === 'not-empty' && 
+              '🔒 Recherche uniquement les pièces avec Block ID (ex: B89, B92)'
             }
           </p>
         </div>
       </div>
-
-      {/* Warning AST si Block ID activé */}
-      {blockIdEmpty && environment === 'AST' && (
-        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-md">
-          <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-amber-800">
-            <p className="font-medium mb-1">⚠️ Limitation environnement AST</p>
-            <p className="text-xs">
-              Le filtre <strong>OP10 Block ID</strong> n'est pas disponible sur l'environnement AST actuel. 
-              Cette option sera <strong>ignorée</strong> lors de la recherche. 
-              Le code est prêt pour un environnement de production qui supporte ce filtre.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Mode actif (indicateur visuel) */}
       <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
@@ -173,7 +163,7 @@ export function BlockFilters({
           type="button"
           onClick={() => {
             onBlockDateChange(true)
-            onBlockIdEmptyChange(true)
+            onOperationBlockIdFilterChange('empty')
           }}
           disabled={disabled}
           className="text-xs px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -184,7 +174,7 @@ export function BlockFilters({
           type="button"
           onClick={() => {
             onBlockDateChange(false)
-            onBlockIdEmptyChange(false)
+            onOperationBlockIdFilterChange('all')
           }}
           disabled={disabled}
           className="text-xs px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -194,8 +184,8 @@ export function BlockFilters({
         <button
           type="button"
           onClick={() => {
-            onBlockDateChange(false)
-            onBlockIdEmptyChange(false)
+            onBlockDateChange(true)
+            onOperationBlockIdFilterChange('all')
           }}
           disabled={disabled}
           className="text-xs px-3 py-1.5 bg-gray-50 text-gray-700 border border-gray-200 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

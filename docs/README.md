@@ -480,7 +480,31 @@ docs/tools/mon-outil/
 
 ---
 
-## 📝 Changelog
+## �️ Rapports d'Impression
+
+**Nouveaux documents (17 octobre 2025)** :
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| [**Rapport Complet**](./RAPPORT_IMPRESSION.md) | Analyse détaillée de l'impression pour Boat Config + Part Printer (architecture, workflows, configuration IFS) | 👨‍💻 Dev + 🔧 IT |
+| [**Résumé**](./RAPPORT_IMPRESSION_RESUME.md) | Vue d'ensemble rapide des bloqueurs PROD et actions requises | 📊 Management + 🔧 IT |
+| [**Plan d'Action**](./PLAN_ACTION_IMPRESSION.md) | Roadmap 2 semaines pour passer en impression réelle (PROD) | 📋 Chef de projet + 👨‍💻 Dev |
+
+**Contexte** : Actuellement, les deux outils sont en **mode DEV** avec impression simulée. Pour passer en PROD avec impression réelle sur imprimantes physiques, il faut :
+- Obtenir credentials IFS PROD
+- Configurer les Reports IFS (`MA_FO_CR_1419` + `PART_LABEL_REPORT`)
+- Valider les imprimantes physiques (`PRTMNF012`, `PRTBX101`, etc.)
+- Implémenter le workflow IFS pour Part Printer
+
+---
+
+## �📝 Changelog
+
+### 2025-10-17 - v2.1
+
+- ✅ **Rapports d'impression créés** (3 documents)
+- ✅ Configuration impression PROD documentée
+- ✅ Plan d'action 2 semaines défini
 
 ### 2025-10-13 - v2.0
 
@@ -494,7 +518,7 @@ docs/tools/mon-outil/
 ### 2025-10-10 - v1.5
 
 - ✅ Boat Configuration Editor : Customer Order integration
-- ✅ Impression PDF complète
+- ✅ Impression PDF complète (mode DEV)
 
 ### 2025-10-05 - v1.0
 
@@ -504,4 +528,4 @@ docs/tools/mon-outil/
 ---
 
 **Maintenu par** : Équipe Manufacturing Portal  
-**Dernière revue** : 13 octobre 2025
+**Dernière revue** : 17 octobre 2025

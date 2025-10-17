@@ -1,20 +1,22 @@
 /**
  * Service Shop Order Filter - Filtrage avancé des Shop Orders Part Printer
  * 
- * Phase 2.2 - Logique de filtrage (SFD stricte avec 2 checkboxes)
+ * ✅ MISE À JOUR (17 oct 2025) : Intégration OperationBlockId
  * 
  * Endpoint IFS: ShopOrderHandling.svc/ShopOrds
  * 
  * Logique de filtrage:
  * 
- * | Block Date | Block ID Empty | Comportement                                    | Cas d'usage           |
- * |------------|----------------|-------------------------------------------------|-----------------------|
- * | ✅         | ✅             | CBlockDates=true + BlockId=null                 | Débit classique       |
- * | ✅         | ❌             | CBlockDates=true                                | Débit (pièces bloquées OK) |
- * | ❌         | ✅             | BlockId=null                                    | Toutes dates (non bloquées) |
- * | ❌         | ❌             | Aucun filtre                                    | Redébit (tout)        |
+ * | Block Date | OperationBlockId Filter | Comportement                                    | Cas d'usage           |
+ * |------------|------------------------|-------------------------------------------------|-----------------------|
+ * | ✅         | empty                  | CBlockDates=true + OperationBlockId=null        | Débit classique       |
+ * | ✅         | not-empty              | CBlockDates=true + OperationBlockId non-null    | Débit (pièces bloquées) |
+ * | ✅         | all                    | CBlockDates=true                                | Débit (toutes pièces) |
+ * | ❌         | empty                  | OperationBlockId=null                           | Toutes dates (non bloquées) |
+ * | ❌         | not-empty              | OperationBlockId non-null                       | Toutes dates (bloquées) |
+ * | ❌         | all                    | Aucun filtre                                    | Redébit (tout)        |
  * 
- * ⚠️ Note AST: Le filtre BlockId n'est pas disponible sur AST. Il sera ignoré silencieusement.
+ * ✅ Analyse du 17 oct 2025 : OperationBlockId disponible sur FR017 (Block IDs: B89, B92)
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
@@ -55,7 +57,7 @@ export async function filterShopOrders(
 ): Promise<ShopOrdersFilterResponse> {
   console.log('🔍 [Shop Order Filter] Démarrage filtrage avec paramètres:', params)
 
-  const { site, productionLine, startDate, blockDate, blockIdEmpty } = params
+  const { site, productionLine, startDate, blockDate, operationBlockIdFilter } = params
 
   try {
     const client = getIFSClient()
@@ -74,14 +76,14 @@ export async function filterShopOrders(
     }
 
     // Mode pour log et filtre OData
-    const mode = blockDate && blockIdEmpty ? 'Débit classique' :
-                 !blockDate && !blockIdEmpty ? 'Redébit' :
+    const mode = blockDate && operationBlockIdFilter === 'empty' ? 'Débit classique' :
+                 !blockDate && operationBlockIdFilter === 'all' ? 'Redébit' :
                  blockDate ? 'Débit (pièces bloquées OK)' :
                  'Toutes dates (non bloquées)'
     
     console.log(`📊 [Shop Order Filter] Mode détecté: ${mode}`)
     console.log(`📊 [Shop Order Filter] - Block Date: ${blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}`)
-    console.log(`📊 [Shop Order Filter] - Block ID Empty: ${blockIdEmpty ? 'Actif (Block ID vide)' : 'Inactif'}`)
+    console.log(`📊 [Shop Order Filter] - OperationBlockId Filter: ${operationBlockIdFilter}`)
 
     const odataFilter = filters.join(' and ')
     console.log('🔍 [Shop Order Filter] Filtre OData:', odataFilter)
@@ -147,16 +149,13 @@ export async function filterShopOrders(
       console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} (tous CBlockDates)`)
     }
 
-    // Filtrage côté code pour OP10 Block ID (si activé)
-    if (blockIdEmpty) {
-      // TODO: Implémenter filtrage OP10 Block ID vide
-      // Nécessite appel à OperationHandling.svc pour chaque Shop Order
-      console.log('⚠️ [AST] Block ID filter skipped - Not available on AST environment')
-      console.log('📊 [Shop Order Filter] Block ID Empty demandé mais non disponible sur AST')
-      // shopOrders = await filterByEmptyOP10BlockId(shopOrders)
-      // Note: Le code est prêt pour production, décommenter quand environnement le supporte
+    // ✅ RÉACTIVÉ (17 oct 2025) : Filtrage côté code pour OperationBlockId
+    if (operationBlockIdFilter !== 'all') {
+      console.log(`� [Shop Order Filter] Filtrage par OperationBlockId: ${operationBlockIdFilter}`)
+      shopOrders = await filterByOperationBlockId(shopOrders, operationBlockIdFilter)
+      console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders après filtrage OperationBlockId`)
     } else {
-      console.log('📊 [Shop Order Filter] Block ID Empty: Inactif (pas de filtrage)')
+      console.log('📊 [Shop Order Filter] OperationBlockId: Tous acceptés (pas de filtrage)')
     }
 
     console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders après filtrage complet`)
@@ -172,50 +171,69 @@ export async function filterShopOrders(
 }
 
 /**
- * Filtrer les Shop Orders ayant un OP10 Block ID vide
+ * ✅ NOUVEAU (17 oct 2025) : Filtrer par OperationBlockId (vide ou non-vide)
+ * 
+ * Utilise l'endpoint ShopOrderHandling.svc/ShopOrds/.../OperationArray
+ * pour récupérer l'OP10 de chaque Shop Order et filtrer par OperationBlockId.
  * 
  * ⚠️ ATTENTION: Cette fonction nécessite un appel API pour CHAQUE Shop Order
- * Peut être lent avec beaucoup de résultats
+ * Peut être lent avec beaucoup de résultats (optimisé avec Promise.all)
  * 
  * @param shopOrders - Shop Orders à filtrer
- * @returns Shop Orders avec OP10 Block ID vide uniquement
+ * @param filter - 'empty' ou 'not-empty'
+ * @returns Shop Orders filtrés selon OperationBlockId
  */
-async function filterByEmptyOP10BlockId(
-  shopOrders: IFSShopOrderExtended[]
+async function filterByOperationBlockId(
+  shopOrders: IFSShopOrderExtended[],
+  filter: 'empty' | 'not-empty'
 ): Promise<IFSShopOrderExtended[]> {
-  console.log(`🔍 [Shop Order Filter] Filtrage ${shopOrders.length} Shop Orders par OP10 Block ID vide...`)
+  console.log(`🔍 [Shop Order Filter] Filtrage ${shopOrders.length} Shop Orders par OperationBlockId (${filter})...`)
 
   const client = getIFSClient()
-  const filtered: IFSShopOrderExtended[] = []
 
-  // TODO: Optimiser avec Promise.all() ou batch requests
-  for (const order of shopOrders) {
-    try {
-      // Récupération de l'opération 10
-      const response = await client.get<IFSODataResponse<any>>(
-        'OperationHandling.svc/ShopOrderOperations',
-        {
-          $filter: `OrderNo eq '${order.OrderNo}' and ReleaseNo eq '${order.ReleaseNo}' and SequenceNo eq '${order.SequenceNo}' and OperationNo eq 10`,
-          $select: 'BlockId'
+  // Utiliser Promise.all pour paralléliser les requêtes (plus rapide)
+  const results = await Promise.all(
+    shopOrders.map(async (order) => {
+      try {
+        // Récupération de l'opération 10 via expand
+        const response = await client.get<IFSODataResponse<any>>(
+          `ShopOrderHandling.svc/ShopOrds(OrderNo='${order.OrderNo}',ReleaseNo='${order.ReleaseNo}',SequenceNo='${order.SequenceNo}')/OperationArray`,
+          {
+            $filter: 'OperationNo eq 10',
+            $select: 'OperationNo,OperationBlockId'
+          }
+        )
+
+        const op10 = response.value?.[0]
+
+        if (!op10) {
+          console.log(`⚠️ [Shop Order Filter] ${order.OrderNo}: OP10 introuvable`)
+          return null
         }
-      )
 
-      const op10 = response.value?.[0]
+        const hasBlockId = op10.OperationBlockId && op10.OperationBlockId.trim() !== ''
 
-      // Vérifier si Block ID est vide (null, undefined, ou string vide)
-      if (op10 && (!op10.BlockId || op10.BlockId.trim() === '')) {
-        filtered.push(order)
-        console.log(`✅ [Shop Order Filter] ${order.OrderNo}-${order.ReleaseNo}-${order.SequenceNo}: OP10 Block ID vide`)
-      } else {
-        console.log(`⏭️ [Shop Order Filter] ${order.OrderNo}-${order.ReleaseNo}-${order.SequenceNo}: OP10 Block ID = ${op10?.BlockId || 'N/A'}`)
+        // Logique de filtrage
+        if (filter === 'empty' && !hasBlockId) {
+          console.log(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId vide`)
+          return order
+        } else if (filter === 'not-empty' && hasBlockId) {
+          console.log(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId = ${op10.OperationBlockId}`)
+          return order
+        } else {
+          console.log(`⏭️ [Shop Order Filter] ${order.OrderNo}: Filtré (OperationBlockId = ${op10.OperationBlockId || 'NULL'})`)
+          return null
+        }
+      } catch (error) {
+        console.error(`❌ [Shop Order Filter] Erreur OP10 pour ${order.OrderNo}:`, error)
+        return null // En cas d'erreur, on exclut ce Shop Order
       }
-    } catch (error) {
-      console.error(`❌ [Shop Order Filter] Erreur OP10 pour ${order.OrderNo}:`, error)
-      // En cas d'erreur, on continue avec les autres
-    }
-  }
+    })
+  )
 
-  console.log(`✅ [Shop Order Filter] ${filtered.length}/${shopOrders.length} Shop Orders avec OP10 Block ID vide`)
+  const filtered = results.filter((order): order is IFSShopOrderExtended => order !== null)
+
+  console.log(`✅ [Shop Order Filter] ${filtered.length}/${shopOrders.length} Shop Orders après filtrage OperationBlockId`)
 
   return filtered
 }
@@ -252,9 +270,9 @@ export function validateFilterParams(params: ShopOrderFilterParams): void {
     throw new Error('Block date must be a boolean')
   }
 
-  // Validation blockIdEmpty est un boolean
-  if (typeof params.blockIdEmpty !== 'boolean') {
-    throw new Error('Block ID empty must be a boolean')
+  // ✅ CORRIGÉ (17 oct 2025) : Validation operationBlockIdFilter
+  if (!['all', 'empty', 'not-empty'].includes(params.operationBlockIdFilter)) {
+    throw new Error('OperationBlockIdFilter must be "all", "empty", or "not-empty"')
   }
 
   console.log('✅ [Shop Order Filter] Paramètres validés')

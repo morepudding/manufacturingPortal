@@ -10,8 +10,10 @@
 ## Table des Matières
 
 1. [Vue d'Ensemble du Portal](#1-vue-densemble-du-portal)
-2. [Architecture & Organisation](#2-architecture--organisation)
-3. [Les Outils & Workflows](#3-les-outils--workflows)
+2. [Architecture et Organisation](#2-architecture-et-organisation)
+3. [Les Outils et Workflows](#3-les-outils-et-workflows)
+4. [Déploiement et Infrastructure Azure](#4-déploiement-et-infrastructure-azure)
+5. [Évolutions Futures](#5-évolutions-futures)
 
 ---
 
@@ -68,7 +70,7 @@ flowchart TB
 
 ---
 
-## 2. Architecture & Organisation
+## 2. Architecture et Organisation
 
 ### 2.1 Architecture Partagée vs Spécifique
 
@@ -150,33 +152,51 @@ flowchart TD
 2. **tools/** : La logique métier propre à chaque outil (calculs, règles de gestion)
 3. **app/(tools)/** : Les pages et l'interface visuelle de chaque outil
 
-### 2.4 Flux de Données
+### 2.4 Flux de Données et Authentification
 
-Le schéma suivant montre comment les données circulent depuis IFS Cloud jusqu'à l'utilisateur :
+Le schéma suivant montre comment les données circulent depuis IFS Cloud jusqu'à l'utilisateur, en passant par l'authentification Azure AD :
 
 ```mermaid
 flowchart TD
-    IFS["☁️ IFS Cloud<br/>(Base de données)"]
+    User["👤 Opérateur"] --> Login["🔐 Azure AD<br/>Authentification SSO"]
+    Login --> Token["🎫 JWT Token<br/>(2h validité)"]
+    Token --> Portal["🏭 Portal<br/>Session active"]
     
-    IFS --> Auth["🔐 Authentification<br/>OAuth2"]
+    Portal --> Request["� Requête<br/>utilisateur"]
+    Request --> API["🔌 API Routes<br/>(app/api/)"]
+    API --> Auth["🔒 Vérification<br/>Token"]
     Auth --> Services["⚙️ Services Métier<br/>(tools/)"]
-    Services --> API["🔌 API Routes<br/>(app/api/)"]
-    API --> UI["🎨 Interface Utilisateur<br/>(app/(tools)/)"]
-    UI --> User["👤 Opérateur"]
+    Services --> IFSAuth["� OAuth2<br/>IFS Cloud"]
+    IFSAuth --> IFS["☁️ IFS Cloud<br/>(Base de données)"]
     
-    style IFS fill:#e74c3c,stroke:#c0392b,color:#fff
+    IFS --> Response["� Données"]
+    Response --> Services
+    Services --> API
+    API --> Portal
+    Portal --> User
+    
+    style User fill:#34495e,stroke:#2c3e50,color:#fff
+    style Login fill:#0078d4,stroke:#005a9e,color:#fff
+    style Token fill:#50c878,stroke:#2d7a4a,color:#fff
+    style Portal fill:#4a90e2,stroke:#2c5aa0,color:#fff
     style Auth fill:#f39c12,stroke:#d68910,color:#fff
     style Services fill:#3498db,stroke:#2980b9,color:#fff
-    style API fill:#9b59b6,stroke:#7d3c98,color:#fff
-    style UI fill:#2ecc71,stroke:#27ae60,color:#fff
-    style User fill:#34495e,stroke:#2c3e50,color:#fff
+    style IFSAuth fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style IFS fill:#e74c3c,stroke:#c0392b,color:#fff
 ```
 
-**Principe de sécurité** : La connexion à IFS Cloud est centralisée et sécurisée. Chaque requête passe par une authentification OAuth2 avant d'accéder aux données.
+**Double sécurité** : 
+- **Azure AD** : Authentification de l'utilisateur (qui est-il ?)
+- **OAuth2 IFS** : Autorisation d'accès aux données IFS (que peut-il faire ?)
+
+**Session utilisateur** : 
+- Durée : 2 heures d'inactivité
+- Renouvellement : Automatique en arrière-plan
+- Déconnexion : Manuelle ou expiration automatique
 
 ---
 
-## 3. Les Outils & Workflows
+## 3. Les Outils et Workflows
 
 ### 3.1 Boat Configuration Editor
 
@@ -468,6 +488,246 @@ flowchart LR
 - Résultat : Accès aux données sans endpoint dédié
 
 Cette approche méthodique a permis de **surmonter les limitations** de la documentation IFS et d'exploiter pleinement les capacités de l'API OData.
+
+---
+
+## 4. Déploiement et Infrastructure Azure
+
+### 4.1 Architecture de Déploiement
+
+Le Manufacturing Portal est conçu pour être déployé sur **Microsoft Azure** avec une infrastructure moderne et sécurisée.
+
+```mermaid
+flowchart TB
+    subgraph Azure["☁️ Microsoft Azure"]
+        subgraph Auth["🔐 Authentification"]
+            AzureAD["Azure Active Directory<br/>(SSO Entreprise)"]
+            AppReg["App Registration<br/>(OAuth2 Client)"]
+        end
+        
+        subgraph Envs["🌍 Environnements"]
+            Dev["DEV<br/>Azure App Service"]
+            PreProd["PRE-PROD<br/>Azure App Service"]
+            Prod["PROD<br/>Azure App Service"]
+        end
+        
+        subgraph Pipeline["🔄 CI/CD"]
+            GitHub["GitHub Actions<br/>(Source Code)"]
+            Build["Build & Test<br/>(Node.js)"]
+            Deploy["Deployment<br/>(Automatique)"]
+        end
+        
+        AzureAD --> AppReg
+        AppReg --> Dev
+        AppReg --> PreProd
+        AppReg --> Prod
+        
+        GitHub --> Build
+        Build --> Deploy
+        Deploy --> Dev
+        Deploy --> PreProd
+        Deploy --> Prod
+    end
+    
+    Users["👥 Utilisateurs<br/>Bénéteau"] --> AzureAD
+    
+    style Azure fill:#0078d4,stroke:#005a9e,color:#fff
+    style Auth fill:#50c878,stroke:#2d7a4a,color:#fff
+    style Envs fill:#f39c12,stroke:#d68910,color:#fff
+    style Pipeline fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Users fill:#34495e,stroke:#2c3e50,color:#fff
+```
+
+### 4.2 Authentification Azure AD
+
+#### Configuration Technique Azure AD
+
+L'authentification utilise **Azure Active Directory** pour permettre aux utilisateurs de se connecter avec leurs identifiants Bénéteau (Single Sign-On).
+
+**App Registration Azure AD** :
+- Type : Web Application
+- Redirect URI : `https://portal.beneteau.com/api/auth/callback/azure-ad`
+- Permissions API : `User.Read` (profil utilisateur basique)
+- Token : JWT avec durée de vie de 2 heures
+
+**Variables d'environnement requises** :
+```bash
+AZURE_AD_CLIENT_ID=<Application (client) ID>
+AZURE_AD_CLIENT_SECRET=<Client Secret>
+AZURE_AD_TENANT_ID=<Directory (tenant) ID>
+NEXTAUTH_URL=https://portal.beneteau.com
+NEXTAUTH_SECRET=<Random Secret Key>
+```
+
+**Sécurité** :
+- ✅ Tokens stockés côté serveur uniquement
+- ✅ Session expiration après 2 heures d'inactivité
+- ✅ Refresh automatique du token
+- ✅ Déconnexion automatique en cas d'expiration
+
+### 4.3 Environnements et Pipeline CI/CD
+
+#### Les 3 Environnements
+
+| Environnement | URL | Usage | Auto-Deploy |
+|---------------|-----|-------|-------------|
+| **DEV** | `https://portal-dev.beneteau.com` | Tests développeurs | ✅ Oui (branche `dev`) |
+| **PRE-PROD** | `https://portal-preprod.beneteau.com` | Validation métier | ✅ Oui (branche `staging`) |
+| **PROD** | `https://portal.beneteau.com` | Utilisation réelle | ⚠️ Manuel (branche `main`) |
+
+#### Pipeline CI/CD GitHub Actions
+
+```mermaid
+flowchart TD
+    Push["📤 Push Code<br/>GitHub"] --> Trigger["🔔 Déclenchement<br/>Pipeline"]
+    
+    Trigger --> Build["🔨 Build"]
+    Build --> BuildSteps["Node.js 18<br/>pnpm install<br/>pnpm build"]
+    
+    BuildSteps --> Test["🧪 Tests"]
+    Test --> TestSteps["ESLint<br/>TypeScript Check<br/>Unit Tests"]
+    
+    TestSteps --> Check{"✅ Tests<br/>OK?"}
+    Check -->|❌ Non| Fail["❌ Pipeline Failed<br/>Notification"]
+    
+    Check -->|✅ Oui| Deploy{"🌍 Env?"}
+    
+    Deploy -->|dev| DevDeploy["🚀 Deploy DEV<br/>Azure App Service"]
+    Deploy -->|staging| PreProdDeploy["🚀 Deploy PRE-PROD<br/>Azure App Service"]
+    Deploy -->|main| ManualApprove["👤 Approbation<br/>Manuelle"]
+    
+    ManualApprove --> ProdDeploy["🚀 Deploy PROD<br/>Azure App Service"]
+    
+    DevDeploy --> Success["✅ Déploiement<br/>Réussi"]
+    PreProdDeploy --> Success
+    ProdDeploy --> Success
+    
+    style Push fill:#3498db,stroke:#2980b9,color:#fff
+    style Build fill:#f39c12,stroke:#d68910,color:#fff
+    style Test fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Check fill:#e74c3c,stroke:#c0392b,color:#fff
+    style DevDeploy fill:#2ecc71,stroke:#27ae60,color:#fff
+    style PreProdDeploy fill:#2ecc71,stroke:#27ae60,color:#fff
+    style ProdDeploy fill:#27ae60,stroke:#1e8449,color:#fff
+    style Success fill:#27ae60,stroke:#1e8449,color:#fff
+```
+
+#### Stratégie de Déploiement
+
+**DEV** : Déploiement continu automatique
+- Chaque commit sur `dev` → déploiement immédiat
+- Tests de nouvelles fonctionnalités
+- Pas de validation requise
+
+**PRE-PROD** : Déploiement automatique avec validation
+- Merge `dev` → `staging` → déploiement automatique
+- Tests d'acceptation utilisateur (UAT)
+- Validation métier avant production
+
+**PROD** : Déploiement manuel contrôlé
+- Merge `staging` → `main` → approbation manuelle requise
+- Déploiement planifié (heures creuses)
+- Rollback rapide en cas de problème
+
+### 4.4 Infrastructure Azure
+
+#### Services Utilisés
+
+```mermaid
+flowchart TB
+    subgraph Azure["☁️ Infrastructure Azure"]
+        AppService["Azure App Service<br/>(Node.js 18)"]
+        AppInsights["Application Insights<br/>(Monitoring)"]
+        KeyVault["Key Vault<br/>(Secrets)"]
+        AzureAD["Azure AD<br/>(Auth)"]
+        
+        AppService --> AppInsights
+        AppService --> KeyVault
+        AppService --> AzureAD
+    end
+    
+    IFS["☁️ IFS Cloud<br/>(External)"] --> AppService
+    
+    style Azure fill:#0078d4,stroke:#005a9e,color:#fff
+    style AppService fill:#2ecc71,stroke:#27ae60,color:#fff
+    style AppInsights fill:#f39c12,stroke:#d68910,color:#fff
+    style KeyVault fill:#e74c3c,stroke:#c0392b,color:#fff
+    style AzureAD fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style IFS fill:#34495e,stroke:#2c3e50,color:#fff
+```
+
+**Ressources** :
+- **Azure App Service** : Hébergement de l'application Next.js
+- **Application Insights** : Monitoring, logs, alertes
+- **Key Vault** : Stockage sécurisé des secrets (API keys, tokens)
+- **Azure AD** : Authentification et gestion des identités
+
+**Monitoring & Alertes** :
+- ✅ Temps de réponse API
+- ✅ Taux d'erreur
+- ✅ Disponibilité (uptime)
+- ✅ Utilisation ressources (CPU, RAM)
+- ✅ Logs centralisés
+
+---
+
+## 5. Évolutions Futures
+
+#### 5.1 Améliorations Planifiées Court Terme
+
+#### Boat Configuration Editor : Imprimantes Favorites
+
+**Problème actuel** : L'utilisateur doit sélectionner l'imprimante à chaque impression.
+
+**Solution proposée** : Mémoriser les préférences utilisateur.
+
+```mermaid
+flowchart LR
+    User["👤 Utilisateur"] --> First["1ère utilisation<br/>Sélection imprimante"]
+    First --> Save["💾 Sauvegarde<br/>préférence"]
+    Save --> Next["Prochaine<br/>utilisation"]
+    Next --> Auto["🎯 Pré-sélection<br/>automatique"]
+    Auto --> Modify["✏️ Modification<br/>possible"]
+    
+    style User fill:#34495e,stroke:#2c3e50,color:#fff
+    style First fill:#3498db,stroke:#2980b9,color:#fff
+    style Save fill:#2ecc71,stroke:#27ae60,color:#fff
+    style Auto fill:#f39c12,stroke:#d68910,color:#fff
+```
+
+**Fonctionnalités** :
+- ✅ Sauvegarde imprimante favorite par utilisateur
+- ✅ Sauvegarde langue préférée
+- ✅ Pré-sélection automatique au prochain usage
+- ✅ Possibilité de modifier à tout moment
+
+**Stockage** :
+- Option 1 : Local Storage (navigateur)
+- Option 2 : Base de données avec profil utilisateur
+- **Recommandation** : Local Storage pour MVP, base de données pour V2
+
+#### Part Printer : Filtres Prédéfinis
+
+**Fonctionnalité** : Sauvegarder des combinaisons de filtres fréquentes.
+
+**Exemple** :
+- "BDR - Ligne MASSIF - Débit"
+- "FR017 - Toutes lignes - Redébit"
+
+### 5.2 Évolutions Long Terme
+
+#### Nouveaux Outils (2026+)
+
+| Outil | Description | Priorité | Délai estimé |
+|-------|-------------|----------|--------------|
+| **Outil 3** | TBD | 🔴 P0 | Q1 2026 |
+| **Outil 4** | TBD | 🟡 P1 | Q2 2026 |
+| **Outil 5** | TBD | 🟡 P1 | Q3 2026 |
+| **5+ outils** | TBD | 🟢 P2 | 2026+ |
+
+**Fonctionnalités transverses** : Historique des impressions, notifications, tableau de bord d'utilisation
+
+**Optimisations** : Performance améliorée (cache des requêtes IFS), scalabilité automatique Azure, sécurité renforcée
 
 ---
 

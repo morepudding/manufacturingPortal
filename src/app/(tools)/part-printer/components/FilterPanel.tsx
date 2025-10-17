@@ -16,8 +16,7 @@
 import { useState } from 'react'
 import { SiteSelector } from './SiteSelector'
 import { ProductionLineSelector } from './ProductionLineSelector'
-import { BlockDateToggle } from './BlockDateToggle'
-import { OP10BlockIDFilter } from './OP10BlockIDFilter'
+import { BlockFilters } from './BlockFilters'
 import { Button } from '@/shared/components/atoms/Button'
 import type { ShopOrderFilterParams } from '@/tools/part-printer/types'
 
@@ -31,7 +30,7 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
   const [productionLine, setProductionLine] = useState('')
   const [startDate, setStartDate] = useState('')
   const [blockDate, setBlockDate] = useState(true)
-  const [op10BlockId, setOP10BlockId] = useState<'EMPTY' | 'NO_CONDITION' | undefined>()
+  const [blockIdEmpty, setBlockIdEmpty] = useState(true) // ✅ Nouveau state
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -60,14 +59,11 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
       site,
       startDate,
       blockDate,
+      blockIdEmpty, // ✅ Ajout du nouveau paramètre
     }
 
     if (productionLine) {
       params.productionLine = productionLine
-    }
-
-    if (op10BlockId) {
-      params.op10BlockId = op10BlockId
     }
 
     console.log('🔍 [FilterPanel] Recherche avec paramètres:', params)
@@ -79,7 +75,7 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
     setProductionLine('')
     setStartDate('')
     setBlockDate(true)
-    setOP10BlockId(undefined)
+    setBlockIdEmpty(true) // ✅ Reset du nouveau state
     setErrors({})
   }
 
@@ -134,21 +130,15 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
           )}
         </div>
 
-        {/* Mode (Débit/Redébit) */}
-        <div>
-          <BlockDateToggle
-            value={blockDate}
-            onChange={setBlockDate}
-            disabled={loading}
-          />
-        </div>
-
-        {/* OP10 Block ID Filter */}
+        {/* Filtres de blocage (2 checkboxes indépendantes) */}
         <div className="md:col-span-2">
-          <OP10BlockIDFilter
-            value={op10BlockId}
-            onChange={setOP10BlockId}
+          <BlockFilters
+            blockDate={blockDate}
+            onBlockDateChange={setBlockDate}
+            blockIdEmpty={blockIdEmpty}
+            onBlockIdEmptyChange={setBlockIdEmpty}
             disabled={loading}
+            environment="AST"
           />
         </div>
       </div>
@@ -192,8 +182,8 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
             <li>• Site : <strong>{site}</strong></li>
             {productionLine && <li>• Ligne : <strong>{productionLine}</strong></li>}
             <li>• Date : <strong>{startDate}</strong></li>
-            <li>• Mode : <strong>{blockDate ? 'Débit classique' : 'Redébit'}</strong></li>
-            {op10BlockId && <li>• OP10 Block ID : <strong>{op10BlockId}</strong></li>}
+            <li>• Block Date : <strong>{blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}</strong></li>
+            <li>• Block ID empty : <strong>{blockIdEmpty ? 'Actif (Block ID vide)' : 'Inactif'}</strong></li>
           </ul>
         </div>
       )}

@@ -9,11 +9,25 @@ import {
 } from "@/shared/components/molecules/NavigationMenu";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import AuthenticatedNav from "./AuthenticatedNav";
 
 export default function Header() {
+    const pathname = usePathname();
+    
+    // Déterminer le gradient selon la route
+    const getGradientClass = () => {
+        if (pathname.startsWith('/part-printer')) {
+            return 'bg-gradient-to-r from-gray-900 via-amber-900 to-orange-900'; // Amber/Orange pour Part Printer
+        } else if (pathname.startsWith('/boat-configuration')) {
+            return 'bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900'; // Bleu pour Boat Config
+        }
+        // Par défaut (homepage et autres)
+        return 'bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900'; // Neutre
+    };
+    
     return (
-        <div className="flex w-full h-16 bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 items-center px-6 shadow-lg">
+        <div className={`flex w-full h-16 items-center px-6 shadow-lg transition-colors duration-300 ${getGradientClass()}`}>
             {/* Logo + Titre */}
             <Link href="/" className="flex items-center gap-3 group mr-8">
                 <div className="relative w-10 h-10 transition-transform group-hover:scale-110 duration-300">

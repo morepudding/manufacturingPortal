@@ -1,1 +1,0 @@
-Le range ID = quand on va dans ifs sur le site par exemple FR017 il y a les ranges for operation selon la plage horaire la lettre va changer par exemple pour FR07 A s'étale de 00:00 a 12h59 et B fait de 13h00 a 23:59 

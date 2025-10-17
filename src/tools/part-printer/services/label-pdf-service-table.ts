@@ -154,14 +154,14 @@ function generateGroupPage(
   doc.setFontSize(18)
   doc.text('Part Printer', 15, headerY)
 
-  // Barcode trigger (centre)
+  // Barcode trigger (centre) - Avec le rangeId complet (ex: "295 B")
   const triggerX = 120
   drawSimpleBarcode(doc, quantieme.toString(), triggerX, headerY - 10, 40, 12)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
-  doc.text(`*${quantieme}*`, triggerX + 20, headerY + 8, { align: 'center' })
+  doc.text(`*${rangeId}*`, triggerX + 20, headerY + 8, { align: 'center' })
 
-  // "Range" (centre-droite)
+  // "Range" (centre-droite) - Afficher le rangeId complet
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(12)
   doc.text('Range', 180, headerY)

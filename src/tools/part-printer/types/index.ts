@@ -79,9 +79,52 @@ export interface IFSMasterPart {
 }
 
 // ============================================================================
-// IFS Range
+// IFS Range (Plages horaires par site)
 // ============================================================================
 
+/**
+ * Range IFS avec plages horaires
+ * Endpoint: CompanySiteHandling.svc/CompanySiteSet(Contract='XXX')/SiteMfgstdInfoArray(Contract='XXX')/SiteMfgstdRangeArray
+ * 
+ * Exemple de données IFS:
+ * - Contract: "FR017"
+ * - Range: "A"
+ * - StartTime: "00:00:00"
+ * - FinishTime: "11:59:00"
+ * 
+ * - Contract: "FR017"
+ * - Range: "B"
+ * - StartTime: "12:00:00"
+ * - FinishTime: "23:59:00"
+ */
+export interface IFSSiteMfgstdRange {
+  Contract: string           // Code du site (ex: "FR017", "BDR")
+  Range: string              // Lettre de la Range (ex: "A", "B", "C", "R")
+  StartTime: string          // Heure de début au format "HH:mm:ss" (ex: "00:00:00")
+  FinishTime: string         // Heure de fin au format "HH:mm:ss" (ex: "11:59:00")
+  '@odata.etag'?: string
+  '@odata.type'?: string
+  '@odata.id'?: string
+  luname?: string
+  keyref?: string
+  Objgrants?: string | null
+}
+
+/**
+ * Range ID calculé pour une étiquette
+ * Format: "Quantième Lettre" (ex: "295 A")
+ */
+export interface CalculatedRangeId {
+  rangeId: string            // Range ID complet (ex: "295 A")
+  dayOfYear: number          // Quantième (jour de l'année)
+  rangeLetter: string        // Lettre de la Range (A, B, C, R, etc.)
+  time: string               // Heure utilisée pour le calcul (HH:mm:ss)
+}
+
+/**
+ * Ancien type IFSRange (deprecated - conservé pour rétrocompatibilité)
+ * @deprecated Utiliser IFSSiteMfgstdRange et CalculatedRangeId à la place
+ */
 export interface IFSRange {
   RangeId: string           // "285 A", etc.
   Site: string              // Contract
@@ -136,8 +179,9 @@ export interface ShopOrderFilterParams {
   site: string                           // Required: "BDR", "PRTBX", etc.
   productionLine?: string                // Optional: "L1", "L2", etc.
   startDate: string                      // Required: ISO date
-  blockDate: boolean                     // true = débit classique, false = redébit
-  op10BlockId?: 'EMPTY' | 'NO_CONDITION' // Filtre OP10 Block ID
+  blockDate: boolean                     // true = filtre CBlockDates=true, false = pas de filtre
+  blockIdEmpty: boolean                  // true = filtre BlockId vide, false = pas de filtre
+  // Note: op10BlockId deprecated, remplacé par blockIdEmpty (SFD stricte)
 }
 
 // ============================================================================

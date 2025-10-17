@@ -36,6 +36,7 @@ export function ShopOrderTable({
 }: ShopOrderTableProps) {
   const [sortField, setSortField] = useState<SortField>('orderNo')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -46,7 +47,23 @@ export function ShopOrderTable({
     }
   }
 
-  const sortedOrders = [...shopOrders].sort((a, b) => {
+  // Filtrer par recherche
+  const filteredOrders = shopOrders.filter((order) => {
+    if (!searchQuery) return true
+    
+    const query = searchQuery.toLowerCase()
+    const orderNo = `${order.OrderNo}-${order.ReleaseNo}-${order.SequenceNo}`.toLowerCase()
+    const partNo = order.PartNo.toLowerCase()
+    const startDate = order.RevisedStartDate || ''
+    
+    return (
+      orderNo.includes(query) ||
+      partNo.includes(query) ||
+      startDate.includes(query)
+    )
+  })
+
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
     let comparison = 0
 
     switch (sortField) {
@@ -57,10 +74,10 @@ export function ShopOrderTable({
         comparison = a.PartNo.localeCompare(b.PartNo)
         break
       case 'startDate':
-        comparison = new Date(a.ScheduledStartDate).getTime() - new Date(b.ScheduledStartDate).getTime()
+        comparison = new Date(a.RevisedStartDate).getTime() - new Date(b.RevisedStartDate).getTime()
         break
       case 'blockDate':
-        comparison = (a.BlockDate === b.BlockDate) ? 0 : a.BlockDate ? -1 : 1
+        comparison = (a.CBlockDates === b.CBlockDates) ? 0 : a.CBlockDates ? -1 : 1
         break
     }
 
@@ -81,13 +98,16 @@ export function ShopOrderTable({
     <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl overflow-hidden">
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-700/50">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-semibold text-white">
               📋 Résultats
             </h2>
             <p className="text-amber-300 text-sm mt-1">
-              {shopOrders.length} Shop Order{shopOrders.length > 1 ? 's' : ''} trouvé{shopOrders.length > 1 ? 's' : ''}
+              {filteredOrders.length} Shop Order{filteredOrders.length > 1 ? 's' : ''} trouvé{filteredOrders.length > 1 ? 's' : ''}
+              {searchQuery && filteredOrders.length !== shopOrders.length && (
+                <span className="text-gray-400"> (sur {shopOrders.length} total)</span>
+              )}
             </p>
           </div>
           {selectedOrders.size > 0 && (
@@ -96,6 +116,28 @@ export function ShopOrderTable({
                 {selectedOrders.size} sélectionné{selectedOrders.size > 1 ? 's' : ''}
               </p>
             </div>
+          )}
+        </div>
+
+        {/* Barre de recherche */}
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="🔍 Rechercher par Shop Order, Part No ou Date..."
+            className="w-full px-4 py-2 pl-10 bg-gray-900/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
+          />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            🔍
+          </span>
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+            >
+              ✕
+            </button>
           )}
         </div>
       </div>
@@ -135,16 +177,6 @@ export function ShopOrderTable({
                   Part No
                   <SortIcon active={sortField === 'partNo'} direction={sortDirection} />
                 </button>
-              </th>
-
-              {/* Part Description */}
-              <th className="px-6 py-4 text-left text-sm font-medium text-amber-200">
-                Description
-              </th>
-
-              {/* State */}
-              <th className="px-6 py-4 text-left text-sm font-medium text-amber-200">
-                State
               </th>
 
               {/* Start Date */}
@@ -211,30 +243,23 @@ export function ShopOrderTable({
                     </span>
                   </td>
 
-                  {/* Part Description */}
-                  <td className="px-6 py-4">
-                    <span className="text-gray-300 text-sm">
-                      {order.PartRevision || '-'}
-                    </span>
-                  </td>
-
-                  {/* State */}
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/50 border border-green-700/50 text-green-200">
-                      {order.State}
-                    </span>
-                  </td>
-
                   {/* Start Date */}
                   <td className="px-6 py-4">
                     <span className="text-gray-300 text-sm">
-                      {new Date(order.ScheduledStartDate).toLocaleDateString('fr-FR')}
+                      {(() => {
+                        try {
+                          const date = new Date(order.RevisedStartDate)
+                          return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString('fr-FR')
+                        } catch {
+                          return 'N/A'
+                        }
+                      })()}
                     </span>
                   </td>
 
                   {/* Block Date */}
                   <td className="px-6 py-4">
-                    {order.BlockDate ? (
+                    {order.CBlockDates ? (
                       <span className="inline-flex items-center gap-1 text-emerald-300 text-sm">
                         <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                         Oui

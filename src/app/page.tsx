@@ -181,7 +181,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Boat Config - Animation entrée décalée */}
             <Link href="/boat-configuration" className="animate-in fade-in slide-in-from-bottom duration-700 delay-200">
-              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-600/30 hover:border-blue-600/50 cursor-pointer active:scale-[0.98]">
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-600/30 hover:border-blue-600/50 cursor-pointer active:scale-[0.98] h-full flex flex-col">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-indigo-600/0 group-hover:from-blue-600/10 group-hover:to-indigo-600/10 transition-all duration-300" />
                 
                 <div className="relative mb-6 flex justify-center">
@@ -217,7 +217,7 @@ export default function Home() {
 
             {/* Part Printer - Animation entrée décalée */}
             <Link href="/part-printer" className="animate-in fade-in slide-in-from-bottom duration-700 delay-300">
-              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-600/30 hover:border-amber-600/50 cursor-pointer active:scale-[0.98]">
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 p-8 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-600/30 hover:border-amber-600/50 cursor-pointer active:scale-[0.98] h-full flex flex-col">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-600/0 to-orange-600/0 group-hover:from-amber-600/10 group-hover:to-orange-600/10 transition-all duration-300" />
                 
                 <div className="relative mb-6 flex justify-center">
@@ -252,7 +252,7 @@ export default function Home() {
             </Link>
 
             {/* Placeholder - Animation entrée décalée */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/20 to-gray-900/20 backdrop-blur-xl border-2 border-dashed border-gray-700/40 p-8 flex flex-col items-center justify-center min-h-[400px] animate-in fade-in slide-in-from-bottom duration-700 delay-400">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/20 to-gray-900/20 backdrop-blur-xl border border-dashed border-gray-700/50 p-8 flex flex-col items-center justify-center h-full animate-in fade-in slide-in-from-bottom duration-700 delay-400">
               <div className="text-center space-y-4">
                 <div className="w-20 h-20 mx-auto bg-gray-800/30 rounded-full flex items-center justify-center">
                   <svg className="w-10 h-10 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

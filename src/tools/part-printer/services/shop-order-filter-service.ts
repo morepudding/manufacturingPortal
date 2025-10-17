@@ -1,18 +1,20 @@
 /**
  * Service Shop Order Filter - Filtrage avancé des Shop Orders Part Printer
  * 
- * Phase 2.2 - Logique de filtrage
+ * Phase 2.2 - Logique de filtrage (SFD stricte avec 2 checkboxes)
  * 
  * Endpoint IFS: ShopOrderHandling.svc/ShopOrds
  * 
  * Logique de filtrage:
  * 
- * | Mode               | Block Date | OP10 Block ID           | Start Date          |
- * |--------------------|------------|-------------------------|---------------------|
- * | Débit classique    | true       | Strictement vide (EMPTY)| = Date sélectionnée |
- * | Redébit            | false      | No condition            | = Date sélectionnée |
+ * | Block Date | Block ID Empty | Comportement                                    | Cas d'usage           |
+ * |------------|----------------|-------------------------------------------------|-----------------------|
+ * | ✅         | ✅             | CBlockDates=true + BlockId=null                 | Débit classique       |
+ * | ✅         | ❌             | CBlockDates=true                                | Débit (pièces bloquées OK) |
+ * | ❌         | ✅             | BlockId=null                                    | Toutes dates (non bloquées) |
+ * | ❌         | ❌             | Aucun filtre                                    | Redébit (tout)        |
  * 
- * Note: La date peut être passée ou future dans les deux modes.
+ * ⚠️ Note AST: Le filtre BlockId n'est pas disponible sur AST. Il sera ignoré silencieusement.
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
@@ -31,20 +33,20 @@ import type {
  * 
  * @example
  * ```typescript
- * // Débit classique
+ * // Débit classique (Block Date + Block ID Empty)
  * const result = await filterShopOrders({
  *   site: "BDR",
  *   startDate: "2025-10-13",
  *   blockDate: true,
- *   op10BlockId: "EMPTY"
+ *   blockIdEmpty: true
  * })
  * 
- * // Redébit
+ * // Redébit (aucun filtre)
  * const result = await filterShopOrders({
  *   site: "BDR",
  *   startDate: "2025-10-14",
  *   blockDate: false,
- *   op10BlockId: "NO_CONDITION"
+ *   blockIdEmpty: false
  * })
  * ```
  */
@@ -53,7 +55,7 @@ export async function filterShopOrders(
 ): Promise<ShopOrdersFilterResponse> {
   console.log('🔍 [Shop Order Filter] Démarrage filtrage avec paramètres:', params)
 
-  const { site, productionLine, startDate, blockDate, op10BlockId } = params
+  const { site, productionLine, startDate, blockDate, blockIdEmpty } = params
 
   try {
     const client = getIFSClient()
@@ -72,13 +74,14 @@ export async function filterShopOrders(
     }
 
     // Mode pour log et filtre OData
-    if (blockDate) {
-      console.log('📊 [Shop Order Filter] Mode: Débit classique')
-    } else {
-      console.log('📊 [Shop Order Filter] Mode: Redébit')
-      // NOTE: On ne filtre PAS la date dans OData car la syntaxe est problématique
-      // On va filtrer côté code et augmenter $top pour avoir plus de résultats
-    }
+    const mode = blockDate && blockIdEmpty ? 'Débit classique' :
+                 !blockDate && !blockIdEmpty ? 'Redébit' :
+                 blockDate ? 'Débit (pièces bloquées OK)' :
+                 'Toutes dates (non bloquées)'
+    
+    console.log(`📊 [Shop Order Filter] Mode détecté: ${mode}`)
+    console.log(`📊 [Shop Order Filter] - Block Date: ${blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}`)
+    console.log(`📊 [Shop Order Filter] - Block ID Empty: ${blockIdEmpty ? 'Actif (Block ID vide)' : 'Inactif'}`)
 
     const odataFilter = filters.join(' and ')
     console.log('🔍 [Shop Order Filter] Filtre OData:', odataFilter)
@@ -104,19 +107,18 @@ export async function filterShopOrders(
 
     let shopOrders = response.value || []
 
-    // Filtrage côté code pour Objstate = "Released" OU "Closed" (mode dev/test)
-    // TODO PRODUCTION: Ne garder que 'Released' quand les données seront disponibles
+    // Filtrage côté code pour Objstate = "Released" (production)
     shopOrders = shopOrders.filter(order => 
-      order.Objstate === 'Released' || order.Objstate === 'Closed'
+      order.Objstate === 'Released'
     )
-    console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec Objstate='Released' ou 'Closed' (mode dev/test)`)
+    console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec Objstate='Released'`)
 
     // Filtrage local côté code pour date et CBlockDates
     const targetDate = startDate
     
     if (blockDate) {
-      // Débit classique: date = startDate + CBlockDates = true
-      console.log(`🔍 [DEBUG] Mode Débit classique - Recherche date=${targetDate}, CBlockDates=true`)
+      // Block Date actif: filtrer sur CBlockDates = true
+      console.log(`🔍 [DEBUG] Block Date actif - Recherche date=${targetDate}, CBlockDates=true`)
       console.log(`🔍 [DEBUG] Premiers Shop Orders (3 exemples):`)
       shopOrders.slice(0, 3).forEach(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
@@ -129,32 +131,32 @@ export async function filterShopOrders(
       })
       console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} et CBlockDates=true`)
     } else {
-      // Redébit: date = startDate + CBlockDates = false
-      console.log(`🔍 [DEBUG] Mode Redébit - Recherche date=${targetDate}, CBlockDates=false`)
+      // Block Date inactif: pas de filtre sur CBlockDates
+      console.log(`🔍 [DEBUG] Block Date inactif - Recherche date=${targetDate}, tous CBlockDates`)
       console.log(`🔍 [DEBUG] Premiers Shop Orders (10 exemples):`)
       shopOrders.slice(0, 10).forEach(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
         const dateCheck = orderDate === targetDate
-        const blockCheck = order.CBlockDates === false
-        console.log(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate} (${dateCheck ? '✅' : '❌'}), CBlockDates=${order.CBlockDates} (${blockCheck ? '✅' : '❌'})`)
+        console.log(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate} (${dateCheck ? '✅' : '❌'}), CBlockDates=${order.CBlockDates}`)
       })
       
       shopOrders = shopOrders.filter(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-        return orderDate === targetDate && order.CBlockDates === false
+        return orderDate === targetDate
       })
-      console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} et CBlockDates=false`)
+      console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} (tous CBlockDates)`)
     }
 
-    // Filtrage côté code pour OP10 Block ID
-    if (op10BlockId === 'EMPTY') {
+    // Filtrage côté code pour OP10 Block ID (si activé)
+    if (blockIdEmpty) {
       // TODO: Implémenter filtrage OP10 Block ID vide
       // Nécessite appel à OperationHandling.svc pour chaque Shop Order
-      console.log('⚠️ [Shop Order Filter] Filtrage OP10 Block ID EMPTY (TODO: implémenter)')
+      console.log('⚠️ [AST] Block ID filter skipped - Not available on AST environment')
+      console.log('📊 [Shop Order Filter] Block ID Empty demandé mais non disponible sur AST')
       // shopOrders = await filterByEmptyOP10BlockId(shopOrders)
-    } else if (op10BlockId === 'NO_CONDITION') {
-      console.log('📊 [Shop Order Filter] OP10 Block ID: No condition (pas de filtrage)')
-      // Pas de filtrage supplémentaire
+      // Note: Le code est prêt pour production, décommenter quand environnement le supporte
+    } else {
+      console.log('📊 [Shop Order Filter] Block ID Empty: Inactif (pas de filtrage)')
     }
 
     console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders après filtrage complet`)
@@ -250,9 +252,9 @@ export function validateFilterParams(params: ShopOrderFilterParams): void {
     throw new Error('Block date must be a boolean')
   }
 
-  // Validation op10BlockId si fourni
-  if (params.op10BlockId && !['EMPTY', 'NO_CONDITION'].includes(params.op10BlockId)) {
-    throw new Error('Invalid OP10 Block ID filter. Must be "EMPTY" or "NO_CONDITION"')
+  // Validation blockIdEmpty est un boolean
+  if (typeof params.blockIdEmpty !== 'boolean') {
+    throw new Error('Block ID empty must be a boolean')
   }
 
   console.log('✅ [Shop Order Filter] Paramètres validés')

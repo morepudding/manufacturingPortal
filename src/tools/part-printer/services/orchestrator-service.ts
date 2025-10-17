@@ -266,10 +266,10 @@ export async function generatePartLabels(
         console.log('  🔍 Récupération attributs Master Part...')
         const attributes = await getMasterPartAttributes(shopOrder.PartNo)
         
-        // Étape 5 : Range ID
-        // Calcul basé sur RevisedStartDate + CBlockDates (redébit ou non)
-        const isRecutting = shopOrder.CBlockDates === false  // false = Redébit → Range "R"
-        const rangeId = options.mockRangeId || calculateMockRangeId(shopOrder.RevisedStartDate, isRecutting)
+        // Étape 5 : Range ID (basé sur plages horaires du site)
+        // ⚠️ NOTE: En mode mock, on utilise options.mockRangeId si fourni
+        // En mode réel, getRangeId() récupère les plages horaires depuis IFS
+        const rangeId = options.mockRangeId || calculateMockRangeId(shopOrder.RevisedStartDate)
         
         // Étape 6 : Barcode (optionnel)
         let barcodeDataUrl = ''
@@ -476,30 +476,29 @@ export async function executeCompleteWorkflow(
 }
 
 /**
- * Calculer un Range ID basé sur la date et le mode (débit/redébit)
+ * Calculer un Range ID en mode mock (sans appel IFS)
  * 
- * Logique métier validée :
- * - Range = Quantième (jour de l'année) + Lettre
- * - Lettre : "R" si redébit (CBlockDates = false), sinon "A"
+ * ⚠️ DEPRECATED: Cette logique simplifiée retourne toujours "A"
+ * La vraie logique utilise les plages horaires du site (getRangeId())
  * 
- * ⚠️ TODO: Valider avec l'équipe métier si d'autres lettres (B, C) existent
+ * Logique mock :
+ * - Range = Quantième (jour de l'année) + Lettre "A"
  * 
+ * @deprecated Utiliser getRangeId() du range-service.ts pour la vraie logique
  * @param dateString - Date au format ISO (RevisedStartDate du Shop Order)
- * @param isRecutting - true si redébit (CBlockDates = false)
- * @returns Range ID (ex: "274 A" ou "274 R")
+ * @returns Range ID (ex: "274 A")
  */
-function calculateMockRangeId(dateString: string, isRecutting: boolean = false): string {
+function calculateMockRangeId(dateString: string): string {
   const date = new Date(dateString)
   const dayOfYear = Math.floor(
     (date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000
   )
   
-  // Lettre du Range :
-  // - "R" = Redébit (CBlockDates = false)
-  // - "A" = Débit classique (CBlockDates = true)
-  const letter = isRecutting ? 'R' : 'A'
+  // Mode mock: toujours "A"
+  // La vraie lettre dépend des plages horaires du site (voir range-service.ts)
+  const letter = 'A'
   
-  // Format: "DDD X" (ex: "274 A" ou "274 R")
+  // Format: "DDD X" (ex: "274 A")
   return `${dayOfYear} ${letter}`
 }
 

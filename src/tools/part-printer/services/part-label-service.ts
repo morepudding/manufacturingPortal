@@ -50,10 +50,9 @@ export async function generatePartLabel(
     console.log('📊 [Part Label Service] Étape 2/4 - Master Part...')
     const masterPart = await getMasterPartAttributes(shopOrder.PartNo)
 
-    // 3. Récupérer Range ID (avec CBlockDates pour déterminer Redébit/Débit)
+    // 3. Récupérer Range ID (basé sur plages horaires du site)
     console.log('📊 [Part Label Service] Étape 3/4 - Range ID...')
-    const isRecutting = shopOrder.CBlockDates === false // false = Redébit (R), true = Débit (A)
-    const rangeId = await getRangeId(site, shopOrder.RevisedStartDate, isRecutting) || 'N/A'
+    const rangeId = await getRangeId(site, shopOrder.RevisedStartDate) || 'N/A'
 
     // 4. Générer barcode
     console.log('📊 [Part Label Service] Étape 4/4 - Barcode...')

@@ -17,7 +17,7 @@
 
 import { useState } from 'react'
 import { FilterPanel } from './components'
-import { ShopOrderTable } from './components'
+import { ShopOrderSummary } from './components'
 import { LabelPreviewDialog } from './components'
 import { PrintDialog } from './components'
 import type { ShopOrderFilterParams, IFSShopOrderExtended, PartLabel } from '@/tools/part-printer/types'
@@ -58,6 +58,15 @@ export default function PartPrinterPage() {
 
       setShopOrders(json.data.shopOrders || [])
       console.log(`✅ [Part Printer] ${json.data.count} Shop Orders trouvés`)
+      
+      // ✅ Sélectionner automatiquement tous les Shop Orders
+      if (json.data.shopOrders && json.data.shopOrders.length > 0) {
+        const allIds = json.data.shopOrders.map((order: IFSShopOrderExtended) => 
+          `${order.OrderNo}-${order.ReleaseNo}-${order.SequenceNo}`
+        )
+        setSelectedOrders(new Set(allIds))
+        console.log(`✅ [Part Printer] ${allIds.length} Shop Orders sélectionnés automatiquement`)
+      }
     } catch (err) {
       console.error('❌ [Part Printer] Erreur:', err)
       setError(err instanceof Error ? err.message : 'Une erreur est survenue')
@@ -222,35 +231,6 @@ export default function PartPrinterPage() {
             Part Printer
           </h1>
           <p className="text-amber-200 text-lg">🏷️ Impression d'étiquettes pour pièces en bois</p>
-          
-          {/* Dev Mode Warning */}
-          <div className="mx-auto mt-6 max-w-3xl rounded-lg border border-amber-500/30 bg-amber-950/40 p-4 backdrop-blur-sm">
-            <div className="flex items-start gap-3">
-              <svg 
-                className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
-                />
-              </svg>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-semibold text-amber-300">
-                  ⚙️ Mode Développement / Test
-                </p>
-                <p className="mt-1 text-sm text-amber-100/80">
-                  Les Shop Orders avec statut <span className="font-semibold text-amber-200">"Released"</span> et{' '}
-                  <span className="font-semibold text-amber-200">"Closed"</span> sont affichés pour permettre les tests.
-                  En production, seuls les ordres "Released" seront visibles.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Filtres */}
@@ -269,22 +249,13 @@ export default function PartPrinterPage() {
         {/* Résultats */}
         {shopOrders.length > 0 && (
           <div className="space-y-6">
-            {/* Table */}
-            <ShopOrderTable
-              shopOrders={shopOrders}
-              selectedOrders={selectedOrders}
-              onSelectionChange={handleSelectionChange}
-              onSelectAll={handleSelectAll}
-              loading={loading}
-            />
-
-            {/* Actions */}
+            {/* Actions en haut (sticky) */}
             {selectedOrders.size > 0 && (
-              <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6">
+              <div className="sticky top-4 z-10 bg-gray-800/90 backdrop-blur-xl border border-amber-500/50 rounded-2xl p-4 shadow-2xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-white font-semibold text-lg">
-                      {selectedOrders.size} Shop Order{selectedOrders.size > 1 ? 's' : ''} sélectionné{selectedOrders.size > 1 ? 's' : ''}
+                      ✅ {selectedOrders.size} Shop Order{selectedOrders.size > 1 ? 's' : ''} sélectionné{selectedOrders.size > 1 ? 's' : ''}
                     </p>
                     <p className="text-amber-300 text-sm mt-1">
                       Cliquez sur "Aperçu" pour générer les étiquettes
@@ -294,7 +265,7 @@ export default function PartPrinterPage() {
                     <button
                       onClick={handlePreview}
                       disabled={generatingLabels}
-                      className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-amber-500/50"
                     >
                       {generatingLabels ? '⏳ Génération...' : '📄 Aperçu'}
                     </button>
@@ -302,6 +273,15 @@ export default function PartPrinterPage() {
                 </div>
               </div>
             )}
+
+            {/* Résumé et Table */}
+            <ShopOrderSummary
+              shopOrders={shopOrders}
+              selectedOrders={selectedOrders}
+              onSelectionChange={handleSelectionChange}
+              onSelectAll={handleSelectAll}
+              loading={loading}
+            />
           </div>
         )}
 

@@ -31,7 +31,7 @@ interface Particle {
 const TRANSLATIONS = {
   fr: {
     hero: {
-      title: 'Outils de Production',
+      title: 'Manufacturing Portal',
       subtitle: 'Sélectionnez votre application',
     },
     apps: {
@@ -52,7 +52,7 @@ const TRANSLATIONS = {
   },
   en: {
     hero: {
-      title: 'Production Tools',
+      title: 'Manufacturing Portal',
       subtitle: 'Select your application',
     },
     apps: {

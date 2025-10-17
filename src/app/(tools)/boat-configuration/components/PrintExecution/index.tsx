@@ -55,15 +55,26 @@ export function PrintExecution({
         downloadPdf,
       })
       
+      // 🔥 CONFIGURATION PRODUCTION - NE PAS MODIFIER
+      const REPORT_ID = 'PROFORMA_INVOICE_REP'
+      const LAYOUT_NAME = 'BEN_Boat_configuration_for_production.rdl'
+      
+      console.log('🔍 VERIFICATION CONFIGURATION IMPRESSION:')
+      console.log(`   ✅ Report ID: ${REPORT_ID}`)
+      console.log(`   ✅ Layout Name: ${LAYOUT_NAME}`)
+      console.log(`   📋 Order No: ${orderNo}`)
+      console.log(`   🖨️ Printer: ${printerId}`)
+      console.log(`   🌍 Language: ${languageCode}`)
+      
       const response = await fetch('/api/boat-configuration/print', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderNo,
-          reportId: 'CUSTOMER_ORDER_CONF_REP', // AST (Dev)
+          reportId: REPORT_ID,
           printerId,
           languageCode,
-          layoutName: 'BEN_Inventory-BAT.rdl', // ✅ Layout IFS validé (génère du contenu)
+          layoutName: LAYOUT_NAME,
           copies: 1,
           downloadPdf,
         }),
@@ -97,8 +108,8 @@ export function PrintExecution({
         setResult({
           success: true,
           resultKey: 0, // Le PDF a été téléchargé directement
-          reportTitle: 'Customer Order Configuration',
-          layoutName: 'BEN_Inventory-BAT.rdl',
+          reportTitle: 'Boat Configuration for Production',
+          layoutName: LAYOUT_NAME,
           pdfInfo: {
             fileName: filename,
             size: blob.size,
@@ -145,7 +156,8 @@ export function PrintExecution({
           </div>
           <div className="col-span-2">
             <span className="font-medium text-cyan-400">Document:</span>
-            <div className="text-white">Customer Order Configuration (CUSTOMER_ORDER_CONF_REP)</div>
+            <div className="text-white">Boat Configuration for Production (PROFORMA_INVOICE_REP)</div>
+            <div className="text-xs text-cyan-200 mt-1">Layout: BEN_Boat_configuration_for_production.rdl</div>
           </div>
         </div>
       </div>

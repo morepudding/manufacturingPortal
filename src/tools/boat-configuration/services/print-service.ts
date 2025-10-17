@@ -48,12 +48,13 @@ function sleep(ms: number): Promise<void> {
  * 
  * @example
  * ```typescript
- * // Impression simple (envoi à l'imprimante)
+ * // 🔥 CONFIGURATION PRODUCTION (par défaut)
  * const result = await printCustomerOrder({
  *   orderNo: 'C1000038587',
- *   reportId: 'CUSTOMER_ORDER_CONF_REP',
+ *   reportId: 'PROFORMA_INVOICE_REP',  // ✅ PRODUCTION
  *   printerId: 'PDF_PRINTER',
  *   languageCode: 'fr',
+ *   layoutName: 'BEN_Boat_configuration_for_production.rdl',  // ✅ PRODUCTION
  *   copies: 1,
  *   downloadPdf: false
  * })

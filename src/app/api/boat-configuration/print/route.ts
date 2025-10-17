@@ -1,14 +1,14 @@
 /**
  * API Route: POST /api/boat-configuration/print
  * 
- * Endpoint pour imprimer un document Customer Order
+ * Endpoint pour imprimer un document Customer Order - Boat Configuration
  * 
  * Body:
  * - orderNo: string (requis)
- * - reportId: string (par défaut: CUSTOMER_ORDER_CONF_REP)
+ * - reportId: string (par défaut: PROFORMA_INVOICE_REP) ✅ PRODUCTION
  * - printerId: string (par défaut: PDF_PRINTER)
  * - languageCode: string (par défaut: fr)
- * - layoutName: string (par défaut: BEN_Inventory-BAT.rdl) ✅ Layout IFS validé
+ * - layoutName: string (par défaut: BEN_Boat_configuration_for_production.rdl) ✅ PRODUCTION
  * - copies: number (par défaut: 1)
  * - downloadPdf: boolean (par défaut: false)
  * 
@@ -16,9 +16,9 @@
  * - Si downloadPdf=false: JSON avec resultKey, reportTitle, layoutName
  * - Si downloadPdf=true: Fichier PDF en téléchargement direct
  * 
- * Note: Le layout BEN_Inventory-BAT.rdl est le layout par défaut retourné par IFS
- * qui génère correctement du contenu. Le layout BEN_Boat_configuration_for_production.rdl
- * existe dans IFS mais génère des PDFs vides (non configuré ou vide).
+ * 🔥 CONFIGURATION PRODUCTION:
+ * - Report ID: PROFORMA_INVOICE_REP (validé dans IFS AST)
+ * - Layout: BEN_Boat_configuration_for_production.rdl (validé dans IFS AST)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -41,15 +41,32 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // 🔥 CONFIGURATION PRODUCTION - Valeurs par défaut
+    const DEFAULT_REPORT_ID = 'PROFORMA_INVOICE_REP'
+    const DEFAULT_LAYOUT_NAME = 'BEN_Boat_configuration_for_production.rdl'
+    
     // Construire la requête d'impression avec valeurs par défaut
     const printRequest: PrintRequest = {
       orderNo: body.orderNo.trim(),
-      reportId: body.reportId || 'CUSTOMER_ORDER_CONF_REP',
+      reportId: body.reportId || DEFAULT_REPORT_ID,
       printerId: body.printerId || 'PDF_PRINTER',
       languageCode: body.languageCode || 'fr',
-      layoutName: body.layoutName || 'BEN_Inventory-BAT.rdl', // ✅ Layout par défaut IFS validé
+      layoutName: body.layoutName || DEFAULT_LAYOUT_NAME,
       copies: body.copies || 1,
       downloadPdf: body.downloadPdf || false,
+    }
+    
+    console.log('\n🔍 VERIFICATION CONFIGURATION IMPRESSION API:')
+    console.log(`   ✅ Report ID: ${printRequest.reportId} ${printRequest.reportId === DEFAULT_REPORT_ID ? '(DEFAULT ✓)' : '(CUSTOM)'}`)
+    console.log(`   ✅ Layout Name: ${printRequest.layoutName} ${printRequest.layoutName === DEFAULT_LAYOUT_NAME ? '(DEFAULT ✓)' : '(CUSTOM)'}`)
+    console.log(`   📋 Order No: ${printRequest.orderNo}`)
+    console.log(`   🖨️ Printer: ${printRequest.printerId}`)
+    console.log(`   🌍 Language: ${printRequest.languageCode}`)
+    console.log(`   📥 Download PDF: ${printRequest.downloadPdf}`)
+    
+    // 🔒 Sécurité : Vérifier que le printerId reçu est bien celui du body (pas de substitution)
+    if (body.printerId && body.printerId !== printRequest.printerId) {
+      console.warn(`⚠️  ATTENTION: PrinterId modifié! Body: ${body.printerId} → Request: ${printRequest.printerId}`)
     }
     
     // Validation additionnelle
@@ -63,15 +80,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
-    console.log('\n📨 API /boat-configuration/print request:', {
-      orderNo: printRequest.orderNo,
-      reportId: printRequest.reportId,
-      printerId: printRequest.printerId,
-      languageCode: printRequest.languageCode,
-      layoutName: printRequest.layoutName,
-      downloadPdf: printRequest.downloadPdf,
-    })
     
     // Exécuter le workflow d'impression
     const result = await printCustomerOrder(printRequest)

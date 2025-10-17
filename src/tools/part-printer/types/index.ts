@@ -149,14 +149,9 @@ export interface PartLabel {
   // Operation 10
   rawMaterial: string       // Part code de la matière première
   
-  // ⚠️ TEMPORAIRE (AST/Dev) : opId utilisé comme fallback pour Block ID
-  // TODO PRODUCTION : Utiliser uniquement blockId quand disponible en PROD
-  opId: string              // Operation ID (unique identifier) - Utilisé temporairement en AST
-  
-  // ⚠️ TEMPORAIRE (AST/Dev) : blockId peut être null ou OpId
-  // TODO PRODUCTION : Remplacer par le vrai OP 10 Block ID quand disponible en PROD
-  // En AST (Dev), le Block ID n'est pas disponible dans OperationBlockId
-  blockId: string | null    // Block ID de l'opération 10 (peut être null - valeur valide)
+  // ✅ CORRIGÉ (17 oct 2025) : Utilise OperationBlockId (conforme SFD)
+  // Remplace opId qui était utilisé par erreur
+  operationBlockId: string | null    // Block ID de l'opération OP10 (ex: "B89", "B92", ou null)
   
   // Master Part
   genericCode: string
@@ -180,8 +175,10 @@ export interface ShopOrderFilterParams {
   productionLine?: string                // Optional: "L1", "L2", etc.
   startDate: string                      // Required: ISO date
   blockDate: boolean                     // true = filtre CBlockDates=true, false = pas de filtre
-  blockIdEmpty: boolean                  // true = filtre BlockId vide, false = pas de filtre
-  // Note: op10BlockId deprecated, remplacé par blockIdEmpty (SFD stricte)
+  
+  // ✅ RÉACTIVÉ (17 oct 2025) : Filtre OperationBlockId avec 3 options
+  // Remplace blockIdEmpty (ancien boolean) par une union type plus flexible
+  operationBlockIdFilter: 'all' | 'empty' | 'not-empty'  // all = tous, empty = vide uniquement, not-empty = non-vide uniquement
 }
 
 // ============================================================================

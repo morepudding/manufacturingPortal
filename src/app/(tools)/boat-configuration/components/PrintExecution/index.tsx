@@ -8,6 +8,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/shared/components/atoms/Button'
+import { Printer, Download, ArrowLeft, CheckCircle, XCircle, Loader2, FileText, Globe } from 'lucide-react'
 import type { PrintResult } from '@/tools/boat-configuration/types'
 
 interface PrintExecutionProps {
@@ -135,8 +136,12 @@ export function PrintExecution({
   return (
     <div className="space-y-6">
       {/* Configuration Summary */}
+            {/* Configuration Summary */}
       <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">
-        <h3 className="font-semibold text-cyan-300 mb-3">📋 Print Configuration</h3>
+        <h3 className="font-semibold text-cyan-300 mb-3 flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          Configuration d'Impression
+        </h3>
         <div className="grid grid-cols-2 gap-3 text-sm text-gray-300">
           <div>
             <span className="font-medium text-cyan-400">Customer Order:</span>
@@ -147,11 +152,17 @@ export function PrintExecution({
             <div className="text-white font-semibold">{serialNumber}</div>
           </div>
           <div>
-            <span className="font-medium text-cyan-400">Printer:</span>
+            <span className="font-medium text-cyan-400 flex items-center gap-1">
+              <Printer className="w-3 h-3" />
+              Imprimante:
+            </span>
             <div className="text-white">{printerId}</div>
           </div>
           <div>
-            <span className="font-medium text-cyan-400">Language:</span>
+            <span className="font-medium text-cyan-400 flex items-center gap-1">
+              <Globe className="w-3 h-3" />
+              Langue:
+            </span>
             <div className="text-white uppercase">{languageCode}</div>
           </div>
           <div className="col-span-2">
@@ -163,57 +174,53 @@ export function PrintExecution({
       </div>
 
       {/* Actions */}
-      {!result && (
-        <div className="space-y-3">
-          <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-md p-3">
-            <p className="text-sm text-yellow-200">
-              💡 <strong>Choose an action:</strong>
+      {!result && !loading && (
+        <div className="space-y-4">
+          <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-md p-4">
+            <p className="text-base text-yellow-200 font-medium">
+              Choisissez une action:
             </p>
             <ul className="text-sm text-yellow-200 mt-2 ml-4 space-y-1">
-              <li>• <strong>Print Only</strong>: Send to printer (faster, ~10s)</li>
-              <li>• <strong>Print & Download PDF</strong>: Get a copy of the document (slower, ~15s)</li>
+              <li className="flex items-center gap-2">
+                <Printer className="w-4 h-4" />
+                <span><strong>Imprimer uniquement</strong>: Envoi à l'imprimante</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                <span><strong>Imprimer + Télécharger PDF</strong>: Copie du document</span>
+              </li>
             </ul>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button
               onClick={() => handlePrint(false)}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600"
+              className="h-20 text-xl font-bold bg-blue-600 hover:bg-blue-500 transition-all hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
             >
-              {loading && downloadMode === 'print' ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Printing...
-                </>
-              ) : (
-                <>🖨️ Print Only</>
-              )}
+              <span className="flex flex-col items-center gap-2">
+                <Printer className="w-10 h-10" />
+                <span>Imprimer</span>
+              </span>
             </Button>
 
             <Button
               onClick={() => handlePrint(true)}
-              disabled={loading}
-              className="bg-teal-600 hover:bg-teal-500 disabled:bg-gray-600"
+              className="h-20 text-xl font-bold bg-teal-600 hover:bg-teal-500 transition-all hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
             >
-              {loading && downloadMode === 'download' ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Downloading...
-                </>
-              ) : (
-                <>📥 Print & Download PDF</>
-              )}
+              <span className="flex flex-col items-center gap-2">
+                <Download className="w-10 h-10" />
+                <span>Imprimer + PDF</span>
+              </span>
             </Button>
           </div>
 
           <Button
             onClick={onReset}
-            disabled={loading}
             variant="outline"
-            className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="w-full h-14 text-lg border-gray-600 text-gray-300 hover:bg-gray-700 transition-all"
           >
-            ← Back to Selection
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Retour à la sélection
           </Button>
         </div>
       )}
@@ -221,8 +228,9 @@ export function PrintExecution({
       {/* Error Display */}
       {error && (
         <div className="bg-red-900/50 border border-red-700 text-red-200 rounded-md p-4">
-          <p className="font-semibold flex items-center">
-            ❌ Print Error
+          <p className="font-semibold flex items-center gap-2">
+            <XCircle className="w-5 h-5" />
+            Erreur d'Impression
           </p>
           <p className="mt-2">{error}</p>
           <Button
@@ -230,7 +238,7 @@ export function PrintExecution({
             variant="outline"
             className="mt-3 border-red-700 text-red-200 hover:bg-red-800"
           >
-            Try Again
+            Réessayer
           </Button>
         </div>
       )}
@@ -239,8 +247,9 @@ export function PrintExecution({
       {result && !error && (
         <div className="space-y-4">
           <div className="bg-teal-900/50 border border-teal-700 text-teal-200 rounded-md p-4">
-            <p className="font-semibold flex items-center text-lg">
-              ✅ Print Successful!
+            <p className="font-semibold flex items-center gap-2 text-lg">
+              <CheckCircle className="w-6 h-6" />
+              Impression Réussie !
             </p>
             <div className="mt-3 space-y-2 text-sm">
               <div>
@@ -258,14 +267,17 @@ export function PrintExecution({
               {result.pdfInfo && (
                 <>
                   <div className="border-t border-teal-700/50 pt-2 mt-2">
-                    <span className="font-medium text-teal-300">PDF Downloaded:</span>
+                    <span className="font-medium text-teal-300 flex items-center gap-2">
+                      <Download className="w-4 h-4" />
+                      PDF Téléchargé:
+                    </span>
                   </div>
                   <div>
-                    <span className="font-medium text-teal-300">File:</span>{' '}
+                    <span className="font-medium text-teal-300">Fichier:</span>{' '}
                     {result.pdfInfo.fileName}
                   </div>
                   <div>
-                    <span className="font-medium text-teal-300">Size:</span>{' '}
+                    <span className="font-medium text-teal-300">Taille:</span>{' '}
                     {(result.pdfInfo.size / 1024).toFixed(2)} KB
                   </div>
                 </>
@@ -273,33 +285,93 @@ export function PrintExecution({
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <Button
               onClick={onReset}
-              className="flex-1 bg-blue-600 hover:bg-blue-500"
+              className="flex-1 h-16 text-xl font-bold bg-blue-600 hover:bg-blue-500 transition-all hover:scale-105 active:scale-95 shadow-lg"
             >
-              🔄 New Print
+              <span className="flex items-center justify-center gap-2">
+                <Printer className="w-6 h-6" />
+                Nouvelle Impression
+              </span>
             </Button>
           </div>
         </div>
       )}
 
-      {/* Loading Indicator */}
+      {/* Loading Indicator - Full Screen Overlay */}
       {loading && (
-        <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">
-          <div className="flex items-center justify-center space-x-3">
-            <div className="animate-spin text-3xl">⏳</div>
-            <div className="text-white">
-              <p className="font-semibold">
-                {downloadMode === 'download' ? 'Printing & Downloading PDF...' : 'Sending to printer...'}
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-blue-900/90 to-cyan-900/90 border-2 border-blue-500/50 rounded-3xl p-12 shadow-2xl max-w-md mx-4">
+            {/* Spinner animé */}
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                {/* Cercle externe qui tourne */}
+                <div className="w-32 h-32 rounded-full border-8 border-blue-500/30 border-t-blue-500 animate-spin"></div>
+                {/* Icône centrale */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {downloadMode === 'download' ? (
+                    <Download className="w-16 h-16 text-blue-400 animate-pulse" />
+                  ) : (
+                    <Printer className="w-16 h-16 text-blue-400 animate-pulse" />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Texte de statut */}
+            <div className="text-center space-y-4">
+              <h3 className="text-3xl font-bold text-white">
+                {downloadMode === 'download' ? 'Impression & Téléchargement' : 'Impression en cours'}
+              </h3>
+              <p className="text-xl text-cyan-200">
+                Veuillez patienter...
               </p>
-              <p className="text-sm text-gray-300 mt-1">
-                This may take {downloadMode === 'download' ? '10-15' : '5-10'} seconds
-              </p>
+              
+              {/* Barre de progression animée */}
+              <div className="w-full bg-blue-950/50 rounded-full h-3 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 animate-progress"></div>
+              </div>
+
+              {/* Informations */}
+              <div className="text-sm text-gray-300 space-y-2 pt-4">
+                <p className="flex items-center justify-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Commande: <span className="font-bold text-white">{orderNo}</span>
+                </p>
+                <p className="flex items-center justify-center gap-2">
+                  <Printer className="w-4 h-4" />
+                  Imprimante: <span className="font-bold text-white">{printerId}</span>
+                </p>
+                <p className="text-yellow-300 text-xs pt-2 flex items-center justify-center gap-2">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Cette opération peut prendre 15-30 secondes
+                </p>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Style pour l'animation de progression */}
+      <style jsx>{`
+        @keyframes progress {
+          0% {
+            width: 0%;
+            opacity: 0.5;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            width: 100%;
+            opacity: 0.5;
+          }
+        }
+        .animate-progress {
+          animation: progress 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   )
 }

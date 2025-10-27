@@ -27,7 +27,7 @@ export default function Header() {
     };
     
     return (
-        <div className={`flex w-full h-16 items-center px-6 shadow-lg transition-colors duration-300 ${getGradientClass()}`}>
+        <div className={`sticky top-0 z-50 flex w-full h-16 items-center px-6 shadow-lg transition-colors duration-300 ${getGradientClass()}`}>
             {/* Logo + Titre */}
             <Link href="/" className="flex items-center gap-3 group mr-8">
                 <div className="relative w-10 h-10 transition-transform group-hover:scale-110 duration-300">

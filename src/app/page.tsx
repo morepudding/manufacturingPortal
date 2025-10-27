@@ -195,11 +195,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="relative space-y-3">
+                <div className="relative space-y-3 flex-1 flex flex-col">
                   <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-300">
                     {t.apps.boat.title}
                   </h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">
+                  <p className="text-sm text-gray-400 leading-relaxed flex-1">
                     {t.apps.boat.description}
                   </p>
 
@@ -231,11 +231,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="relative space-y-3">
+                <div className="relative space-y-3 flex-1 flex flex-col">
                   <h3 className="text-xl font-semibold text-white group-hover:text-amber-300 transition-colors duration-300">
                     {t.apps.part.title}
                   </h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">
+                  <p className="text-sm text-gray-400 leading-relaxed flex-1">
                     {t.apps.part.description}
                   </p>
 

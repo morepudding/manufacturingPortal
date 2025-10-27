@@ -13,6 +13,9 @@ import { PrinterSearch } from '@/shared/components/molecules/PrinterSearch'
 import { LanguageSelector } from '@/shared/components/molecules/LanguageSelector'
 import { CustomerOrderValidation, type CustomerOrderData } from '@/app/(tools)/boat-configuration/components/CustomerOrderValidation'
 import { PrintExecution } from '@/app/(tools)/boat-configuration/components/PrintExecution'
+import { ContextualSidebar } from '@/app/(tools)/boat-configuration/components/ContextualSidebar'
+import { VerticalStepper } from '@/app/(tools)/boat-configuration/components/VerticalStepper'
+import { Search, CheckCircle, XCircle, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 
 type Step = 'entry' | 'confirmation' | 'customer-order' | 'selection' | 'print'
 
@@ -70,6 +73,26 @@ export default function BoatConfigurationPage() {
   const [loadingCustomerOrder, setLoadingCustomerOrder] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Mapping des steps pour le stepper
+  const stepMapping: Record<Step, number> = {
+    'entry': 1,
+    'confirmation': 2,
+    'customer-order': 3,
+    'selection': 4,
+    'print': 5,
+  }
+
+  const currentStepNumber = stepMapping[currentStep]
+
+  // Configuration du stepper
+  const stepperSteps = [
+    { id: 1, label: 'Entry', completed: currentStepNumber > 1, active: currentStepNumber === 1 },
+    { id: 2, label: 'Confirm', completed: currentStepNumber > 2, active: currentStepNumber === 2 },
+    { id: 3, label: 'Customer', completed: currentStepNumber > 3, active: currentStepNumber === 3 },
+    { id: 4, label: 'Selection', completed: currentStepNumber > 4, active: currentStepNumber === 4 },
+    { id: 5, label: 'Print', completed: currentStepNumber > 5, active: currentStepNumber === 5 },
+  ]
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -229,85 +252,102 @@ export default function BoatConfigurationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-cyan-950">
-      {/* Background Orbs avec Parallax */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 -right-48 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-700" />
-        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-teal-500/15 rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
+    <>
+      {/* Stepper Vertical Gauche */}
+      <VerticalStepper steps={stepperSteps} />
 
-      <div className="relative container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
-            Boat Configuration Editor
-          </h1>
-          <p className="text-cyan-200 text-lg">🚤 Gestion des ordres de fabrication</p>
+      {/* Sidebar Contextuelle Droite */}
+      <ContextualSidebar
+        orderNo={searchResult?.shopOrder?.OrderNo}
+        releaseNo={searchResult?.shopOrder?.ReleaseNo}
+        sequenceNo={searchResult?.shopOrder?.SequenceNo}
+        serialNumber={serialNumber !== 'N/A' ? serialNumber : undefined}
+        partNo={searchResult?.shopOrder?.PartNo}
+        partDescription={searchResult?.shopOrder?.PartDescription}
+        contract={searchResult?.shopOrder?.Contract}
+        customerOrderNo={customerOrder?.orderNo}
+      />
+
+      {/* Contenu principal avec décalage pour stepper gauche et sidebar droite */}
+      <div className="ml-28 mr-80 min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-cyan-950">
+        {/* Background Orbs avec Parallax */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 -left-48 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-1/2 -right-48 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-700" />
+          <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-teal-500/15 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
 
-        {/* Step Indicators */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <StepIndicator step={1} label="Entry" active={currentStep === 'entry'} completed={['confirmation', 'customer-order', 'selection', 'print'].includes(currentStep)} />
-            <StepIndicator step={2} label="Confirmation" active={currentStep === 'confirmation'} completed={['customer-order', 'selection', 'print'].includes(currentStep)} />
-            <StepIndicator step={3} label="Customer Order" active={currentStep === 'customer-order'} completed={['selection', 'print'].includes(currentStep)} />
-            <StepIndicator step={4} label="Selection" active={currentStep === 'selection'} completed={currentStep === 'print'} />
-            <StepIndicator step={5} label="Print" active={currentStep === 'print'} completed={false} />
+        <div className="relative container mx-auto px-6 py-12 max-w-5xl">
+          {/* Titre principal */}
+          <div className="mb-12 text-center">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+              Boat Configuration Editor
+            </h1>
+            <p className="text-xl text-cyan-200 font-light">Gestion des ordres de fabrication</p>
           </div>
-        </div>
 
         {/* Step 1: Entry */}
         {currentStep === 'entry' && (
-          <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Step 1: Enter Shop Order Details</h2>
-            <form onSubmit={handleSearch} className="space-y-4">
+          <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-8">
+            <h2 className="text-3xl font-bold text-white mb-8">Step 1: Enter Shop Order Details</h2>
+            <form onSubmit={handleSearch} className="space-y-8">
               <div>
-                <Label htmlFor="orderNo" className="text-gray-200">Order No *</Label>
+                <Label htmlFor="orderNo" className="text-gray-200 text-xl mb-3 block font-medium">Order No *</Label>
                 <Input
                   id="orderNo"
                   type="text"
                   value={shopOrder.orderNo}
                   onChange={(e) => setShopOrder({ ...shopOrder, orderNo: e.target.value })}
-                  placeholder="e.g., 563, 97277, 1043"
+                  placeholder="ex: 563, 97277, 1043"
                   required
                   disabled={loading}
-                  className="bg-gray-900/50 border-gray-600 text-white"
+                  className="bg-gray-900/50 border-2 border-gray-600 text-white h-24 text-3xl px-8 rounded-xl focus:ring-4 focus:ring-blue-600/50 focus:border-blue-600"
                 />
               </div>
               <div>
-                <Label htmlFor="releaseNo" className="text-gray-200">Release No *</Label>
+                <Label htmlFor="releaseNo" className="text-gray-200 text-xl mb-3 block font-medium">Release No *</Label>
                 <Input
                   id="releaseNo"
                   type="text"
                   value={shopOrder.releaseNo}
                   onChange={(e) => setShopOrder({ ...shopOrder, releaseNo: e.target.value })}
-                  placeholder="e.g., 1 or * for all"
+                  placeholder="ex: 1 ou * pour tous"
                   required
                   disabled={loading}
-                  className="bg-gray-900/50 border-gray-600 text-white"
+                  className="bg-gray-900/50 border-2 border-gray-600 text-white h-24 text-3xl px-8 rounded-xl focus:ring-4 focus:ring-blue-600/50 focus:border-blue-600"
                 />
               </div>
               <div>
-                <Label htmlFor="sequenceNo" className="text-gray-200">Sequence No *</Label>
+                <Label htmlFor="sequenceNo" className="text-gray-200 text-xl mb-3 block font-medium">Sequence No *</Label>
                 <Input
                   id="sequenceNo"
                   type="text"
                   value={shopOrder.sequenceNo}
                   onChange={(e) => setShopOrder({ ...shopOrder, sequenceNo: e.target.value })}
-                  placeholder="e.g., 10 or * for all"
+                  placeholder="ex: 10 ou * pour tous"
                   required
                   disabled={loading}
-                  className="bg-gray-900/50 border-gray-600 text-white"
+                  className="bg-gray-900/50 border-2 border-gray-600 text-white h-24 text-3xl px-8 rounded-xl focus:ring-4 focus:ring-blue-600/50 focus:border-blue-600"
                 />
               </div>
               {error && (
-                <div className="bg-red-900/50 border border-red-700 text-red-200 rounded-md p-4">
-                  <p className="font-semibold">Error</p>
-                  <p>{error}</p>
+                <div className="bg-red-900/50 border-2 border-red-700 text-red-200 rounded-xl p-6">
+                  <p className="font-semibold text-lg">Error</p>
+                  <p className="text-base">{error}</p>
                 </div>
               )}
-              <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-500">
-                {loading ? 'Searching...' : 'Search Shop Order'}
+              <Button type="submit" disabled={loading} className="w-full h-28 text-2xl font-bold bg-blue-600 hover:bg-blue-500 transition-all hover:scale-105 active:scale-95 shadow-lg rounded-xl">
+                {loading ? (
+                  <span className="flex items-center justify-center gap-4">
+                    <Loader2 className="w-10 h-10 animate-spin" />
+                    <span>Recherche...</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-4">
+                    <Search className="w-10 h-10" />
+                    <span>Rechercher</span>
+                  </span>
+                )}
               </Button>
             </form>
           </div>
@@ -338,12 +378,27 @@ export default function BoatConfigurationPage() {
               </div>
             </div>
             <div className="space-y-4">
-              <p className="text-center font-medium text-white">Is this the correct Serial Number?</p>
-              <div className="flex gap-4">
-                <Button onClick={handleConfirmYes} disabled={loadingCustomerOrder} className="flex-1 bg-teal-600 hover:bg-teal-500">
-                  {loadingCustomerOrder ? 'Loading Customer Order...' : 'Yes, Continue'}
+              <p className="text-center font-medium text-white text-2xl mb-6">Confirmez-vous ce numéro de série ?</p>
+              <div className="flex gap-6">
+                <Button onClick={handleConfirmYes} disabled={loadingCustomerOrder} className="flex-1 h-24 text-2xl font-bold bg-teal-600 hover:bg-teal-500 transition-all hover:scale-105 active:scale-95 shadow-lg rounded-xl">
+                  {loadingCustomerOrder ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <Loader2 className="w-10 h-10 animate-spin" />
+                      <span>Chargement...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-3">
+                      <CheckCircle className="w-10 h-10" />
+                      <span>Oui, Continuer</span>
+                    </span>
+                  )}
                 </Button>
-                <Button onClick={handleConfirmNo} variant="outline" className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700">No, Search Again</Button>
+                <Button onClick={handleConfirmNo} variant="outline" className="flex-1 h-24 text-2xl font-bold border-2 border-gray-600 text-gray-300 hover:bg-gray-700 transition-all hover:scale-105 active:scale-95 rounded-xl">
+                  <span className="flex items-center justify-center gap-3">
+                    <XCircle className="w-10 h-10" />
+                    <span>Non, Recommencer</span>
+                  </span>
+                </Button>
               </div>
             </div>
           </div>
@@ -383,9 +438,19 @@ export default function BoatConfigurationPage() {
                   <p>{error}</p>
                 </div>
               )}
-              <div className="flex gap-4">
-                <Button onClick={handleSelectionValidate} disabled={!selectedPrinter || !selectedLanguage || loadingPrinters || loadingLanguages} className="flex-1 bg-blue-600 hover:bg-blue-500">Continue to Print</Button>
-                <Button onClick={handleConfirmNo} variant="outline" className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700">Back</Button>
+              <div className="flex gap-6">
+                <Button onClick={handleSelectionValidate} disabled={!selectedPrinter || !selectedLanguage || loadingPrinters || loadingLanguages} className="flex-1 h-24 text-2xl font-bold bg-blue-600 hover:bg-blue-500 transition-all hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl">
+                  <span className="flex items-center justify-center gap-3">
+                    <ChevronRight className="w-10 h-10" />
+                    <span>Continuer</span>
+                  </span>
+                </Button>
+                <Button onClick={handleConfirmNo} variant="outline" className="flex-1 h-24 text-2xl font-bold border-2 border-gray-600 text-gray-300 hover:bg-gray-700 transition-all hover:scale-105 active:scale-95 rounded-xl">
+                  <span className="flex items-center justify-center gap-3">
+                    <ArrowLeft className="w-10 h-10" />
+                    <span>Retour</span>
+                  </span>
+                </Button>
               </div>
             </div>
           </div>
@@ -404,18 +469,8 @@ export default function BoatConfigurationPage() {
             />
           </div>
         )}
+        </div>
       </div>
-    </div>
-  )
-}
-
-function StepIndicator({ step, label, active, completed }: { step: number; label: string; active: boolean; completed: boolean }) {
-  return (
-    <div className="flex flex-col items-center">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${completed ? 'bg-teal-500 text-white' : active ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
-        {completed ? '✓' : step}
-      </div>
-      <span className={`text-sm mt-2 ${active ? 'font-semibold text-white' : 'text-gray-400'}`}>{label}</span>
-    </div>
+    </>
   )
 }

@@ -12,6 +12,7 @@
  */
 
 import bwipjs from 'bwip-js'
+import { logger } from '../utils/logger'
 
 /**
  * Options de génération de code-barres
@@ -78,7 +79,7 @@ export interface BarcodeResult {
  * ```typescript
  * // Génération simple
  * const barcode = await generateBarcode("1000014690_Rev_02")
- * console.log("Data URL:", barcode.dataUrl)
+ * logger.debug("Data URL:", barcode.dataUrl)
  * 
  * // Avec options personnalisées
  * const barcode = await generateBarcode("1000014690_Rev_02", {
@@ -92,7 +93,7 @@ export async function generateBarcode(
   text: string,
   options?: Partial<BarcodeOptions>
 ): Promise<BarcodeResult> {
-  console.log(`📊 [Barcode Service] Génération code-barres pour: "${text}"`)
+  logger.debug(`📊 [Barcode Service] Génération code-barres pour: "${text}"`)
 
   // Validation du texte
   if (!text || text.trim().length === 0) {
@@ -142,7 +143,7 @@ export async function generateBarcode(
     const base64 = png.toString('base64')
     const dataUrl = `data:image/png;base64,${base64}`
 
-    console.log(`✅ [Barcode Service] Code-barres généré (${png.length} bytes)`)
+    logger.debug(`✅ [Barcode Service] Code-barres généré (${png.length} bytes)`)
 
     return {
       dataUrl,
@@ -151,7 +152,7 @@ export async function generateBarcode(
       text: finalOptions.text,
     }
   } catch (error) {
-    console.error(`❌ [Barcode Service] Erreur génération:`, error)
+    logger.error(`❌ [Barcode Service] Erreur génération:`, error)
     throw new Error(
       `Failed to generate barcode: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
@@ -169,14 +170,14 @@ export async function generateBarcode(
  * ```typescript
  * const texts = ["1000014690_Rev_02", "1000009132_Rev_01"]
  * const barcodes = await generateBarcodesBatch(texts)
- * console.log(`${barcodes.length} codes-barres générés`)
+ * logger.debug(`${barcodes.length} codes-barres générés`)
  * ```
  */
 export async function generateBarcodesBatch(
   texts: string[],
   options?: Partial<BarcodeOptions>
 ): Promise<BarcodeResult[]> {
-  console.log(`📊 [Barcode Service] Génération batch de ${texts.length} codes-barres...`)
+  logger.debug(`📊 [Barcode Service] Génération batch de ${texts.length} codes-barres...`)
 
   const barcodes: BarcodeResult[] = []
   const errors: Array<{ text: string; error: string }> = []
@@ -187,18 +188,18 @@ export async function generateBarcodesBatch(
       const barcode = await generateBarcode(text, options)
       barcodes.push(barcode)
       
-      console.log(`  ✅ ${barcodes.length}/${texts.length} codes-barres générés`)
+      logger.debug(`  ✅ ${barcodes.length}/${texts.length} codes-barres générés`)
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error'
-      console.error(`  ❌ Erreur pour "${text}":`, errorMsg)
+      logger.error(`  ❌ Erreur pour "${text}":`, errorMsg)
       errors.push({ text, error: errorMsg })
     }
   }
 
-  console.log(`✅ [Barcode Service] Batch terminé: ${barcodes.length} succès, ${errors.length} erreurs`)
+  logger.debug(`✅ [Barcode Service] Batch terminé: ${barcodes.length} succès, ${errors.length} erreurs`)
 
   if (errors.length > 0) {
-    console.warn('⚠️ [Barcode Service] Erreurs rencontrées:', errors)
+    logger.warn('⚠️ [Barcode Service] Erreurs rencontrées:', errors)
   }
 
   return barcodes
@@ -221,7 +222,7 @@ export function validateBarcodeText(text: string): boolean {
   for (let i = 0; i < text.length; i++) {
     const charCode = text.charCodeAt(i)
     if (charCode > 127) {
-      console.warn(`⚠️ [Barcode Service] Caractère invalide à position ${i}: ${text[i]} (code ${charCode})`)
+      logger.warn(`⚠️ [Barcode Service] Caractère invalide à position ${i}: ${text[i]} (code ${charCode})`)
       return false
     }
   }

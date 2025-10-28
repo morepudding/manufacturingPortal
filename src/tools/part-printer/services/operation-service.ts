@@ -13,6 +13,7 @@
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
+import { logger } from '../utils/logger'
 import type { IFSODataResponse } from '@/shared/types/ifs'
 
 /**
@@ -78,7 +79,7 @@ async function getRawMaterial(
   releaseNo: string,
   sequenceNo: string
 ): Promise<string> {
-  console.log(`🏭 [Operation Service] Récupération Raw Material (OP10) pour ${orderNo}`)
+  logger.debug(`🏭 [Operation Service] Récupération Raw Material (OP10) pour ${orderNo}`)
 
   try {
     const client = getIFSClient()
@@ -97,15 +98,15 @@ async function getRawMaterial(
     const firstMaterial = materialResponse.value?.[0]
 
     if (!firstMaterial) {
-      console.warn(`⚠️  [Operation Service] Aucun matériau OP10 trouvé pour ${orderNo}`)
+      logger.warn(`⚠️  [Operation Service] Aucun matériau OP10 trouvé pour ${orderNo}`)
       throw new Error(`No material found for Operation 10`)
     }
 
-    console.log(`✅ [Operation Service] Raw Material trouvé: ${firstMaterial.PartNo}`)
+    logger.debug(`✅ [Operation Service] Raw Material trouvé: ${firstMaterial.PartNo}`)
     return firstMaterial.PartNo
 
   } catch (error) {
-    console.error(`❌ [Operation Service] Erreur Raw Material pour ${orderNo}:`, error)
+    logger.error(`❌ [Operation Service] Erreur Raw Material pour ${orderNo}:`, error)
     throw new Error(`Failed to fetch Raw Material: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -124,8 +125,8 @@ async function getRawMaterial(
  * @example
  * ```typescript
  * const op10 = await getOperation10Data("454853", "*", "*")
- * console.log("Block ID:", op10.blockId) // peut être null
- * console.log("Raw Material:", op10.rawMaterial)
+ * logger.debug("Block ID:", op10.blockId) // peut être null
+ * logger.debug("Raw Material:", op10.rawMaterial)
  * ```
  */
 export async function getOperation10Data(
@@ -133,7 +134,7 @@ export async function getOperation10Data(
   releaseNo: string,
   sequenceNo: string
 ): Promise<Operation10Data> {
-  console.log(`🔍 [Operation Service] Récupération OP10 pour ${orderNo}-${releaseNo}-${sequenceNo}`)
+  logger.debug(`🔍 [Operation Service] Récupération OP10 pour ${orderNo}-${releaseNo}-${sequenceNo}`)
 
   try {
     const client = getIFSClient()
@@ -150,14 +151,14 @@ export async function getOperation10Data(
     const operation = operationResponse.value?.[0]
 
     if (!operation) {
-      console.warn(`⚠️  [Operation Service] OP10 non trouvée pour ${orderNo}`)
+      logger.warn(`⚠️  [Operation Service] OP10 non trouvée pour ${orderNo}`)
       throw new Error(`Operation 10 not found for ${orderNo}-${releaseNo}-${sequenceNo}`)
     }
 
     // ✅ CORRIGÉ (17 oct 2025) : Utilise OperationBlockId (conforme SFD)
     // Confirmé disponible sur FR017 (Block IDs: B89, B92)
     const operationBlockId = operation.OperationBlockId || null
-    console.log(`✅ [Operation Service] OP10 trouvée - OperationBlockId: ${operationBlockId || 'NULL'}`)
+    logger.debug(`✅ [Operation Service] OP10 trouvée - OperationBlockId: ${operationBlockId || 'NULL'}`)
 
     // 2. Récupérer le Raw Material via MaterialArray
     const rawMaterial = await getRawMaterial(orderNo, releaseNo, sequenceNo)
@@ -171,7 +172,7 @@ export async function getOperation10Data(
       rawMaterial,
     }
   } catch (error) {
-    console.error(`❌ [Operation Service] Erreur OP10 pour ${orderNo}-${releaseNo}-${sequenceNo}:`, error)
+    logger.error(`❌ [Operation Service] Erreur OP10 pour ${orderNo}-${releaseNo}-${sequenceNo}:`, error)
     throw new Error(`Failed to fetch Operation 10 data: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -191,7 +192,7 @@ export async function getOperation(
   sequenceNo: string,
   operationNo: number
 ): Promise<IFSOperation | null> {
-  console.log(`🔍 [Operation Service] Récupération opération ${operationNo} pour ${orderNo}-${releaseNo}-${sequenceNo}`)
+  logger.debug(`🔍 [Operation Service] Récupération opération ${operationNo} pour ${orderNo}-${releaseNo}-${sequenceNo}`)
 
   try {
     const client = getIFSClient()
@@ -207,14 +208,14 @@ export async function getOperation(
     const operation = response.value?.[0] || null
 
     if (operation) {
-      console.log(`✅ [Operation Service] Opération ${operationNo} trouvée - Block ID: ${operation.OperationBlockId || '(vide)'}`)
+      logger.debug(`✅ [Operation Service] Opération ${operationNo} trouvée - Block ID: ${operation.OperationBlockId || '(vide)'}`)
     } else {
-      console.log(`⚠️ [Operation Service] Opération ${operationNo} non trouvée`)
+      logger.debug(`⚠️ [Operation Service] Opération ${operationNo} non trouvée`)
     }
 
     return operation
   } catch (error) {
-    console.error(`❌ [Operation Service] Erreur opération ${operationNo}:`, error)
+    logger.error(`❌ [Operation Service] Erreur opération ${operationNo}:`, error)
     throw new Error(`Failed to fetch operation ${operationNo}`)
   }
 }
@@ -244,11 +245,11 @@ export async function hasEmptyBlockId(
     }
 
     const isEmpty = !operation.OperationBlockId || operation.OperationBlockId.trim() === ''
-    console.log(`📊 [Operation Service] OP${operationNo} Block ID ${isEmpty ? 'vide' : 'présent'}: "${operation.OperationBlockId || ''}"`)
+    logger.debug(`📊 [Operation Service] OP${operationNo} Block ID ${isEmpty ? 'vide' : 'présent'}: "${operation.OperationBlockId || ''}"`)
     
     return isEmpty
   } catch (error) {
-    console.error(`❌ [Operation Service] Erreur vérification Block ID:`, error)
+    logger.error(`❌ [Operation Service] Erreur vérification Block ID:`, error)
     return false
   }
 }

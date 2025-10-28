@@ -16,8 +16,13 @@
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
+import { logger } from '../utils/logger'
 import type { IFSODataResponse } from '@/shared/types/ifs'
 import type { IFSSiteMfgstdRange, CalculatedRangeId } from '../types'
+
+// Cache en mémoire pour les Ranges (évite 144 appels identiques)
+const rangesCache = new Map<string, { ranges: IFSSiteMfgstdRange[], timestamp: number }>()
+const CACHE_DURATION_MS = 5 * 60 * 1000 // 5 minutes
 
 /**
  * Récupérer les plages horaires (Ranges) d'un site
@@ -37,7 +42,14 @@ import type { IFSSiteMfgstdRange, CalculatedRangeId } from '../types'
 export async function getSiteMfgstdRanges(
   site: string
 ): Promise<IFSSiteMfgstdRange[]> {
-  console.log(`🔍 [Range Service] Récupération des Ranges pour le site ${site}`)
+  // Vérifier le cache
+  const cached = rangesCache.get(site)
+  if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION_MS) {
+    logger.debug(`📦 [Range Service] Using cached ranges for ${site}`)
+    return cached.ranges
+  }
+
+  logger.debug(`🔍 [Range Service] Récupération des Ranges pour le site ${site}`)
 
   try {
     const client = getIFSClient()
@@ -55,19 +67,25 @@ export async function getSiteMfgstdRanges(
 
     const ranges = response.value || []
 
+    // 💾 Store in cache
+    rangesCache.set(site, {
+      ranges,
+      timestamp: Date.now()
+    })
+
     if (ranges.length === 0) {
-      console.warn(`⚠️ [Range Service] Aucune Range trouvée pour le site ${site}`)
+      logger.warn(`⚠️ [Range Service] Aucune Range trouvée pour le site ${site}`)
       return []
     }
 
-    console.log(`✅ [Range Service] ${ranges.length} Ranges trouvées pour ${site}:`)
+    logger.debug(`✅ [Range Service] ${ranges.length} Ranges trouvées pour ${site} (cached for 5 min)`)
     ranges.forEach(range => {
-      console.log(`   - Range ${range.Range}: ${range.StartTime} → ${range.FinishTime}`)
+      logger.debug(`   - Range ${range.Range}: ${range.StartTime} → ${range.FinishTime}`)
     })
 
     return ranges
   } catch (error) {
-    console.error(`❌ [Range Service] Erreur récupération Ranges pour ${site}:`, error)
+    logger.error(`❌ [Range Service] Erreur récupération Ranges pour ${site}:`, error)
     throw new Error(`Failed to fetch Ranges for site ${site}: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -86,14 +104,14 @@ export async function getSiteMfgstdRanges(
  *   { Range: "B", StartTime: "12:00:00", FinishTime: "23:59:00" }
  * ]
  * const active = getRangeByTime(ranges, "14:30:00")
- * console.log(active) // { Range: "B", StartTime: "12:00:00", FinishTime: "23:59:00" }
+ * logger.debug(active) // { Range: "B", StartTime: "12:00:00", FinishTime: "23:59:00" }
  * ```
  */
 export function getRangeByTime(
   ranges: IFSSiteMfgstdRange[],
   time: string
 ): IFSSiteMfgstdRange | null {
-  console.log(`🔍 [Range Service] Recherche Range pour l'heure ${time}`)
+  logger.debug(`🔍 [Range Service] Recherche Range pour l'heure ${time}`)
 
   // Convertir l'heure en nombre pour comparaison (HH:mm:ss → HHmmss)
   const timeToNumber = (t: string): number => {
@@ -109,12 +127,12 @@ export function getRangeByTime(
 
     // Vérifier si l'heure cible est dans la plage [startTime, finishTime]
     if (targetTime >= startTime && targetTime <= finishTime) {
-      console.log(`✅ [Range Service] Range trouvée: ${range.Range} (${range.StartTime} - ${range.FinishTime})`)
+      logger.debug(`✅ [Range Service] Range trouvée: ${range.Range} (${range.StartTime} - ${range.FinishTime})`)
       return range
     }
   }
 
-  console.warn(`⚠️ [Range Service] Aucune Range trouvée pour l'heure ${time}`)
+  logger.warn(`⚠️ [Range Service] Aucune Range trouvée pour l'heure ${time}`)
   return null
 }
 
@@ -127,7 +145,7 @@ export function getRangeByTime(
  * @example
  * ```typescript
  * const dayOfYear = getDayOfYear("2025-10-22")
- * console.log(dayOfYear) // 295
+ * logger.debug(dayOfYear) // 295
  * ```
  */
 export function getDayOfYear(date: string): number {
@@ -170,7 +188,7 @@ export function getCurrentTime(): string {
  * @example
  * ```typescript
  * const rangeId = await calculateRangeId("FR017", "2025-10-22")
- * console.log(rangeId.rangeId) // "295 A" ou "295 B" selon l'heure
+ * logger.debug(rangeId.rangeId) // "295 A" ou "295 B" selon l'heure
  * ```
  */
 export async function calculateRangeId(
@@ -178,7 +196,7 @@ export async function calculateRangeId(
   shopOrderDate: string,
   currentTime?: string
 ): Promise<CalculatedRangeId> {
-  console.log(`🔍 [Range Service] Calcul Range ID pour ${site} le ${shopOrderDate}`)
+  logger.debug(`🔍 [Range Service] Calcul Range ID pour ${site} le ${shopOrderDate}`)
 
   // 1. Récupérer les Ranges du site
   const ranges = await getSiteMfgstdRanges(site)
@@ -189,7 +207,7 @@ export async function calculateRangeId(
 
   // 2. Déterminer l'heure à utiliser (heure actuelle par défaut)
   const time = currentTime || getCurrentTime()
-  console.log(`🕐 [Range Service] Heure utilisée: ${time}`)
+  logger.debug(`🕐 [Range Service] Heure utilisée: ${time}`)
 
   // 3. Trouver la Range active selon l'heure
   const activeRange = getRangeByTime(ranges, time)
@@ -204,7 +222,7 @@ export async function calculateRangeId(
   // 5. Construire le Range ID
   const rangeId = `${dayOfYear} ${activeRange.Range}`
 
-  console.log(`✅ [Range Service] Range ID calculé: ${rangeId}`)
+  logger.debug(`✅ [Range Service] Range ID calculé: ${rangeId}`)
 
   return {
     rangeId,
@@ -225,7 +243,7 @@ export async function calculateRangeId(
  * @example
  * ```typescript
  * const rangeId = await getRangeId("FR017", "2025-10-22")
- * console.log(rangeId) // "295 A"
+ * logger.debug(rangeId) // "295 A"
  * ```
  */
 export async function getRangeId(
@@ -237,7 +255,7 @@ export async function getRangeId(
     const result = await calculateRangeId(site, shopOrderDate, currentTime)
     return result.rangeId
   } catch (error) {
-    console.error(`❌ [Range Service] Erreur calcul Range ID:`, error)
+    logger.error(`❌ [Range Service] Erreur calcul Range ID:`, error)
     return null
   }
 }
@@ -257,7 +275,7 @@ export function calculateRangeIdLocal(
   date: string,
   isRecutting: boolean = false
 ): string {
-  console.warn('⚠️ [Range Service] calculateRangeIdLocal() est DEPRECATED - Utiliser calculateRangeId() avec les vraies plages horaires')
+  logger.warn('⚠️ [Range Service] calculateRangeIdLocal() est DEPRECATED - Utiliser calculateRangeId() avec les vraies plages horaires')
   
   const dayOfYear = getDayOfYear(date)
   const letter = isRecutting ? 'R' : 'A'

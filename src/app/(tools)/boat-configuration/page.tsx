@@ -9,25 +9,15 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/shared/components/atoms/Button'
 import { Input } from '@/shared/components/atoms/Input'
 import { Label } from '@/shared/components/atoms/Label'
-import { PrinterSearch } from '@/shared/components/molecules/PrinterSearch'
-import { LanguageSelector } from '@/shared/components/molecules/LanguageSelector'
+
 import { CustomerOrderValidation, type CustomerOrderData } from '@/app/(tools)/boat-configuration/components/CustomerOrderValidation'
 import { PrintExecution } from '@/app/(tools)/boat-configuration/components/PrintExecution'
+import { PrinterLanguageSelection } from '@/app/(tools)/boat-configuration/components/PrinterLanguageSelection'
 import { ContextualSidebar } from '@/app/(tools)/boat-configuration/components/ContextualSidebar'
 import { VerticalStepper } from '@/app/(tools)/boat-configuration/components/VerticalStepper'
 import { Search, CheckCircle, XCircle, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 
 type Step = 'entry' | 'confirmation' | 'customer-order' | 'selection' | 'print'
-
-interface Printer {
-  PrinterId: string
-  Description: string
-}
-
-interface Language {
-  LangCode: string
-  Description: string
-}
 
 interface ShopOrderData {
   orderNo: string
@@ -64,12 +54,8 @@ export default function BoatConfigurationPage() {
   const [serialNumber, setSerialNumber] = useState<string>('N/A')
   const [dopHeaderId, setDopHeaderId] = useState<string>('N/A')
   const [customerOrder, setCustomerOrder] = useState<CustomerOrderData | null>(null)
-  const [printers, setPrinters] = useState<Printer[]>([])
-  const [languages, setLanguages] = useState<Language[]>([])
-  const [selectedPrinter, setSelectedPrinter] = useState<string>('')
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('')
-  const [loadingPrinters, setLoadingPrinters] = useState(false)
-  const [loadingLanguages, setLoadingLanguages] = useState(false)
+  const [printerId, setPrinterId] = useState<string>('')
+  const [languageCode, setLanguageCode] = useState<string>('')
   const [loadingCustomerOrder, setLoadingCustomerOrder] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -91,7 +77,7 @@ export default function BoatConfigurationPage() {
     { id: 2, label: 'Confirm', completed: currentStepNumber > 2, active: currentStepNumber === 2 },
     { id: 3, label: 'Customer', completed: currentStepNumber > 3, active: currentStepNumber === 3 },
     { id: 4, label: 'Selection', completed: currentStepNumber > 4, active: currentStepNumber === 4 },
-    { id: 5, label: 'Print', completed: currentStepNumber > 5, active: currentStepNumber === 5 },
+    { id: 5, label: 'Download', completed: currentStepNumber > 5, active: currentStepNumber === 5 },
   ]
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -165,19 +151,19 @@ export default function BoatConfigurationPage() {
           setCustomerOrder(data.data.customerOrder)
           setCurrentStep('customer-order')
         } else {
-          // Pas de Customer Order trouvé, passer directement à la sélection
-          console.log('ℹ️ No Customer Order found, skipping to selection')
+          // Pas de Customer Order trouvé, passer directement à la sélection imprimante/langue
+          console.log('ℹ️ No Customer Order found, skipping to printer selection')
           setCurrentStep('selection')
         }
       } catch (err) {
         console.warn('⚠️ Failed to load Customer Order, continuing without it:', err)
-        // En cas d'erreur, passer directement à la sélection
+        // En cas d'erreur, passer directement à la sélection imprimante/langue
         setCurrentStep('selection')
       } finally {
         setLoadingCustomerOrder(false)
       }
     } else {
-      // Pas de Serial Number, passer directement à la sélection
+      // Pas de Serial Number, passer directement à la sélection imprimante/langue
       setCurrentStep('selection')
     }
   }
@@ -191,46 +177,18 @@ export default function BoatConfigurationPage() {
     setCustomerOrder(null)
   }
 
-  useEffect(() => {
-    if (currentStep === 'selection') {
-      loadPrintersAndLanguages()
-    }
-  }, [currentStep])
-
-  const loadPrintersAndLanguages = async () => {
-    setLoadingPrinters(true)
-    try {
-      const printersResponse = await fetch('/api/shared/printers')
-      const printersData = await printersResponse.json()
-      if (printersData.success && printersData.data) {
-        setPrinters(printersData.data)
-      }
-    } catch (err) {
-      console.error('Error loading printers:', err)
-    } finally {
-      setLoadingPrinters(false)
-    }
-
-    setLoadingLanguages(true)
-    try {
-      const languagesResponse = await fetch('/api/shared/languages')
-      const languagesData = await languagesResponse.json()
-      if (languagesData.success && languagesData.data) {
-        setLanguages(languagesData.data)
-      }
-    } catch (err) {
-      console.error('Error loading languages:', err)
-    } finally {
-      setLoadingLanguages(false)
-    }
+  const handlePrinterLanguageConfirm = (printerId: string, languageCode: string) => {
+    setPrinterId(printerId)
+    setLanguageCode(languageCode)
+    setCurrentStep('print')
   }
 
-  const handleSelectionValidate = () => {
-    if (!selectedPrinter || !selectedLanguage) {
-      setError('Please select both a printer and a language')
-      return
+  const handlePrinterLanguageCancel = () => {
+    if (customerOrder) {
+      setCurrentStep('customer-order')
+    } else {
+      setCurrentStep('confirmation')
     }
-    setCurrentStep('print')
   }
 
   const handleConfirmNo = () => {
@@ -246,8 +204,8 @@ export default function BoatConfigurationPage() {
     setSerialNumber('N/A')
     setDopHeaderId('N/A')
     setCustomerOrder(null)
-    setSelectedPrinter('')
-    setSelectedLanguage('')
+    setPrinterId('')
+    setLanguageCode('')
     setError(null)
   }
 
@@ -418,53 +376,26 @@ export default function BoatConfigurationPage() {
           </div>
         )}
 
-        {/* Step 4: Selection */}
+        {/* Step 4: Printer & Language Selection */}
         {currentStep === 'selection' && (
           <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Step 4: Select Printer & Language</h2>
-            <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4 mb-6">
-              <h3 className="font-semibold text-cyan-300 mb-2">Selected Configuration</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
-                <div><span className="font-medium text-cyan-400">Order No:</span> {searchResult?.shopOrder?.OrderNo}</div>
-                <div><span className="font-medium text-cyan-400">Serial Number:</span> <span className="font-bold text-cyan-200">{serialNumber}</span></div>
-              </div>
-            </div>
-            <div className="space-y-6">
-              <PrinterSearch printers={printers} value={selectedPrinter} onChange={setSelectedPrinter} loading={loadingPrinters} required />
-              <LanguageSelector languages={languages} value={selectedLanguage} onChange={setSelectedLanguage} loading={loadingLanguages} required />
-              {error && (
-                <div className="bg-red-900/50 border border-red-700 text-red-200 rounded-md p-4">
-                  <p className="font-semibold">Error</p>
-                  <p>{error}</p>
-                </div>
-              )}
-              <div className="flex gap-6">
-                <Button onClick={handleSelectionValidate} disabled={!selectedPrinter || !selectedLanguage || loadingPrinters || loadingLanguages} className="flex-1 h-24 text-2xl font-bold bg-blue-600 hover:bg-blue-500 transition-all hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-xl">
-                  <span className="flex items-center justify-center gap-3">
-                    <ChevronRight className="w-10 h-10" />
-                    <span>Continuer</span>
-                  </span>
-                </Button>
-                <Button onClick={handleConfirmNo} variant="outline" className="flex-1 h-24 text-2xl font-bold border-2 border-gray-600 text-gray-300 hover:bg-gray-700 transition-all hover:scale-105 active:scale-95 rounded-xl">
-                  <span className="flex items-center justify-center gap-3">
-                    <ArrowLeft className="w-10 h-10" />
-                    <span>Retour</span>
-                  </span>
-                </Button>
-              </div>
-            </div>
+            <h2 className="text-xl font-semibold text-white mb-4">Step 4: Sélection Imprimante & Langue</h2>
+            <PrinterLanguageSelection
+              onConfirm={handlePrinterLanguageConfirm}
+              onCancel={handlePrinterLanguageCancel}
+            />
           </div>
         )}
 
-        {/* Step 5: Print */}
+        {/* Step 5: Download PDF */}
         {currentStep === 'print' && (
           <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Step 5: Print Document</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">Step 5: Download PDF</h2>
             <PrintExecution
               orderNo={customerOrder?.orderNo || searchResult?.shopOrder?.CustomerOrderNo || 'UNKNOWN'}
               serialNumber={serialNumber}
-              printerId={selectedPrinter}
-              languageCode={selectedLanguage}
+              printerId={printerId}
+              languageCode={languageCode}
               onReset={handleReset}
             />
           </div>

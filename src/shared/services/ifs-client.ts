@@ -17,6 +17,8 @@
 
 import type { IFSClientConfig, IFSToken } from '@/shared/types/ifs'
 
+const IS_DEBUG = process.env.ENABLE_DEBUG_LOGS === 'true'
+
 /**
  * Client pour l'API IFS Cloud avec gestion OAuth2
  */
@@ -38,11 +40,11 @@ class IFSClient {
   private async getAccessToken(): Promise<string> {
     // Vérifier si le token en cache est encore valide (marge de 60 secondes)
     if (this.token && this.tokenExpiry && Date.now() < this.tokenExpiry - 60000) {
-      console.log('🔑 Using cached OAuth2 token')
+      if (IS_DEBUG) console.log('🔑 Using cached OAuth2 token')
       return this.token
     }
 
-    console.log('🔑 Requesting new OAuth2 token from IFS...')
+    if (IS_DEBUG) console.log('🔑 Requesting new OAuth2 token from IFS...')
 
     // Préparer les paramètres de la requête OAuth2
     const params = new URLSearchParams({
@@ -73,7 +75,7 @@ class IFSClient {
       this.token = data.access_token
       this.tokenExpiry = Date.now() + data.expires_in * 1000
 
-      console.log(`✅ OAuth2 token obtained (expires in ${data.expires_in}s)`)
+      if (IS_DEBUG) console.log(`✅ OAuth2 token obtained (expires in ${data.expires_in}s)`)
 
       return this.token
     } catch (error) {
@@ -180,7 +182,7 @@ class IFSClient {
       url = `${url}?${queryString}`
     }
 
-    console.log(`🔍 IFS API ${method}: ${url}`)
+    if (IS_DEBUG) console.log(`🔍 IFS API ${method}: ${url}`)
 
     try {
       // Préparer les headers
@@ -210,17 +212,17 @@ class IFSClient {
       // Traiter la réponse
       if (binary) {
         const arrayBuffer = await response.arrayBuffer()
-        console.log(`✅ IFS API binary response received (${arrayBuffer.byteLength} bytes)`)
+        if (IS_DEBUG) console.log(`✅ IFS API binary response received (${arrayBuffer.byteLength} bytes)`)
         return arrayBuffer as T
       } else {
         // Si 204 No Content, retourner un objet vide
         if (response.status === 204) {
-          console.log(`✅ IFS API response: 204 No Content`)
+          if (IS_DEBUG) console.log(`✅ IFS API response: 204 No Content`)
           return {} as T
         }
         
         const data = await response.json()
-        console.log(`✅ IFS API response received`)
+        if (IS_DEBUG) console.log(`✅ IFS API response received`)
         return data as T
       }
     } catch (error) {
@@ -267,7 +269,7 @@ export function getIFSClient(): IFSClient {
       scope,
     })
 
-    console.log('🚀 IFS Client initialized')
+    if (IS_DEBUG) console.log('🚀 IFS Client initialized')
   }
 
   return ifsClientInstance

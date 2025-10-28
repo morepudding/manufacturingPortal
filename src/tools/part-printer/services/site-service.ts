@@ -8,6 +8,7 @@
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
+import { logger } from '../utils/logger'
 import type { IFSODataResponse } from '@/shared/types/ifs'
 import type { IFSSite, SitesResponse } from '../types'
 
@@ -21,12 +22,12 @@ import type { IFSSite, SitesResponse } from '../types'
  * @example
  * ```typescript
  * const sites = await getSites()
- * console.log("Sites disponibles:", sites.sites)
+ * logger.debug("Sites disponibles:", sites.sites)
  * // [{ Contract: "BDR", Name: "Site BDR" }, ...]
  * ```
  */
 export async function getSites(): Promise<SitesResponse> {
-  console.log('🔍 [Site Service] Récupération des sites IFS depuis Shop Orders...')
+  logger.debug('🔍 [Site Service] Récupération des sites IFS depuis Shop Orders...')
 
   try {
     const client = getIFSClient()
@@ -57,14 +58,14 @@ export async function getSites(): Promise<SitesResponse> {
         Description: `Site de production ${contract}`,
       }))
 
-    console.log(`✅ [Site Service] ${sites.length} sites uniques récupérés: ${Array.from(contractsSet).join(', ')}`)
+    logger.debug(`✅ [Site Service] ${sites.length} sites uniques récupérés: ${Array.from(contractsSet).join(', ')}`)
 
     return {
       sites,
       count: sites.length,
     }
   } catch (error) {
-    console.error('❌ [Site Service] Erreur lors de la récupération des sites:', error)
+    logger.error('❌ [Site Service] Erreur lors de la récupération des sites:', error)
     throw new Error('Failed to fetch sites from IFS')
   }
 }
@@ -76,21 +77,21 @@ export async function getSites(): Promise<SitesResponse> {
  * @returns Le site trouvé ou null
  */
 export async function getSiteByContract(contract: string): Promise<IFSSite | null> {
-  console.log(`🔍 [Site Service] Recherche du site: ${contract}`)
+  logger.debug(`🔍 [Site Service] Recherche du site: ${contract}`)
 
   try {
     const { sites } = await getSites()
     const site = sites.find(s => s.Contract === contract) || null
 
     if (site) {
-      console.log(`✅ [Site Service] Site trouvé: ${site.Name}`)
+      logger.debug(`✅ [Site Service] Site trouvé: ${site.Name}`)
     } else {
-      console.log(`⚠️ [Site Service] Site non trouvé: ${contract}`)
+      logger.debug(`⚠️ [Site Service] Site non trouvé: ${contract}`)
     }
 
     return site
   } catch (error) {
-    console.error(`❌ [Site Service] Erreur lors de la recherche du site ${contract}:`, error)
+    logger.error(`❌ [Site Service] Erreur lors de la recherche du site ${contract}:`, error)
     throw new Error(`Failed to fetch site ${contract} from IFS`)
   }
 }

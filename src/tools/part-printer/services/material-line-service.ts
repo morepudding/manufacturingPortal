@@ -13,6 +13,7 @@
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
+import { logger } from '../utils/logger'
 
 /**
  * Material Line d'un Shop Order (depuis MaterialArray)
@@ -62,14 +63,14 @@ interface MaterialArrayResponse {
  * 
  * @example
  * const materials = await getMaterialLines('454853')
- * console.log(`${materials.length} matériaux trouvés`)
+ * logger.debug(`${materials.length} matériaux trouvés`)
  */
 export async function getMaterialLines(
   orderNo: string,
   releaseNo: string = '*',
   sequenceNo: string = '*'
 ): Promise<MaterialLine[]> {
-  console.log(`🔍 Récupération des Material Lines pour Shop Order ${orderNo}...`)
+  logger.debug(`🔍 Récupération des Material Lines pour Shop Order ${orderNo}...`)
   
   const ifsClient = getIFSClient()
   
@@ -83,12 +84,12 @@ export async function getMaterialLines(
       $orderby: 'OperationNo,StructureLineNo'
     })
     
-    console.log(`✅ ${response.value.length} Material Lines trouvées`)
+    logger.debug(`✅ ${response.value.length} Material Lines trouvées`)
     
     return response.value
     
   } catch (error) {
-    console.error(`❌ Erreur lors de la récupération des Material Lines:`, error)
+    logger.error(`❌ Erreur lors de la récupération des Material Lines:`, error)
     throw new Error(`Failed to fetch material lines for Shop Order ${orderNo}: ${error}`)
   }
 }
@@ -106,15 +107,15 @@ export async function getMaterialLines(
  * 
  * @example
  * const rawMaterial = await getRawMaterial('454853')
- * console.log(`Raw Material: ${rawMaterial.partNo}`)
- * console.log(`Description: ${rawMaterial.description}`)
+ * logger.debug(`Raw Material: ${rawMaterial.partNo}`)
+ * logger.debug(`Description: ${rawMaterial.description}`)
  */
 export async function getRawMaterial(
   orderNo: string,
   releaseNo: string = '*',
   sequenceNo: string = '*'
 ): Promise<RawMaterial> {
-  console.log(`🎯 Recherche du Raw Material (OP10) pour Shop Order ${orderNo}...`)
+  logger.debug(`🎯 Recherche du Raw Material (OP10) pour Shop Order ${orderNo}...`)
   
   // Récupérer toutes les Material Lines
   const materials = await getMaterialLines(orderNo, releaseNo, sequenceNo)
@@ -123,16 +124,16 @@ export async function getRawMaterial(
   const op10Materials = materials.filter(mat => mat.OperationNo === 10)
   
   if (op10Materials.length === 0) {
-    console.error(`❌ Aucun matériau trouvé pour l'OP10 du Shop Order ${orderNo}`)
+    logger.error(`❌ Aucun matériau trouvé pour l'OP10 du Shop Order ${orderNo}`)
     throw new Error(`No materials found for OP10 in Shop Order ${orderNo}`)
   }
   
   // Prendre le premier matériau (déjà trié par StructureLineNo)
   const rawMaterialLine = op10Materials[0]
   
-  console.log(`✅ Raw Material trouvé: ${rawMaterialLine.PartNo}`)
-  console.log(`   Description: ${rawMaterialLine.PartNoRef?.Description || 'N/A'}`)
-  console.log(`   Quantité: ${rawMaterialLine.QtyPerAssembly} ${rawMaterialLine.PartNoRef?.UnitMeas || ''}`)
+  logger.debug(`✅ Raw Material trouvé: ${rawMaterialLine.PartNo}`)
+  logger.debug(`   Description: ${rawMaterialLine.PartNoRef?.Description || 'N/A'}`)
+  logger.debug(`   Quantité: ${rawMaterialLine.QtyPerAssembly} ${rawMaterialLine.PartNoRef?.UnitMeas || ''}`)
   
   // Convertir en format RawMaterial
   const rawMaterial: RawMaterial = {
@@ -158,7 +159,7 @@ export async function getRawMaterial(
  * 
  * @example
  * const op40Materials = await getMaterialLinesByOperation('454853', 40)
- * console.log(`OP40 a ${op40Materials.length} matériaux`)
+ * logger.debug(`OP40 a ${op40Materials.length} matériaux`)
  */
 export async function getMaterialLinesByOperation(
   orderNo: string,
@@ -166,7 +167,7 @@ export async function getMaterialLinesByOperation(
   releaseNo: string = '*',
   sequenceNo: string = '*'
 ): Promise<MaterialLine[]> {
-  console.log(`🔍 Récupération des Material Lines pour OP${operationNo} du Shop Order ${orderNo}...`)
+  logger.debug(`🔍 Récupération des Material Lines pour OP${operationNo} du Shop Order ${orderNo}...`)
   
   // Récupérer toutes les Material Lines
   const materials = await getMaterialLines(orderNo, releaseNo, sequenceNo)
@@ -174,7 +175,7 @@ export async function getMaterialLinesByOperation(
   // Filtrer par numéro d'opération
   const opMaterials = materials.filter(mat => mat.OperationNo === operationNo)
   
-  console.log(`✅ ${opMaterials.length} Material Lines trouvées pour OP${operationNo}`)
+  logger.debug(`✅ ${opMaterials.length} Material Lines trouvées pour OP${operationNo}`)
   
   return opMaterials
 }
@@ -190,7 +191,7 @@ export async function getMaterialLinesByOperation(
  * @example
  * const hasOP10Materials = await hasOP10Materials('454853')
  * if (hasOP10Materials) {
- *   console.log('Shop Order a des matériaux OP10')
+ *   logger.debug('Shop Order a des matériaux OP10')
  * }
  */
 export async function hasOP10Materials(
@@ -203,7 +204,7 @@ export async function hasOP10Materials(
     const op10Materials = materials.filter(mat => mat.OperationNo === 10)
     return op10Materials.length > 0
   } catch (error) {
-    console.error(`❌ Erreur lors de la vérification des matériaux OP10:`, error)
+    logger.error(`❌ Erreur lors de la vérification des matériaux OP10:`, error)
     return false
   }
 }

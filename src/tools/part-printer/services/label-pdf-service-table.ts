@@ -10,6 +10,7 @@
  */
 
 import { jsPDF } from 'jspdf'
+import { logger } from '../utils/logger'
 import autoTable from 'jspdf-autotable'
 import type { PartLabel } from '../types'
 
@@ -34,7 +35,7 @@ export async function generateLabelsPDF(
   labels: PartLabel[],
   options?: PDFGenerationOptions
 ): Promise<PDFGenerationResult> {
-  console.log(`📄 [PDF Service] Génération PDF tableau pour ${labels.length} étiquettes...`)
+  logger.debug(`📄 [PDF Service] Génération PDF tableau pour ${labels.length} étiquettes...`)
 
   if (!labels || labels.length === 0) {
     throw new Error('Cannot generate PDF: labels array is empty')
@@ -43,7 +44,7 @@ export async function generateLabelsPDF(
   try {
     // Grouper par (Raw Material, Varnish Code)
     const groups = groupLabels(labels)
-    console.log(`📊 [PDF Service] ${groups.size} groupe(s) créé(s)`)
+    logger.debug(`📊 [PDF Service] ${groups.size} groupe(s) créé(s)`)
 
     // Créer le document PDF A4 Paysage
     const doc = new jsPDF({
@@ -71,7 +72,7 @@ export async function generateLabelsPDF(
       generateGroupPage(doc, groupLabels, groupKey)
       pageIndex++
       
-      console.log(`  ✅ Page ${pageIndex}/${groups.size} : ${groupLabels.length} Shop Orders`)
+      logger.debug(`  ✅ Page ${pageIndex}/${groups.size} : ${groupLabels.length} Shop Orders`)
     }
 
     // Générer le buffer
@@ -86,15 +87,15 @@ export async function generateLabelsPDF(
       size: buffer.length,
     }
 
-    console.log(`✅ [PDF Service] PDF généré:`)
-    console.log(`   - Pages: ${result.pageCount}`)
-    console.log(`   - Étiquettes: ${result.labelCount}`)
-    console.log(`   - Groupes: ${result.groupCount}`)
-    console.log(`   - Taille: ${(result.size / 1024).toFixed(2)} KB`)
+    logger.debug(`✅ [PDF Service] PDF généré:`)
+    logger.debug(`   - Pages: ${result.pageCount}`)
+    logger.debug(`   - Étiquettes: ${result.labelCount}`)
+    logger.debug(`   - Groupes: ${result.groupCount}`)
+    logger.debug(`   - Taille: ${(result.size / 1024).toFixed(2)} KB`)
 
     return result
   } catch (error) {
-    console.error(`❌ [PDF Service] Erreur:`, error)
+    logger.error(`❌ [PDF Service] Erreur:`, error)
     throw new Error(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -302,6 +303,6 @@ export function validateLabelsForPDF(labels: PartLabel[]): boolean {
     throw new Error('Labels array is empty')
   }
 
-  console.log(`✅ [PDF Service] ${labels.length} étiquettes validées`)
+  logger.debug(`✅ [PDF Service] ${labels.length} étiquettes validées`)
   return true
 }

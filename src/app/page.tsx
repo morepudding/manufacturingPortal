@@ -42,7 +42,7 @@ const TRANSLATIONS = {
       },
       part: {
         title: 'Part Printer',
-        description: 'Impression des étiquettes pour les pièces en bois.',
+        description: 'Impression d\'étiquettes et listing pour pièces fabriquées',
         action: 'Accéder',
       },
     },

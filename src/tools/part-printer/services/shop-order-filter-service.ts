@@ -20,6 +20,7 @@
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
+import { logger } from '../utils/logger'
 import type { IFSODataResponse } from '@/shared/types/ifs'
 import type { 
   ShopOrderFilterParams, 
@@ -55,7 +56,7 @@ import type {
 export async function filterShopOrders(
   params: ShopOrderFilterParams
 ): Promise<ShopOrdersFilterResponse> {
-  console.log('🔍 [Shop Order Filter] Démarrage filtrage avec paramètres:', params)
+  logger.debug('🔍 [Shop Order Filter] Démarrage filtrage avec paramètres:', params)
 
   const { site, productionLine, startDate, blockDate, operationBlockIdFilter } = params
 
@@ -72,7 +73,7 @@ export async function filterShopOrders(
     // Filtrage par ligne de production (si fourni) - peut être fait dans OData
     if (productionLine) {
       filters.push(`ProductionLine eq '${productionLine}'`)
-      console.log(`📊 [Shop Order Filter] Ligne de production: ${productionLine}`)
+      logger.debug(`📊 [Shop Order Filter] Ligne de production: ${productionLine}`)
     }
 
     // Mode pour log et filtre OData
@@ -81,12 +82,12 @@ export async function filterShopOrders(
                  blockDate ? 'Débit (pièces bloquées OK)' :
                  'Toutes dates (non bloquées)'
     
-    console.log(`📊 [Shop Order Filter] Mode détecté: ${mode}`)
-    console.log(`📊 [Shop Order Filter] - Block Date: ${blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}`)
-    console.log(`📊 [Shop Order Filter] - OperationBlockId Filter: ${operationBlockIdFilter}`)
+    logger.debug(`📊 [Shop Order Filter] Mode détecté: ${mode}`)
+    logger.debug(`📊 [Shop Order Filter] - Block Date: ${blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}`)
+    logger.debug(`📊 [Shop Order Filter] - OperationBlockId Filter: ${operationBlockIdFilter}`)
 
     const odataFilter = filters.join(' and ')
-    console.log('🔍 [Shop Order Filter] Filtre OData:', odataFilter)
+    logger.debug('🔍 [Shop Order Filter] Filtre OData:', odataFilter)
 
     // Requête IFS (on récupère plus large et on filtre côté code)
     // Pour le mode Redébit, on augmente $top car on doit filtrer par date côté code
@@ -113,59 +114,59 @@ export async function filterShopOrders(
     shopOrders = shopOrders.filter(order => 
       order.Objstate === 'Released'
     )
-    console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec Objstate='Released'`)
+    logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec Objstate='Released'`)
 
     // Filtrage local côté code pour date et CBlockDates
     const targetDate = startDate
     
     if (blockDate) {
       // Block Date actif: filtrer sur CBlockDates = true
-      console.log(`🔍 [DEBUG] Block Date actif - Recherche date=${targetDate}, CBlockDates=true`)
-      console.log(`🔍 [DEBUG] Premiers Shop Orders (3 exemples):`)
+      logger.debug(`🔍 [DEBUG] Block Date actif - Recherche date=${targetDate}, CBlockDates=true`)
+      logger.debug(`🔍 [DEBUG] Premiers Shop Orders (3 exemples):`)
       shopOrders.slice(0, 3).forEach(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-        console.log(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate}, CBlockDates=${order.CBlockDates}`)
+        logger.debug(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate}, CBlockDates=${order.CBlockDates}`)
       })
       
       shopOrders = shopOrders.filter(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
         return orderDate === targetDate && order.CBlockDates === true
       })
-      console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} et CBlockDates=true`)
+      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} et CBlockDates=true`)
     } else {
       // Block Date inactif: pas de filtre sur CBlockDates
-      console.log(`🔍 [DEBUG] Block Date inactif - Recherche date=${targetDate}, tous CBlockDates`)
-      console.log(`🔍 [DEBUG] Premiers Shop Orders (10 exemples):`)
+      logger.debug(`🔍 [DEBUG] Block Date inactif - Recherche date=${targetDate}, tous CBlockDates`)
+      logger.debug(`🔍 [DEBUG] Premiers Shop Orders (10 exemples):`)
       shopOrders.slice(0, 10).forEach(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
         const dateCheck = orderDate === targetDate
-        console.log(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate} (${dateCheck ? '✅' : '❌'}), CBlockDates=${order.CBlockDates}`)
+        logger.debug(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate} (${dateCheck ? '✅' : '❌'}), CBlockDates=${order.CBlockDates}`)
       })
       
       shopOrders = shopOrders.filter(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
         return orderDate === targetDate
       })
-      console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} (tous CBlockDates)`)
+      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} (tous CBlockDates)`)
     }
 
     // ✅ RÉACTIVÉ (17 oct 2025) : Filtrage côté code pour OperationBlockId
     if (operationBlockIdFilter !== 'all') {
-      console.log(`� [Shop Order Filter] Filtrage par OperationBlockId: ${operationBlockIdFilter}`)
+      logger.debug(`� [Shop Order Filter] Filtrage par OperationBlockId: ${operationBlockIdFilter}`)
       shopOrders = await filterByOperationBlockId(shopOrders, operationBlockIdFilter)
-      console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders après filtrage OperationBlockId`)
+      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders après filtrage OperationBlockId`)
     } else {
-      console.log('📊 [Shop Order Filter] OperationBlockId: Tous acceptés (pas de filtrage)')
+      logger.debug('📊 [Shop Order Filter] OperationBlockId: Tous acceptés (pas de filtrage)')
     }
 
-    console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders après filtrage complet`)
+    logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders après filtrage complet`)
 
     return {
       shopOrders,
       count: shopOrders.length
     }
   } catch (error) {
-    console.error('❌ [Shop Order Filter] Erreur lors du filtrage:', error)
+    logger.error('❌ [Shop Order Filter] Erreur lors du filtrage:', error)
     throw new Error('Failed to filter shop orders')
   }
 }
@@ -187,7 +188,7 @@ async function filterByOperationBlockId(
   shopOrders: IFSShopOrderExtended[],
   filter: 'empty' | 'not-empty'
 ): Promise<IFSShopOrderExtended[]> {
-  console.log(`🔍 [Shop Order Filter] Filtrage ${shopOrders.length} Shop Orders par OperationBlockId (${filter})...`)
+  logger.debug(`🔍 [Shop Order Filter] Filtrage ${shopOrders.length} Shop Orders par OperationBlockId (${filter})...`)
 
   const client = getIFSClient()
 
@@ -207,7 +208,7 @@ async function filterByOperationBlockId(
         const op10 = response.value?.[0]
 
         if (!op10) {
-          console.log(`⚠️ [Shop Order Filter] ${order.OrderNo}: OP10 introuvable`)
+          logger.debug(`⚠️ [Shop Order Filter] ${order.OrderNo}: OP10 introuvable`)
           return null
         }
 
@@ -215,17 +216,17 @@ async function filterByOperationBlockId(
 
         // Logique de filtrage
         if (filter === 'empty' && !hasBlockId) {
-          console.log(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId vide`)
+          logger.debug(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId vide`)
           return order
         } else if (filter === 'not-empty' && hasBlockId) {
-          console.log(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId = ${op10.OperationBlockId}`)
+          logger.debug(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId = ${op10.OperationBlockId}`)
           return order
         } else {
-          console.log(`⏭️ [Shop Order Filter] ${order.OrderNo}: Filtré (OperationBlockId = ${op10.OperationBlockId || 'NULL'})`)
+          logger.debug(`⏭️ [Shop Order Filter] ${order.OrderNo}: Filtré (OperationBlockId = ${op10.OperationBlockId || 'NULL'})`)
           return null
         }
       } catch (error) {
-        console.error(`❌ [Shop Order Filter] Erreur OP10 pour ${order.OrderNo}:`, error)
+        logger.error(`❌ [Shop Order Filter] Erreur OP10 pour ${order.OrderNo}:`, error)
         return null // En cas d'erreur, on exclut ce Shop Order
       }
     })
@@ -233,7 +234,7 @@ async function filterByOperationBlockId(
 
   const filtered = results.filter((order): order is IFSShopOrderExtended => order !== null)
 
-  console.log(`✅ [Shop Order Filter] ${filtered.length}/${shopOrders.length} Shop Orders après filtrage OperationBlockId`)
+  logger.debug(`✅ [Shop Order Filter] ${filtered.length}/${shopOrders.length} Shop Orders après filtrage OperationBlockId`)
 
   return filtered
 }
@@ -275,5 +276,5 @@ export function validateFilterParams(params: ShopOrderFilterParams): void {
     throw new Error('OperationBlockIdFilter must be "all", "empty", or "not-empty"')
   }
 
-  console.log('✅ [Shop Order Filter] Paramètres validés')
+  logger.debug('✅ [Shop Order Filter] Paramètres validés')
 }

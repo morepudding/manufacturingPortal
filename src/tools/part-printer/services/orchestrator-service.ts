@@ -17,6 +17,7 @@
  */
 
 import { filterShopOrders } from './shop-order-filter-service'
+import { logger } from '../utils/logger'
 import { getOperation10Data } from './operation-service'
 import { getRawMaterial } from './material-line-service'
 import { getMasterPartAttributes } from './master-part-service'
@@ -198,15 +199,15 @@ export interface CompleteWorkflowResult {
  *   }
  * })
  * 
- * console.log(`${result.count} étiquettes générées`)
- * console.log(`${result.errors} erreurs`)
+ * logger.debug(`${result.count} étiquettes générées`)
+ * logger.debug(`${result.errors} erreurs`)
  * ```
  */
 export async function generatePartLabels(
   options: GenerateLabelsOptions
 ): Promise<GenerateLabelsResult> {
-  console.log('🎯 [Orchestrator] Démarrage génération étiquettes Part Printer')
-  console.log('📊 [Orchestrator] Filtres:', options.filters)
+  logger.debug('🎯 [Orchestrator] Démarrage génération étiquettes Part Printer')
+  logger.debug('📊 [Orchestrator] Filtres:', options.filters)
   
   const startTime = Date.now()
   const labels: PartLabel[] = []
@@ -216,14 +217,14 @@ export async function generatePartLabels(
     // =========================================================================
     // ÉTAPE 1 : Filtrer les Shop Orders
     // =========================================================================
-    console.log('\n━━━ ÉTAPE 1/5 : FILTRAGE SHOP ORDERS ━━━')
+    logger.debug('\n━━━ ÉTAPE 1/5 : FILTRAGE SHOP ORDERS ━━━')
     
     const shopOrdersResult = await filterShopOrders(options.filters)
     
-    console.log(`✅ ${shopOrdersResult.count} Shop Orders trouvés`)
+    logger.debug(`✅ ${shopOrdersResult.count} Shop Orders trouvés`)
     
     if (shopOrdersResult.count === 0) {
-      console.log('⚠️ Aucun Shop Order trouvé avec ces filtres')
+      logger.debug('⚠️ Aucun Shop Order trouvé avec ces filtres')
       return {
         labels: [],
         count: 0,
@@ -237,17 +238,17 @@ export async function generatePartLabels(
     // =========================================================================
     // ÉTAPE 2-5 : Traiter chaque Shop Order
     // =========================================================================
-    console.log('\n━━━ ÉTAPE 2-5 : EXTRACTION DONNÉES POUR CHAQUE SHOP ORDER ━━━')
+    logger.debug('\n━━━ ÉTAPE 2-5 : EXTRACTION DONNÉES POUR CHAQUE SHOP ORDER ━━━')
     
     let processed = 0
     
     for (const shopOrder of shopOrdersResult.shopOrders) {
       processed++
-      console.log(`\n[${processed}/${shopOrdersResult.count}] Shop Order: ${shopOrder.OrderNo}`)
+      logger.debug(`\n[${processed}/${shopOrdersResult.count}] Shop Order: ${shopOrder.OrderNo}`)
       
       try {
         // Étape 2 : Operation 10
-        console.log('  📊 Récupération Operation 10...')
+        logger.debug('  📊 Récupération Operation 10...')
         const op10Data = await getOperation10Data(
           shopOrder.OrderNo,
           shopOrder.ReleaseNo,
@@ -255,7 +256,7 @@ export async function generatePartLabels(
         )
         
         // Étape 3 : Raw Material (Material Line OP10)
-        console.log('  🏭 Récupération Raw Material (OP10)...')
+        logger.debug('  🏭 Récupération Raw Material (OP10)...')
         const rawMaterial = await getRawMaterial(
           shopOrder.OrderNo,
           shopOrder.ReleaseNo,
@@ -263,7 +264,7 @@ export async function generatePartLabels(
         )
         
         // Étape 4 : Master Part Attributes
-        console.log('  🔍 Récupération attributs Master Part...')
+        logger.debug('  🔍 Récupération attributs Master Part...')
         const attributes = await getMasterPartAttributes(shopOrder.PartNo)
         
         // Étape 5 : Range ID (basé sur plages horaires du site)
@@ -276,7 +277,7 @@ export async function generatePartLabels(
         let barcodeText = ''
         
         if (options.generateBarcodes !== false) {
-          console.log('  📊 Génération code-barres...')
+          logger.debug('  📊 Génération code-barres...')
           barcodeText = formatPartPrinterBarcodeText(
             attributes.genericCode,
             attributes.engineeringPartRev
@@ -320,11 +321,11 @@ export async function generatePartLabels(
         }
         
         labels.push(label)
-        console.log(`  ✅ Étiquette créée pour ${shopOrder.OrderNo}`)
+        logger.debug(`  ✅ Étiquette créée pour ${shopOrder.OrderNo}`)
         
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Unknown error'
-        console.error(`  ❌ Erreur pour ${shopOrder.OrderNo}:`, errorMsg)
+        logger.error(`  ❌ Erreur pour ${shopOrder.OrderNo}:`, errorMsg)
         
         errorDetails.push({
           orderNo: shopOrder.OrderNo,
@@ -338,11 +339,11 @@ export async function generatePartLabels(
     // =========================================================================
     const duration = Date.now() - startTime
     
-    console.log('\n━━━ RÉSULTAT FINAL ━━━')
-    console.log(`✅ ${labels.length} étiquettes générées`)
-    console.log(`📊 ${processed} Shop Orders traités`)
-    console.log(`❌ ${errorDetails.length} erreurs`)
-    console.log(`⏱️ Durée: ${(duration / 1000).toFixed(2)}s`)
+    logger.debug('\n━━━ RÉSULTAT FINAL ━━━')
+    logger.debug(`✅ ${labels.length} étiquettes générées`)
+    logger.debug(`📊 ${processed} Shop Orders traités`)
+    logger.debug(`❌ ${errorDetails.length} erreurs`)
+    logger.debug(`⏱️ Durée: ${(duration / 1000).toFixed(2)}s`)
     
     return {
       labels,
@@ -354,7 +355,7 @@ export async function generatePartLabels(
     }
     
   } catch (error) {
-    console.error('❌ [Orchestrator] Erreur fatale:', error)
+    logger.error('❌ [Orchestrator] Erreur fatale:', error)
     throw new Error(
       `Failed to generate part labels: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
@@ -391,15 +392,15 @@ export async function generatePartLabels(
  *   printPDF: true
  * })
  * 
- * console.log(`${result.labels.count} étiquettes`)
- * console.log(`${result.pdf?.pageCount} pages PDF`)
- * console.log(`Impression: ${result.print?.message}`)
+ * logger.debug(`${result.labels.count} étiquettes`)
+ * logger.debug(`${result.pdf?.pageCount} pages PDF`)
+ * logger.debug(`Impression: ${result.print?.message}`)
  * ```
  */
 export async function executeCompleteWorkflow(
   options: CompleteWorkflowOptions
 ): Promise<CompleteWorkflowResult> {
-  console.log('🚀 [Orchestrator] Démarrage workflow complet Part Printer')
+  logger.debug('🚀 [Orchestrator] Démarrage workflow complet Part Printer')
   
   const startTime = Date.now()
   
@@ -407,12 +408,12 @@ export async function executeCompleteWorkflow(
     // =========================================================================
     // ÉTAPE 1 : Générer les étiquettes
     // =========================================================================
-    console.log('\n━━━ ÉTAPE 1/3 : GÉNÉRATION ÉTIQUETTES ━━━')
+    logger.debug('\n━━━ ÉTAPE 1/3 : GÉNÉRATION ÉTIQUETTES ━━━')
     
     const labelsResult = await generatePartLabels(options)
     
     if (labelsResult.count === 0) {
-      console.log('⚠️ Aucune étiquette générée, arrêt du workflow')
+      logger.debug('⚠️ Aucune étiquette générée, arrêt du workflow')
       return {
         labels: labelsResult,
         totalDuration: Date.now() - startTime
@@ -425,11 +426,11 @@ export async function executeCompleteWorkflow(
     let pdfResult: PDFGenerationResult | undefined
     
     if (options.generatePDF !== false) {
-      console.log('\n━━━ ÉTAPE 2/3 : GÉNÉRATION PDF ━━━')
+      logger.debug('\n━━━ ÉTAPE 2/3 : GÉNÉRATION PDF ━━━')
       
       pdfResult = await generateLabelsPDF(labelsResult.labels)
       
-      console.log(`✅ PDF généré: ${pdfResult.pageCount} pages, ${(pdfResult.size / 1024).toFixed(2)} KB`)
+      logger.debug(`✅ PDF généré: ${pdfResult.pageCount} pages, ${(pdfResult.size / 1024).toFixed(2)} KB`)
     }
     
     // =========================================================================
@@ -438,11 +439,11 @@ export async function executeCompleteWorkflow(
     let printResult: PrintLabelsResult | undefined
     
     if (options.printPDF !== false && pdfResult) {
-      console.log('\n━━━ ÉTAPE 3/3 : IMPRESSION ━━━')
+      logger.debug('\n━━━ ÉTAPE 3/3 : IMPRESSION ━━━')
       
       printResult = await printLabels(pdfResult.buffer, options.printOptions)
       
-      console.log(`✅ ${printResult.message}`)
+      logger.debug(`✅ ${printResult.message}`)
     }
     
     // =========================================================================
@@ -450,15 +451,15 @@ export async function executeCompleteWorkflow(
     // =========================================================================
     const totalDuration = Date.now() - startTime
     
-    console.log('\n━━━ WORKFLOW TERMINÉ ━━━')
-    console.log(`✅ ${labelsResult.count} étiquettes générées`)
+    logger.debug('\n━━━ WORKFLOW TERMINÉ ━━━')
+    logger.debug(`✅ ${labelsResult.count} étiquettes générées`)
     if (pdfResult) {
-      console.log(`✅ PDF: ${pdfResult.pageCount} pages`)
+      logger.debug(`✅ PDF: ${pdfResult.pageCount} pages`)
     }
     if (printResult) {
-      console.log(`✅ Impression: ${printResult.mode.toUpperCase()} mode`)
+      logger.debug(`✅ Impression: ${printResult.mode.toUpperCase()} mode`)
     }
-    console.log(`⏱️ Durée totale: ${(totalDuration / 1000).toFixed(2)}s`)
+    logger.debug(`⏱️ Durée totale: ${(totalDuration / 1000).toFixed(2)}s`)
     
     return {
       labels: labelsResult,
@@ -468,7 +469,7 @@ export async function executeCompleteWorkflow(
     }
     
   } catch (error) {
-    console.error('❌ [Orchestrator] Erreur workflow complet:', error)
+    logger.error('❌ [Orchestrator] Erreur workflow complet:', error)
     throw new Error(
       `Complete workflow failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
@@ -534,7 +535,7 @@ export function groupLabelsByRawMaterialAndVarnish(
     })
   }
   
-  console.log(`📊 [Orchestrator] ${groups.size} groupe(s) créé(s)`)
+  logger.debug(`📊 [Orchestrator] ${groups.size} groupe(s) créé(s)`)
   
   return groups
 }
@@ -562,5 +563,5 @@ export function validateGenerateLabelsOptions(options: GenerateLabelsOptions): v
     throw new Error('Block date must be a boolean in filters')
   }
   
-  console.log('✅ [Orchestrator] Options validées')
+  logger.debug('✅ [Orchestrator] Options validées')
 }

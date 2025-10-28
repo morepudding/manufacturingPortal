@@ -17,6 +17,7 @@ import { getOperation10Data } from './operation-service'
 import { getMasterPartAttributes } from './master-part-service'
 import { getRangeId } from './range-service'
 import type { IFSShopOrderExtended, PartLabel } from '../types'
+import { logger } from '../utils/logger'
 
 /**
  * Générer les données d'étiquette pour un Shop Order
@@ -28,18 +29,18 @@ import type { IFSShopOrderExtended, PartLabel } from '../types'
  * @example
  * ```typescript
  * const label = await generatePartLabel(shopOrder, "BDR")
- * console.log("Étiquette complète:", label)
+ * logger.debug("Étiquette complète:", label)
  * ```
  */
 export async function generatePartLabel(
   shopOrder: IFSShopOrderExtended,
   site: string
 ): Promise<PartLabel> {
-  console.log(`🏷️ [Part Label Service] Génération étiquette pour ${shopOrder.OrderNo}-${shopOrder.ReleaseNo}-${shopOrder.SequenceNo}`)
+  logger.debug(`🏷️ [Part Label Service] Génération étiquette pour ${shopOrder.OrderNo}-${shopOrder.ReleaseNo}-${shopOrder.SequenceNo}`)
 
   try {
     // 1. Récupérer données Operation 10
-    console.log('📊 [Part Label Service] Étape 1/4 - Operation 10...')
+    logger.debug('📊 [Part Label Service] Étape 1/4 - Operation 10...')
     const op10 = await getOperation10Data(
       shopOrder.OrderNo,
       shopOrder.ReleaseNo,
@@ -47,15 +48,15 @@ export async function generatePartLabel(
     )
 
     // 2. Récupérer attributs Master Part
-    console.log('📊 [Part Label Service] Étape 2/4 - Master Part...')
+    logger.debug('📊 [Part Label Service] Étape 2/4 - Master Part...')
     const masterPart = await getMasterPartAttributes(shopOrder.PartNo)
 
     // 3. Récupérer Range ID (basé sur plages horaires du site)
-    console.log('📊 [Part Label Service] Étape 3/4 - Range ID...')
+    logger.debug('📊 [Part Label Service] Étape 3/4 - Range ID...')
     const rangeId = await getRangeId(site, shopOrder.RevisedStartDate) || 'N/A'
 
     // 4. Générer barcode
-    console.log('📊 [Part Label Service] Étape 4/4 - Barcode...')
+    logger.debug('📊 [Part Label Service] Étape 4/4 - Barcode...')
     const barcode = generateBarcodeData(
       masterPart.genericCode,
       masterPart.engineeringPartRev
@@ -87,14 +88,14 @@ export async function generatePartLabel(
       barcode,
     }
 
-    console.log(`✅ [Part Label Service] Étiquette générée avec succès`)
-    console.log(`   📦 Shop Order: ${label.orderNo}-${label.releaseNo}-${label.sequenceNo}`)
-    console.log(`   🏭 Raw Material: ${label.rawMaterial}`)
-    console.log(`   🔧 OperationBlockId: ${label.operationBlockId || 'NULL'}`)
+    logger.debug(`✅ [Part Label Service] Étiquette générée avec succès`)
+    logger.debug(`   📦 Shop Order: ${label.orderNo}-${label.releaseNo}-${label.sequenceNo}`)
+    logger.debug(`   🏭 Raw Material: ${label.rawMaterial}`)
+    logger.debug(`   🔧 OperationBlockId: ${label.operationBlockId || 'NULL'}`)
 
     return label
   } catch (error) {
-    console.error(`❌ [Part Label Service] Erreur génération étiquette:`, error)
+    logger.error(`[Part Label Service] Erreur génération étiquette:`, error)
     throw new Error(`Failed to generate part label: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -109,14 +110,14 @@ export async function generatePartLabel(
  * @example
  * ```typescript
  * const labels = await generatePartLabels(shopOrders, "BDR")
- * console.log(`${labels.length} étiquettes générées`)
+ * logger.debug(`${labels.length} étiquettes générées`)
  * ```
  */
 export async function generatePartLabels(
   shopOrders: IFSShopOrderExtended[],
   site: string
 ): Promise<PartLabel[]> {
-  console.log(`🏷️ [Part Label Service] Génération de ${shopOrders.length} étiquettes...`)
+  logger.info(`🏷️ [Part Label Service] Génération de ${shopOrders.length} étiquettes...`)
 
   const labels: PartLabel[] = []
   const errors: Array<{ order: string; error: string }> = []
@@ -128,20 +129,20 @@ export async function generatePartLabels(
       const label = await generatePartLabel(shopOrder, site)
       labels.push(label)
       
-      console.log(`✅ [Part Label Service] ${labels.length}/${shopOrders.length} étiquettes générées`)
+      logger.debug(`✅ [Part Label Service] ${labels.length}/${shopOrders.length} étiquettes générées`)
     } catch (error) {
       const orderKey = `${shopOrder.OrderNo}-${shopOrder.ReleaseNo}-${shopOrder.SequenceNo}`
       const errorMsg = error instanceof Error ? error.message : 'Unknown error'
       
-      console.error(`❌ [Part Label Service] Erreur pour ${orderKey}:`, errorMsg)
+      logger.error(`[Part Label Service] Erreur pour ${orderKey}:`, errorMsg)
       errors.push({ order: orderKey, error: errorMsg })
     }
   }
 
-  console.log(`✅ [Part Label Service] Génération terminée: ${labels.length} succès, ${errors.length} erreurs`)
+  logger.success(`[Part Label Service] Génération terminée: ${labels.length} succès, ${errors.length} erreurs`)
 
   if (errors.length > 0) {
-    console.warn('⚠️ [Part Label Service] Erreurs rencontrées:', errors)
+    logger.warn('[Part Label Service] Erreurs rencontrées:', errors)
   }
 
   return labels
@@ -165,7 +166,7 @@ export function generateBarcodeData(
   // TODO: Vérifier le format exact requis pour les codes-barres
   const barcodeData = `${genericCode}_${revision}`
   
-  console.log(`🔢 [Part Label Service] Barcode data: ${barcodeData}`)
+  logger.debug(`🔢 [Part Label Service] Barcode data: ${barcodeData}`)
   
   return barcodeData
 }
@@ -181,7 +182,7 @@ export function generateBarcodeData(
 export function groupLabelsByMaterialAndVarnish(
   labels: PartLabel[]
 ): Map<string, PartLabel[]> {
-  console.log(`📊 [Part Label Service] Groupement de ${labels.length} étiquettes...`)
+  logger.debug(`📊 [Part Label Service] Groupement de ${labels.length} étiquettes...`)
 
   const grouped = new Map<string, PartLabel[]>()
 
@@ -195,11 +196,11 @@ export function groupLabelsByMaterialAndVarnish(
     grouped.get(key)!.push(label)
   }
 
-  console.log(`✅ [Part Label Service] ${grouped.size} groupes créés`)
+  logger.debug(`✅ [Part Label Service] ${grouped.size} groupes créés`)
 
   // Log des groupes pour debug
   for (const [key, group] of grouped.entries()) {
-    console.log(`  📦 ${key}: ${group.length} étiquettes`)
+    logger.debug(`  📦 ${key}: ${group.length} étiquettes`)
   }
 
   return grouped
@@ -234,7 +235,7 @@ export function sortLabelsByLengthSetup(labels: PartLabel[]): PartLabel[] {
 export function prepareLabelsForPrinting(
   labels: PartLabel[]
 ): Map<string, PartLabel[]> {
-  console.log(`🖨️ [Part Label Service] Préparation ${labels.length} étiquettes pour impression...`)
+  logger.debug(`🖨️ [Part Label Service] Préparation ${labels.length} étiquettes pour impression...`)
 
   const grouped = groupLabelsByMaterialAndVarnish(labels)
 
@@ -242,10 +243,10 @@ export function prepareLabelsForPrinting(
   for (const [key, group] of grouped.entries()) {
     const sorted = sortLabelsByLengthSetup(group)
     grouped.set(key, sorted)
-    console.log(`  ✅ Groupe ${key}: ${sorted.length} étiquettes triées`)
+    logger.debug(`  ✅ Groupe ${key}: ${sorted.length} étiquettes triées`)
   }
 
-  console.log(`✅ [Part Label Service] Préparation terminée`)
+  logger.debug(`✅ [Part Label Service] Préparation terminée`)
 
   return grouped
 }

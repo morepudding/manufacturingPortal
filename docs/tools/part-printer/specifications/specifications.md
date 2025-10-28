@@ -1,133 +1,168 @@
-📘 Specification – Part Printer
-1. Interface Utilisateur
-Écran principal : IFS Label Printer
+1. Objective of the Project 
 
-Composants affichés :
+Provide users with an application for several functionalities access from a main page like a portal. This page will contains the access for : 
 
-PRTBX101
+ 
 
-PRTBX109
+PartPrinter > Application to print listing & labels for manufactured parts (semi-finished) 
+ 
 
-PRTBX239
+This document is related to PartPrinter functionalities.  
 
-…
+For functional specifications of manufacturing Portal, see directly document associated to this project.  
 
-Filtres disponibles
-Élément	Description	Source
-Site Selection	Liste déroulante (LOV) des sites IFS	API : IFS Sites
-Production Line Selection	Liste déroulante des lignes de production (BDR) filtrées selon le site sélectionné	API : IFS Production Lines
-Printer Selection	Liste déroulante des imprimantes IFS	API : IFS Printers
-Start Date Selection	Sélecteur de date (calendrier) pour appeler les Shop Orders via API	API : Shop Orders filtered by Start Date
-2. Informations affichées / imprimées
-Champ	Description / Source
-Varnish Code	Valeur d’attribut de la part instanciée du Shop Order
-Shop Order	Concaténation Order No + Release No + Sequence No
-Raw Material	Matériau de la ligne liée à l’opération ayant le plus petit Operation No (ou Operation No = 10)
-Index	Non précisé dans le PDF
-Generic Part No + Revision	Valeur d’attribut de la part instanciée du Shop Order
-Length	Valeur d’attribut "Length Setup"
-Range	Exemple : 285 A
-Barcode	Code-barres basé sur le champ “Generic Part No + Revision”
-Trigger d’impression	Quantième + Range
-Range	Défini selon Start Date + Range correspondant
-OP10 Block ID	Valeur du champ Block ID pour Operation No = 10 (exemple : B25)
-3. Règles de mise en page
+ 
 
-Format : A4 paysage
+2. Scope 
 
-Pagination : 1 page par couple (Raw Material / Varnish Code)
+The application will be interfaced with the IFS ERP exclusively via API calls. All IFS API will be exposed by Azure API management (APIM) 
+Use is strictly reserved for BENETAU users : GAP Leaders, Supervisors.  
 
-Tri : par ordre décroissant de Length
+Permissions set are managed from Manufacturing portal. 
+ 
 
-But : Affecter toutes les pièces en redébit à un range “R” pour un jour donné dans IFS
+3. Business Process with Interfaces 
 
-4. Mode de Sélection
-Objectif
+ 
 
-Pouvoir filtrer et sélectionner à l’extraction du QR code selon plusieurs critères :
+Step 1 - Select the site (contract) from a LOV called from IFS (mandatory) 
 
-Critère	Type	Description
-Site	Obligatoire	LOV IFS “Contracts”
-Production Line	Optionnel	LOV IFS “Production Lines” filtrée selon le site
-Revised Start Date	Sélecteur de date	
-Block Date	Booléen : True ou False (False = redébit)	
-OP10 Block ID	Filtre possible sur “EMPTY” ou “No condition”	
-Business Rules des Filtres
-Condition	Débit classique (default)	Redébit
-Block Date	YES	NO
-OP10 Block ID	Strictement vide	No condition
-5. Détails des Données en Sortie
+Step 2 – Select the date related to the production day in a calendar (mandatory) 
 
-Champs attendus lors de l’extraction :
+Step 3 – Select a production line from a LOV called from IFS (not mandatory) 
 
-Champ	Description
-OrderNo	Numéro d’ordre
-ReleaseNo	Numéro de release
-SequenceNo	Numéro de séquence
-PartNo	Code de la pièce
-Start Date/Time	Date et heure de début du Shop Order
-Raw Material	Matériau lié à l’opération n°10
-Block ID	Valeur du champ Block ID pour OP 10
-Generic Code	Valeur de l’attribut "GENERIC CODE" du Master Part
-Length Setup	Valeur de l’attribut "LENGTH SETUP" du Master Part
-Varnish Code	Valeur de l’attribut "VARNISH CODE" du Master Part
-Engineering Part Rev	Dernière révision active de la pièce engineering
-Range ID	Identifiant de la plage (Range) lié à la date de début et au site
-6. Spécifications Techniques – WoodPartPrinter
+Step 4 – Fill a block ID in a text box to print only list / labels related to this value (not mandatory) 
 
-Objet IFS interrogé : Shop Order
+Step 5 – Select the criteria “Block date” with a Boolean button (disabled by default) 
 
-État requis : Released
+Step 6 – Select the criteria “Sent to cutting system” with a Boolean button (disabled by default) 
 
-Filtres disponibles : Site, Production Line, Start Date, Block Date, OP10 Block ID
+Step 7 – Select the both possibilities of printing (Listing only / Listing + labels) 
 
-Modes de sélection
-Mode	Condition
-Recutting	Start Date <= Today
-Standard	Start Date = Date sélectionnée
-7. Spécification – PartPrinter
+If listing only è Generated the listing only ready to print from local devices 
 
-Champs à extraire et logique associée :
+If listing + labels è User must select a printer in a LOV called from IFS before. If OK, generated the listing + trigger the label printing  
 
-a. Raw Material
+Related CRIM :	Interface MA_IN_EN_1543 + MA_FO_CR_184 
 
-Part code lié à la ligne de composant associée à l’opération n°10.
+ 
 
-b. Block ID
+End 
 
-Champ Block ID lié à l’opération n°10.
+4. Business Rules 
 
-c. Generic Code
+ 
+- User interface will be in English. 
+- Access limited to GAP Leaders, Supervisors (must be administrate from Manufacturing Portal permissions management) 
 
-Attribut GENERIC CODE du Master Part lié au Shop Order Part Code.
+- User group administrated only by BENETEAU (IT project manager + Key user).   
+- All interactions with ERP are done via API exposed in Azure APIM. 
 
-d. Length Setup
+- Developer must use existing Azure API exposition if possible.  
 
-Attribut LENGTH SETUP du Master Part lié au Shop Order Part Code.
+- This application must be deployed on 3 environments (DEV, PPD and PRD) 
 
-e. Varnish Code
+ 
 
-Attribut VARNISH CODE du Master Part lié au Shop Order Part Code.
+5. Acceptance Criteria 
 
-f. Engineering Part Revision
+- Authorized users can launch listing and / or labels printing  
+- The complete workflow… 
+- Unauthorized profiles and users are blocked. 
+- Clear error and confirmation messages are displayed. 
 
-Dernière révision active de l’Engineering Part du Shop Order Part Code.
+6. Interface components 
 
-g. Range ID
+ 
 
-Valeur du Range ID liée à la date de démarrage (Start Date) et au site sélectionné (table Range).
+Screen 1 – New function “Part Printer” insert in Manufacturing Portal 
 
-8. Résumé des relations de données (texte du PDF)
-OrderNo → ReleaseNo → SequenceNo → PartNo → StartDate
-↓
-Raw Material → Block ID
-↓
-Generic Code → Length Setup → Varnish Code → Eng. Part Rev → Range ID
+ 
 
-9. Récapitulatif global
-Élément	Source principale	Utilisation
-Shop Orders (Released)	IFS	Base de données principale
-Attributs de Part	Master Part (IFS)	Pour Varnish, Generic Code, Length Setup
-Range Table	Table spécifique IFS par site	Détermination du Range ID
-OP10 Block ID	Operation No = 10	Identification du bloc
-Barre code	Generic Part No + Revision	Impression étiquette
+Une image contenant texte, capture d’écran, logiciel, Logiciel multimédia
+
+Le contenu généré par l’IA peut être incorrect. 
+
+ 
+
+ 
+
+Screen 2 – New function “Part Printer” insert in Manufacturing Portal 
+
+ 
+
++-------------------------------------------------------------+ 
+
+|               Part Printer                                  | 
+
++-------------------------------------------------------------+ 
+
+|                                                             | 
+
+| 1. SÉLECTIONS OBLIGATOIRES                                  | 
+
+| ----------------------------------                          | 
+
+| Site (Contract) : [ LOV des Contrats...          ] * | 
+
+| Date de Prod.   : [ Calendrier / YYYY-MM-DD...   ] * | 
+
+|                                                             | 
+
+| 2. FILTRES OPTIONNELS                                       | 
+
+| ----------------------------------                          | 
+
+| Ligne de Prod.  : [ LOV des Lignes...            ]          | 
+
+| ID du Bloc      : [ Zone de Texte ]                         | 
+
+|                                                             | 
+
+| 3. OPTIONS AVANCÉES                                         | 
+
+| ----------------------------------                          | 
+
+| Bloquer la Date          [ Bascule (OFF/Grise) ]            | 
+
+| Envoyé au Système Coupe  [ Bascule (OFF/Grise) ]            | 
+
+|                                                             | 
+
+| 4. TYPE D'IMPRESSION                                        | 
+
+| ----------------------------------                          | 
+
+| (•) Liste seulement        ( ) Liste + Étiquettes           | 
+
+|                                                             | 
+
+| [Si 'Liste + Étiquettes' est coché]                         | 
+
+| Sélection Imprimante : [ LOV Imprimantes IFS...  ] * | 
+
+|                                                             | 
+
+|                                                             | 
+
+| [ ANNULER ]           [ GÉNÉRER / IMPRIMER ]                | 
+
++-------------------------------------------------------------+ 
+
+ 
+
+Details : 
+
+ 
+
+Site : list of value called from API exposed by Azure for “Contracts” in IFS 
+
+Date : Date selection in a calendar to define the “Start date” of shop orders 
+
+ 
+
+Production Line : list of value called from API exposed by Azure for “Production lines” filtered by “Site” (contract) selected. Available only if site is selected.  
+
+Block ID : Text box to fill the block ID (alphanum) to apply a filter on shop orders with the Operation No = 10 linked to the block filled. If no value entered, disabled this filter.  
+
+English interface for a report generation tool with title "Part Printer", replacing "Lock date" with "Block date", "Sent to cut system" with "Sent to cutting system", and using enabled/disabled buttons for those two fields 

@@ -9,6 +9,7 @@
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
+import { logger } from '../utils/logger'
 import type { IFSODataResponse } from '@/shared/types/ifs'
 import type { IFSProductionLine, IFSProductionLineRaw, ProductionLinesResponse } from '../types'
 
@@ -24,12 +25,12 @@ import type { IFSProductionLine, IFSProductionLineRaw, ProductionLinesResponse }
  * @example
  * ```typescript
  * const lines = await getProductionLinesBySite("BDR")
- * console.log("Lignes de production BDR:", lines.productionLines)
+ * logger.debug("Lignes de production BDR:", lines.productionLines)
  * // [{ LineId: "L1", Name: "Line 1", Contract: "BDR" }, ...]
  * ```
  */
 export async function getProductionLinesBySite(site: string): Promise<ProductionLinesResponse> {
-  console.log(`🔍 [Production Line Service] Récupération lignes pour site: ${site}`)
+  logger.debug(`🔍 [Production Line Service] Récupération lignes pour site: ${site}`)
 
   try {
     const client = getIFSClient()
@@ -56,14 +57,14 @@ export async function getProductionLinesBySite(site: string): Promise<Production
         Description: line.Description || ''
       }))
 
-    console.log(`✅ [Production Line Service] ${productionLines.length} lignes trouvées pour ${site}`)
+    logger.debug(`✅ [Production Line Service] ${productionLines.length} lignes trouvées pour ${site}`)
 
     return {
       productionLines,
       count: productionLines.length,
     }
   } catch (error) {
-    console.error(`❌ [Production Line Service] Erreur pour site ${site}:`, error)
+    logger.error(`❌ [Production Line Service] Erreur pour site ${site}:`, error)
     throw new Error(`Failed to fetch production lines for site ${site}`)
   }
 }
@@ -74,7 +75,7 @@ export async function getProductionLinesBySite(site: string): Promise<Production
  * @returns Liste de toutes les lignes de production
  */
 export async function getAllProductionLines(): Promise<ProductionLinesResponse> {
-  console.log('🔍 [Production Line Service] Récupération de toutes les lignes')
+  logger.debug('🔍 [Production Line Service] Récupération de toutes les lignes')
 
   try {
     const client = getIFSClient()
@@ -96,14 +97,14 @@ export async function getAllProductionLines(): Promise<ProductionLinesResponse> 
       Description: line.Description || ''
     }))
 
-    console.log(`✅ [Production Line Service] ${productionLines.length} lignes au total`)
+    logger.debug(`✅ [Production Line Service] ${productionLines.length} lignes au total`)
 
     return {
       productionLines,
       count: productionLines.length,
     }
   } catch (error) {
-    console.error('❌ [Production Line Service] Erreur récupération lignes:', error)
+    logger.error('❌ [Production Line Service] Erreur récupération lignes:', error)
     throw new Error('Failed to fetch all production lines')
   }
 }

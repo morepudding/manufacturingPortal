@@ -5,6 +5,7 @@
  */
 
 import { jsPDF } from 'jspdf'
+import { logger } from '../utils/logger'
 import type { PartLabel } from '../types'
 
 export interface PDFGenerationResult {
@@ -28,7 +29,7 @@ export async function generateLabelsPDF(
   labels: PartLabel[],
   options?: PDFGenerationOptions
 ): Promise<PDFGenerationResult> {
-  console.log(`📄 [PDF Service] Génération PDF pour ${labels.length} étiquettes...`)
+  logger.debug(`📄 [PDF Service] Génération PDF pour ${labels.length} étiquettes...`)
 
   if (!labels || labels.length === 0) {
     throw new Error('Cannot generate PDF: labels array is empty')
@@ -102,14 +103,14 @@ export async function generateLabelsPDF(
       size: buffer.length,
     }
 
-    console.log(`✅ [PDF Service] PDF généré avec succès:`)
-    console.log(`   - Pages: ${result.pageCount}`)
-    console.log(`   - Étiquettes: ${result.labelCount}`)
-    console.log(`   - Taille: ${(result.size / 1024).toFixed(2)} KB`)
+    logger.debug(`✅ [PDF Service] PDF généré avec succès:`)
+    logger.debug(`   - Pages: ${result.pageCount}`)
+    logger.debug(`   - Étiquettes: ${result.labelCount}`)
+    logger.debug(`   - Taille: ${(result.size / 1024).toFixed(2)} KB`)
 
     return result
   } catch (error) {
-    console.error(`❌ [PDF Service] Erreur génération PDF:`, error)
+    logger.error(`❌ [PDF Service] Erreur génération PDF:`, error)
     throw new Error(
       `Failed to generate labels PDF: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
@@ -124,6 +125,6 @@ export function validateLabelsForPDF(labels: PartLabel[]): boolean {
     throw new Error('Labels array is empty')
   }
 
-  console.log(`✅ [PDF Service] ${labels.length} étiquettes validées`)
+  logger.debug(`✅ [PDF Service] ${labels.length} étiquettes validées`)
   return true
 }

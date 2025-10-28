@@ -13,4 +13,3 @@ export { OP10BlockIDFilter } from './OP10BlockIDFilter'
 export { ShopOrderTable } from './ShopOrderTable'
 export { ShopOrderSummary } from './ShopOrderSummary' // ✅ Résumé compact avec table déroulable
 export { LabelPreviewDialog } from './LabelPreviewDialog'
-export { PrintDialog } from './PrintDialog'

@@ -14,7 +14,8 @@
         "storybook": "storybook dev -p 6006",
         "build-storybook": "storybook build",
         "db:connect": "env-cmd -f .env tsx scripts/testConnection.ts",
-        "deploy:db:connect": "tsx scripts/testConnection.ts"
+        "deploy:db:connect": "tsx scripts/testConnection.ts",
+        "docs:pdf": "node scripts/generate-pdf-documentation-v2.js"
     },
     "files": [
         "./scripts/esm-register.js"
@@ -97,6 +98,7 @@
         "lightningcss": "1.21.0",
         "playwright": "^1.51.0",
         "postcss": "^8.5.3",
+        "puppeteer": "^24.25.0",
         "sass": "^1.85.1",
         "storybook": "^8.6.4",
         "ts-node": "^10.9.2",

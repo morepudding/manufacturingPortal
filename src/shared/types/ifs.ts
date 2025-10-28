@@ -77,32 +77,6 @@ export interface DopHeadSerialReservation {
   keyref?: string
 }
 
-// ===== Printer & Language =====
-
-/**
- * Types pour les imprimantes et langues
- */
-
-/**
- * Imprimante IFS (LogicalPrinterSet)
- */
-export interface IFSPrinter {
-  PrinterId: string
-  Description: string
-}
-
-/**
- * Langue IFS (LanguageCodeSet)
- */
-export interface IFSLanguage {
-  LangCode: string
-  Description: string
-  Status?: string
-  LangCodeRfc3066?: string
-  Installed?: boolean
-  EnabledForLogin?: boolean
-}
-
 // ===== Paramètres de recherche =====
 
 /**

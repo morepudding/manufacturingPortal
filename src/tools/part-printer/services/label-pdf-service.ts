@@ -15,6 +15,7 @@
  */
 
 import { jsPDF } from 'jspdf'
+import { logger } from '../utils/logger'
 import type { PartLabel } from '../types'
 import { prepareLabelsForPrinting } from './part-label-service'
 
@@ -123,7 +124,7 @@ const LAYOUT = {
  * const labels = await generatePartLabels(shopOrders, "BDR")
  * const pdf = await generateLabelsPDF(labels)
  * 
- * console.log(`PDF généré: ${pdf.pageCount} pages, ${pdf.labelCount} étiquettes`)
+ * logger.debug(`PDF généré: ${pdf.pageCount} pages, ${pdf.labelCount} étiquettes`)
  * // Sauvegarder ou envoyer le buffer
  * fs.writeFileSync('labels.pdf', pdf.buffer)
  * ```
@@ -132,7 +133,7 @@ export async function generateLabelsPDF(
   labels: PartLabel[],
   options?: PDFGenerationOptions
 ): Promise<PDFGenerationResult> {
-  console.log(`📄 [PDF Service] Génération PDF pour ${labels.length} étiquettes...`)
+  logger.debug(`📄 [PDF Service] Génération PDF pour ${labels.length} étiquettes...`)
 
   // Validation
   if (!labels || labels.length === 0) {
@@ -150,10 +151,10 @@ export async function generateLabelsPDF(
 
   try {
     // 1. Préparer les étiquettes (grouper + trier)
-    console.log('📊 [PDF Service] Préparation des étiquettes...')
+    logger.debug('📊 [PDF Service] Préparation des étiquettes...')
     const groupedLabels = prepareLabelsForPrinting(labels)
 
-    console.log(`  ✅ ${groupedLabels.size} groupe(s) créé(s)`)
+    logger.debug(`  ✅ ${groupedLabels.size} groupe(s) créé(s)`)
 
     // 2. Créer le document PDF
     const doc = new PDFDocument({
@@ -196,7 +197,7 @@ export async function generateLabelsPDF(
       )
 
       pageIndex++
-      console.log(`  ✅ Page ${pageIndex}/${groupedLabels.size} générée (${groupLabels.length} étiquettes)`)
+      logger.debug(`  ✅ Page ${pageIndex}/${groupedLabels.size} générée (${groupLabels.length} étiquettes)`)
     }
 
     // 6. Finaliser le PDF
@@ -223,15 +224,15 @@ export async function generateLabelsPDF(
       size: buffer.length,
     }
 
-    console.log(`✅ [PDF Service] PDF généré avec succès:`)
-    console.log(`   - Pages: ${result.pageCount}`)
-    console.log(`   - Étiquettes: ${result.labelCount}`)
-    console.log(`   - Groupes: ${result.groupCount}`)
-    console.log(`   - Taille: ${(result.size / 1024).toFixed(2)} KB`)
+    logger.debug(`✅ [PDF Service] PDF généré avec succès:`)
+    logger.debug(`   - Pages: ${result.pageCount}`)
+    logger.debug(`   - Étiquettes: ${result.labelCount}`)
+    logger.debug(`   - Groupes: ${result.groupCount}`)
+    logger.debug(`   - Taille: ${(result.size / 1024).toFixed(2)} KB`)
 
     return result
   } catch (error) {
-    console.error(`❌ [PDF Service] Erreur génération PDF:`, error)
+    logger.error(`❌ [PDF Service] Erreur génération PDF:`, error)
     throw new Error(
       `Failed to generate labels PDF: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
@@ -373,7 +374,7 @@ async function generateLabelBox(
   // Ligne 1 : Shop Order + Range (décalée vers le bas)
   // Ligne 1 : Shop Order + Range (décalée vers le bas)
   const shopOrderText = `Shop Order: ${label.orderNo}-${label.releaseNo}-${label.sequenceNo}`
-  console.log(`🏷️ [PDF Service] Affichage: ${shopOrderText}`)
+  logger.debug(`🏷️ [PDF Service] Affichage: ${shopOrderText}`)
   
   doc
     .fontSize(fontSize.body)
@@ -477,6 +478,6 @@ export function validateLabelsForPDF(labels: PartLabel[]): boolean {
     }
   }
 
-  console.log(`✅ [PDF Service] ${labels.length} étiquettes validées`)
+  logger.debug(`✅ [PDF Service] ${labels.length} étiquettes validées`)
   return true
 }

@@ -19,6 +19,15 @@
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
+import { logger } from '../utils/logger'
+
+// =============================================================================
+// Cache
+// =============================================================================
+
+/** Cache pour les attributs des pièces (5 minutes TTL) */
+const attributesCache = new Map<string, { attributes: MasterPartAttributes, timestamp: number }>()
+const CACHE_DURATION_MS = 5 * 60 * 1000 // 5 minutes
 
 // =============================================================================
 // Types
@@ -113,16 +122,16 @@ export class MasterPartService {
     const client = getIFSClient()
     
     try {
-      console.log('🔍 Récupération pièce:', { contract, partNo })
+      logger.debug('🔍 Récupération pièce:', { contract, partNo })
       
       const part = await client.get<IFSInventoryPart>(
         `InventoryPartHandling.svc/InventoryPartSet(Contract='${contract}',PartNo='${partNo}')`
       )
       
-      console.log('✅ Pièce trouvée:', part.Description)
+      logger.debug('✅ Pièce trouvée:', part.Description)
       return part
     } catch (error) {
-      console.error('❌ Pièce non trouvée:', { contract, partNo }, error)
+      logger.error('❌ Pièce non trouvée:', { contract, partNo }, error)
       return null
     }
   }
@@ -185,7 +194,7 @@ export class MasterPartService {
       }
     }
 
-    console.log(`📊 ${results.size}/${parts.length} pièces récupérées`)
+    logger.debug(`📊 ${results.size}/${parts.length} pièces récupérées`)
     return results
   }
 
@@ -208,7 +217,7 @@ export class MasterPartService {
     varnishCode: string
   } | null> {
     // TODO: Implémenter quand source de données sera identifiée
-    console.warn('⚠️ getCustomAttributes non implémenté - attributs non disponibles via IFS')
+    logger.warn('⚠️ getCustomAttributes non implémenté - attributs non disponibles via IFS')
     return null
   }
 }
@@ -252,9 +261,9 @@ export interface MasterPartAttributes {
  * @example
  * ```typescript
  * const attrs = await getMasterPartAttributes("1000014690G136")
- * console.log(attrs.genericCode)      // "1000014690"
- * console.log(attrs.lengthSetup)      // "1.904"
- * console.log(attrs.varnishCode)      // "RCTV1210"
+ * logger.debug(attrs.genericCode)      // "1000014690"
+ * logger.debug(attrs.lengthSetup)      // "1.904"
+ * logger.debug(attrs.varnishCode)      // "RCTV1210"
  * ```
  * 
  * @see TEST 15 - Chemin OData complet validé (15 octobre 2025)
@@ -262,7 +271,14 @@ export interface MasterPartAttributes {
 export async function getMasterPartAttributes(
   partNo: string
 ): Promise<MasterPartAttributes> {
-  console.log(`🔍 [Master Part] Récupération attributs pour ${partNo}`)
+  // 💾 Check cache first
+  const cached = attributesCache.get(partNo)
+  if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION_MS) {
+    logger.debug(`📦 [Master Part] Using cached attributes for ${partNo}`)
+    return cached.attributes
+  }
+
+  logger.debug(`🔍 [Master Part] Récupération attributs pour ${partNo}`)
 
   const client = getIFSClient()
 
@@ -284,7 +300,7 @@ export async function getMasterPartAttributes(
     )
 
     if (!refArrayResponse.value || refArrayResponse.value.length === 0) {
-      console.warn(`⚠️ [Master Part] Aucune référence technique trouvée pour ${partNo}`)
+      logger.warn(`⚠️ [Master Part] Aucune référence technique trouvée pour ${partNo}`)
       throw new Error(`No technical reference found for part ${partNo}`)
     }
 
@@ -292,7 +308,7 @@ export async function getMasterPartAttributes(
     const encodedKeyRef = encodeURIComponent(firstRef.KeyRef)
     const technicalSpecNo = firstRef.TechnicalSpecNo
 
-    console.log(`  ✅ TechnicalSpecNo: ${technicalSpecNo}`)
+    logger.debug(`  ✅ TechnicalSpecNo: ${technicalSpecNo}`)
 
     // ---------------------------------------------------------------------------
     // ÉTAPE 2: Accéder TechnicalSpecBothArray avec chemin complet
@@ -338,9 +354,9 @@ export async function getMasterPartAttributes(
     const varnishCode = varnishResponse.value[0]?.ValueText || 'N/A'
     const lengthSetup = lengthResponse.value[0]?.ValueNo?.toString() || 'N/A'
 
-    console.log(`  ✅ GENERIC CODE: ${genericCode}`)
-    console.log(`  ✅ VARNISH CODE: ${varnishCode}`)
-    console.log(`  ✅ LENGTH SETUP: ${lengthSetup}`)
+    logger.debug(`  ✅ GENERIC CODE: ${genericCode}`)
+    logger.debug(`  ✅ VARNISH CODE: ${varnishCode}`)
+    logger.debug(`  ✅ LENGTH SETUP: ${lengthSetup}`)
 
     // ---------------------------------------------------------------------------
     // ÉTAPE 3: Engineering Part Revision
@@ -364,12 +380,12 @@ export async function getMasterPartAttributes(
 
       if (revResponse.value && revResponse.value.length > 0) {
         engineeringPartRev = revResponse.value[0].PartRev || 'N/A'
-        console.log(`  ✅ ENGINEERING REV: ${engineeringPartRev} (${revResponse.value[0].Description || 'N/A'})`)
+        logger.debug(`  ✅ ENGINEERING REV: ${engineeringPartRev} (${revResponse.value[0].Description || 'N/A'})`)
       } else {
-        console.warn(`  ⚠️ ENGINEERING REV: Aucune révision trouvée pour ${partNo}`)
+        logger.warn(`  ⚠️ ENGINEERING REV: Aucune révision trouvée pour ${partNo}`)
       }
     } catch (error) {
-      console.warn(`  ⚠️ ENGINEERING REV: Non disponible (${error instanceof Error ? error.message : 'Unknown'})`)
+      logger.warn(`  ⚠️ ENGINEERING REV: Non disponible (${error instanceof Error ? error.message : 'Unknown'})`)
     }
 
     const attributes: MasterPartAttributes = {
@@ -380,11 +396,17 @@ export async function getMasterPartAttributes(
       engineeringPartRev
     }
 
-    console.log(`✅ [Master Part] Attributs récupérés avec succès`)
+    // 💾 Store in cache
+    attributesCache.set(partNo, {
+      attributes,
+      timestamp: Date.now()
+    })
+
+    logger.debug(`✅ [Master Part] Attributs récupérés avec succès (cached for 5 min)`)
 
     return attributes
   } catch (error) {
-    console.error(`❌ [Master Part] Erreur récupération attributs:`, error)
+    logger.error(`❌ [Master Part] Erreur récupération attributs:`, error)
     throw new Error(`Failed to get master part attributes: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }

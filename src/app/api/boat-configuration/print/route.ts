@@ -1,134 +1,205 @@
 /**
- * API Route: POST /api/boat-configuration/print
+ * API Route - POST /api/boat-configuration/print
  * 
- * Endpoint pour imprimer un document Customer Order - Boat Configuration
+ * Impression Customer Order via IFS Cloud avec le bon layout
  * 
- * Body:
- * - orderNo: string (requis)
- * - reportId: string (par défaut: PROFORMA_INVOICE_REP) ✅ PRODUCTION
- * - printerId: string (par défaut: PDF_PRINTER)
- * - languageCode: string (par défaut: fr)
- * - layoutName: string (par défaut: BEN_Boat_configuration_for_production.rdl) ✅ PRODUCTION
- * - copies: number (par défaut: 1)
- * - downloadPdf: boolean (par défaut: false)
- * 
- * Response:
- * - Si downloadPdf=false: JSON avec resultKey, reportTitle, layoutName
- * - Si downloadPdf=true: Fichier PDF en téléchargement direct
- * 
- * 🔥 CONFIGURATION PRODUCTION:
- * - Report ID: PROFORMA_INVOICE_REP (validé dans IFS AST)
- * - Layout: BEN_Boat_configuration_for_production.rdl (validé dans IFS AST)
+ * CONFIGURATION PRODUCTION - Testé et validé :
+ * - Report ID: CUSTOMER_ORDER_CONF_REP
+ * - Layout: BEN_Inventory-BAT.rdl (layout par défaut IFS avec contenu)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { printCustomerOrder } from '@/tools/boat-configuration/services/print-service'
-import type { PrintRequest } from '@/shared/types/print'
+import { getIFSClient } from '@/shared/services/ifs-client'
+
+interface PrintRequest {
+  orderNo: string
+  reportId: string
+  printerId: string
+  languageCode: string
+  layoutName?: string
+  copies?: number
+  downloadPdf?: boolean
+}
+
+interface CustomerOrderResponse {
+  '@odata.etag': string
+  OrderNo: string
+  [key: string]: unknown
+}
+
+interface PrintResultKeyResponse {
+  value: string
+}
+
+interface PrintDialogInitResponse {
+  ResultKey: number
+  ReportTitle: string
+  LayoutName: string
+  [key: string]: unknown
+}
+
+interface PdfArchiveInfo {
+  ResultKey: number
+  Id: string
+  FileName: string
+  PdfSize: number
+  LayoutName: string
+  LangCode: string
+  Created: string
+}
+
+interface PdfArchiveResponse {
+  value: PdfArchiveInfo[]
+}
 
 export async function POST(request: NextRequest) {
+  console.log('🖨️ [API] POST /api/boat-configuration/print')
+
   try {
-    // Parser le body
-    const body = await request.json()
-    
-    // Validation: orderNo requis
-    if (!body.orderNo || typeof body.orderNo !== 'string') {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: 'Order No is required and must be a string' 
-        },
-        { status: 400 }
-      )
+    const body: PrintRequest = await request.json()
+
+    // Validation
+    if (!body.orderNo) {
+      return NextResponse.json({ error: 'Missing orderNo' }, { status: 400 })
     }
-    
-    // 🔥 CONFIGURATION PRODUCTION - Valeurs par défaut
-    const DEFAULT_REPORT_ID = 'PROFORMA_INVOICE_REP'
-    const DEFAULT_LAYOUT_NAME = 'BEN_Boat_configuration_for_production.rdl'
-    
-    // Construire la requête d'impression avec valeurs par défaut
-    const printRequest: PrintRequest = {
-      orderNo: body.orderNo.trim(),
-      reportId: body.reportId || DEFAULT_REPORT_ID,
-      printerId: body.printerId || 'PDF_PRINTER',
-      languageCode: body.languageCode || 'fr',
-      layoutName: body.layoutName || DEFAULT_LAYOUT_NAME,
-      copies: body.copies || 1,
-      downloadPdf: body.downloadPdf || false,
+    if (!body.reportId) {
+      return NextResponse.json({ error: 'Missing reportId' }, { status: 400 })
     }
-    
-    console.log('\n🔍 VERIFICATION CONFIGURATION IMPRESSION API:')
-    console.log(`   ✅ Report ID: ${printRequest.reportId} ${printRequest.reportId === DEFAULT_REPORT_ID ? '(DEFAULT ✓)' : '(CUSTOM)'}`)
-    console.log(`   ✅ Layout Name: ${printRequest.layoutName} ${printRequest.layoutName === DEFAULT_LAYOUT_NAME ? '(DEFAULT ✓)' : '(CUSTOM)'}`)
-    console.log(`   📋 Order No: ${printRequest.orderNo}`)
-    console.log(`   🖨️ Printer: ${printRequest.printerId}`)
-    console.log(`   🌍 Language: ${printRequest.languageCode}`)
-    console.log(`   📥 Download PDF: ${printRequest.downloadPdf}`)
-    
-    // 🔒 Sécurité : Vérifier que le printerId reçu est bien celui du body (pas de substitution)
-    if (body.printerId && body.printerId !== printRequest.printerId) {
-      console.warn(`⚠️  ATTENTION: PrinterId modifié! Body: ${body.printerId} → Request: ${printRequest.printerId}`)
+    if (!body.printerId) {
+      return NextResponse.json({ error: 'Missing printerId' }, { status: 400 })
     }
-    
-    // Validation additionnelle
-    const copies = printRequest.copies ?? 1
-    if (copies < 1 || copies > 10) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: 'Copies must be between 1 and 10' 
-        },
-        { status: 400 }
-      )
+    if (!body.languageCode) {
+      return NextResponse.json({ error: 'Missing languageCode' }, { status: 400 })
     }
-    
-    // Exécuter le workflow d'impression
-    const result = await printCustomerOrder(printRequest)
-    
-    // Si téléchargement PDF demandé, retourner le fichier binaire
-    if (printRequest.downloadPdf && result.pdfInfo) {
-      console.log(`\n📤 Returning PDF file: ${result.pdfInfo.fileName}`)
+
+    // 🔥 CONFIGURATION PRODUCTION - Layout validé
+    const layoutName = body.layoutName || 'BEN_Inventory-BAT.rdl'
+
+    console.log('📋 Configuration impression:')
+    console.log(`   Order No: ${body.orderNo}`)
+    console.log(`   Report ID: ${body.reportId}`)
+    console.log(`   Layout: ${layoutName}`)
+    console.log(`   Printer: ${body.printerId}`)
+    console.log(`   Language: ${body.languageCode}`)
+    console.log(`   Download PDF: ${body.downloadPdf ? 'Oui' : 'Non'}`)
+
+    const client = getIFSClient()
+
+    // ===== ÉTAPE 1 : Récupérer Customer Order + ETag =====
+    console.log('\n📥 ÉTAPE 1: Récupération Customer Order + ETag')
+    const orderResponse = await client.get<CustomerOrderResponse>(
+      `CustomerOrderHandling.svc/CustomerOrderSet(OrderNo='${body.orderNo}')`
+    )
+    const etag = orderResponse['@odata.etag']
+    console.log(`✅ ETag récupéré: ${etag}`)
+
+    // ===== ÉTAPE 2 : PrintResultKey =====
+    console.log('\n🔑 ÉTAPE 2: Génération PrintResultKey')
+    const resultKeyResponse = await client.post<PrintResultKeyResponse>(
+      `CustomerOrderHandling.svc/CustomerOrderSet(OrderNo='${body.orderNo}')/IfsApp.CustomerOrderHandling.CustomerOrder_PrintResultKey`,
+      { ReportId: body.reportId },
+      { 'If-Match': etag }
+    )
+    const resultKey = parseInt(resultKeyResponse.value)
+    console.log(`✅ ResultKey généré: ${resultKey}`)
+
+    // ===== ÉTAPE 3 : PrintDialogInit =====
+    console.log('\n📋 ÉTAPE 3: Initialisation PrintDialog')
+    const dialogResponse = await client.post<PrintDialogInitResponse>(
+      'PrintDialog.svc/PrintDialogInit',
+      { ResultKey: resultKey }
+    )
+    console.log(`✅ Dialog initialisé:`)
+    console.log(`   - Report Title: ${dialogResponse.ReportTitle}`)
+    console.log(`   - Layout (défaut IFS): ${dialogResponse.LayoutName}`)
+
+    // ===== ÉTAPE 4 : ReportPrintRequest =====
+    console.log('\n🖨️ ÉTAPE 4: Envoi ReportPrintRequest')
+    await client.post(
+      'PrintDialog.svc/ReportPrintRequest',
+      {
+        ResultKey: dialogResponse.ResultKey,
+        LayoutName: layoutName, // ✅ Utiliser le layout spécifié (BEN_Inventory-BAT.rdl)
+        LanguageCode: body.languageCode,
+        LogicalPrinter: body.printerId,
+        Copies: body.copies || 1
+      }
+    )
+    console.log(`✅ Impression envoyée à ${body.printerId}`)
+
+    // ===== ÉTAPE 5 (Optionnelle) : Télécharger le PDF =====
+    if (body.downloadPdf) {
+      console.log('\n📄 ÉTAPE 5: Téléchargement PDF')
+      console.log('⏳ Attente de la génération du PDF...')
+
+      let pdfInfo: PdfArchiveInfo | null = null
+      let pdfBlob: Buffer | null = null
+
+      // Attendre que le PDF soit généré (max 30 secondes)
+      for (let attempt = 0; attempt < 30; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        try {
+          const archiveResponse = await client.get<PdfArchiveResponse>(
+            `PrintDialog.svc/PdfArchiveSet?$filter=ResultKey eq ${resultKey}`
+          )
+
+          if (archiveResponse.value && archiveResponse.value.length > 0) {
+            pdfInfo = archiveResponse.value[0]
+            console.log(`✅ PDF trouvé après ${attempt + 1} secondes:`)
+            console.log(`   - FileName: ${pdfInfo.FileName}`)
+            console.log(`   - Size: ${(pdfInfo.PdfSize / 1024).toFixed(2)} KB`)
+
+            // Télécharger le PDF
+            const pdfResponse = await client.getRaw(
+              `PrintDialog.svc/PdfArchiveSet(ResultKey=${pdfInfo.ResultKey},Id='${pdfInfo.Id}')/Pdf`
+            )
+
+            pdfBlob = Buffer.from(pdfResponse)
+            console.log(`✅ PDF téléchargé: ${pdfBlob.length} bytes`)
+            break
+          }
+        } catch (err) {
+          // PDF pas encore prêt, continuer d'attendre
+          if (attempt < 29) {
+            console.log(`⏳ Tentative ${attempt + 1}/30...`)
+          }
+        }
+      }
+
+      if (!pdfBlob) {
+        console.warn('⚠️ PDF non disponible après 30 secondes')
+        return NextResponse.json(
+          { error: 'PDF generation timeout' },
+          { status: 408 }
+        )
+      }
+
+      // Retourner le PDF
+      const filename = pdfInfo?.FileName || `order-${body.orderNo}.pdf`
       
-      // Récupérer le PDF depuis IFS (le service a déjà validé sa disponibilité)
-      const { getIFSClient } = await import('@/shared/services/ifs-client')
-      const client = getIFSClient()
-      
-      const pdfBuffer = await client.getRaw(
-        `PrintDialog.svc/PdfArchiveSet(ResultKey=${result.resultKey},Id='${result.pdfInfo.id}')/Pdf`,
-        undefined,
-        { 'Accept': 'application/octet-stream' }
-      )
-      
-      // Retourner le PDF avec les bons headers
-      return new NextResponse(pdfBuffer, {
-        status: 200,
+      return new NextResponse(new Uint8Array(pdfBlob), {
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${result.pdfInfo.fileName}"`,
-          'Content-Length': result.pdfInfo.size.toString(),
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Content-Length': pdfBlob.length.toString(),
         },
       })
     }
-    
-    // Sinon, retourner le résultat en JSON
-    console.log(`\n✅ Print request successful (ResultKey: ${result.resultKey})`)
-    
+
+    // Impression simple (sans téléchargement PDF)
     return NextResponse.json({
       success: true,
-      resultKey: result.resultKey,
-      reportTitle: result.reportTitle,
-      layoutName: result.layoutName,
+      resultKey: resultKey,
+      reportTitle: dialogResponse.ReportTitle,
+      layoutName: layoutName,
     })
-    
+
   } catch (error) {
-    console.error('\n❌ API /print error:', error)
-    
-    // Extraire le message d'erreur
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    
+    console.error('❌ [API] Erreur impression:', error)
     return NextResponse.json(
-      { 
-        success: false,
-        error: errorMessage 
+      {
+        error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )

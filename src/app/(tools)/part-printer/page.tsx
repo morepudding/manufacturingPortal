@@ -55,6 +55,7 @@ export default function PartPrinterPage() {
   // Nouveaux états UI
   const [showPreview, setShowPreview] = useState(false)
   const [calculationStatus, setCalculationStatus] = useState<'idle' | 'calculating' | 'success' | 'error'>('idle')
+  const [isPrinting, setIsPrinting] = useState(false) // État pour l'impression Azure
 
   // ===== HANDLERS =====
 
@@ -194,6 +195,14 @@ export default function PartPrinterPage() {
       return
     }
 
+    // Validation du printer si mode avec labels
+    if (printMode !== 'listing-only' && !printer) {
+      setError('Printer is required for label printing')
+      setCalculationStatus('error')
+      console.log('❌ [DEBUG] Validation failed: printer required for', printMode)
+      return
+    }
+
     console.log('✅ [DEBUG] Starting calculation, status: calculating')
     setCalculationStatus('calculating')
     setError(null)
@@ -244,7 +253,16 @@ export default function PartPrinterPage() {
         return
       }
 
-      // 3. Générer les étiquettes
+      // 3. Si mode Labels Only → Imprimer directement sans générer PDF
+      if (printMode === 'labels-only') {
+        console.log('🖨️ [DEBUG] Labels Only mode: printing to IFS...')
+        await handlePrintToIFS(orders)
+        setCalculationStatus('success')
+        setLoading(false)
+        return
+      }
+
+      // 4. Générer les étiquettes (pour Listing Only ou Listing + Labels)
       console.log('🏷️ [DEBUG] Generating labels for', orders.length, 'shop orders...')
       setGeneratingLabels(true)
       const labelsResponse = await fetch('/api/part-printer/labels/consolidate', {
@@ -265,7 +283,7 @@ export default function PartPrinterPage() {
       console.log('✅ [DEBUG] Labels generated:', generatedLabels.length)
       setLabels(generatedLabels)
 
-      // 4. Générer le PDF
+      // 5. Générer le PDF
       console.log('📄 [DEBUG] Generating PDF...')
       const pdfResponse = await fetch('/api/part-printer/labels/generate-pdf', {
         method: 'POST',
@@ -304,6 +322,13 @@ export default function PartPrinterPage() {
       
       setPdfUrl(url)
       setShowPreview(true)
+
+      // 6. Si mode Listing + Labels → Imprimer aussi
+      if (printMode === 'listing-and-labels') {
+        console.log('🖨️ [DEBUG] Listing + Labels mode: printing to IFS...')
+        await handlePrintToIFS(orders)
+      }
+
       setCalculationStatus('success')
       console.log('🎉 [DEBUG] Success! PDF ready, labels:', generatedLabels.length)
 
@@ -314,6 +339,54 @@ export default function PartPrinterPage() {
     } finally {
       setLoading(false)
       setGeneratingLabels(false)
+    }
+  }
+
+  /**
+   * Envoie les Shop Orders à l'API Azure Print
+   */
+  const handlePrintToIFS = async (orders: IFSShopOrderExtended[]) => {
+    if (!printer) {
+      throw new Error('Printer not selected')
+    }
+
+    try {
+      setIsPrinting(true)
+      console.log('🖨️ [Part Printer] Impression de', orders.length, 'Shop Orders sur', printer)
+
+      // Préparer les données pour l'API
+      const shopOrdersToPrint = orders.map(order => ({
+        orderNo: order.OrderNo,
+        releaseNo: order.ReleaseNo,
+        sequenceNo: order.SequenceNo
+      }))
+
+      // Appeler l'API d'impression
+      const response = await fetch('/api/part-printer/labels/print', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shopOrders: shopOrdersToPrint,
+          printer: printer
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Print failed')
+      }
+
+      console.log('✅ [Part Printer] Impression réussie:', result.data.message)
+
+      // TODO: Afficher une notification de succès (toast)
+      // toast.success(`Labels printed successfully to ${printer}`)
+
+    } catch (err) {
+      console.error('❌ [Part Printer] Erreur impression:', err)
+      throw new Error(err instanceof Error ? err.message : 'Print to IFS failed')
+    } finally {
+      setIsPrinting(false)
     }
   }
 
@@ -634,19 +707,21 @@ export default function PartPrinterPage() {
                   setPdfUrl('')
                   setShopOrders([])
                 }}
-                disabled={loading || generatingLabels}
+                disabled={loading || generatingLabels || isPrinting}
               >
                 <Search className="w-5 h-5 mr-2" />
                 New Calculation
               </Button>
             ) : (
-              // Bouton "Generate Preview" initial
+              // Bouton dynamique basé sur printMode
               <Button
-                className={`flex-1 h-14 text-base font-semibold shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
-                  calculationStatus === 'calculating'
+                className={`flex-1 h-14 text-base font-semibold shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all text-white ${
+                  printMode === 'listing-only' 
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
-                    : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
-                } text-white`}
+                    : printMode === 'labels-only'
+                    ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800'
+                    : 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800'
+                }`}
                 onClick={() => {
                   console.log('🔘 [DEBUG] Button clicked, calculationStatus:', calculationStatus)
                   handleGeneratePreview()
@@ -657,23 +732,48 @@ export default function PartPrinterPage() {
                   (printMode !== 'listing-only' && !printer) ||  // Printer requis si labels
                   loading || 
                   generatingLabels || 
+                  isPrinting ||
                   calculationStatus === 'calculating'
                 }
               >
                 {calculationStatus === 'calculating' ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    <Calculator className="w-5 h-5 mr-2 animate-pulse" />
-                    {printMode === 'listing-only' ? 'Generating Listing...' :
-                     printMode === 'labels-only' ? 'Printing Labels...' :
-                     'Generating & Printing...'}
+                    {printMode === 'listing-only' ? (
+                      <>
+                        <FileText className="w-5 h-5 mr-2 animate-pulse" />
+                        Generating Listing...
+                      </>
+                    ) : printMode === 'labels-only' ? (
+                      <>
+                        <Calculator className="w-5 h-5 mr-2 animate-pulse" />
+                        Printing Labels...
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-5 h-5 mr-2 animate-pulse" />
+                        Generating & Printing...
+                      </>
+                    )}
                   </>
                 ) : (
                   <>
-                    <Search className="w-5 h-5 mr-2" />
-                    {printMode === 'listing-only' ? 'Generate Listing' :
-                     printMode === 'labels-only' ? 'Print Labels' :
-                     'Generate & Print'}
+                    {printMode === 'listing-only' ? (
+                      <>
+                        <FileText className="w-5 h-5 mr-2" />
+                        DOWNLOAD PDF
+                      </>
+                    ) : printMode === 'labels-only' ? (
+                      <>
+                        <Calculator className="w-5 h-5 mr-2" />
+                        PRINT TO IFS
+                      </>
+                    ) : (
+                      <>
+                        <Calculator className="w-5 h-5 mr-2" />
+                        PRINT & DOWNLOAD
+                      </>
+                    )}
                   </>
                 )}
               </Button>

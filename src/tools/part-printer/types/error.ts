@@ -57,6 +57,9 @@ export enum ErrorCode {
   /** Length Setup attribute missing for a part */
   NO_LENGTH_SETUP = 'PP_E005',
   
+  /** Azure Print API failed to print labels */
+  AZURE_PRINT_FAILED = 'PP_E006',
+  
   // ⚠️ WARNING ERRORS (Continue with degradation)
   
   /** No ranges found for the selected site */
@@ -119,6 +122,9 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ErrorCode.NO_LENGTH_SETUP]: 
     'Missing Length Setup. This attribute is mandatory for label sorting. Please configure it in IFS.',
   
+  [ErrorCode.AZURE_PRINT_FAILED]: 
+    'Azure Print API failed. Unable to print labels to IFS. Error: {error}',
+  
   // Warning errors
   [ErrorCode.NO_RANGES]: 
     'No Range data available for this site. The application will continue without Range filtering.',
@@ -156,6 +162,10 @@ export const ERROR_CONFIG: Record<ErrorCode, { severity: ErrorSeverity; action: 
     action: ErrorAction.STOP 
   },
   [ErrorCode.NO_LENGTH_SETUP]: { 
+    severity: ErrorSeverity.BLOCKING, 
+    action: ErrorAction.STOP 
+  },
+  [ErrorCode.AZURE_PRINT_FAILED]: { 
     severity: ErrorSeverity.BLOCKING, 
     action: ErrorAction.STOP 
   },

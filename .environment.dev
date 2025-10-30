@@ -1,0 +1,17 @@
+# ========================================
+# Azure Print API (Bénéteau ERP Boat)
+# ========================================
+# Configuration pour l'impression via Azure API Management
+# Environnement: DEV (AST)
+
+# OAuth2 Client Credentials
+AZURE_PRINT_CLIENT_ID=1ed5fa70-9e6c-4bda-9540-32bd72c4b590
+AZURE_PRINT_CLIENT_SECRET=GHrMn1da38vhMUEhoLOxTb+w5m31xG+ibAkJkfnAyMQ=
+
+# OAuth2 Endpoints
+AZURE_PRINT_OAUTH_URL=https://login.microsoftonline.com/beneteaugroup.onmicrosoft.com/oauth2/v2.0/token
+AZURE_PRINT_OAUTH_SCOPE=api://api.erpboat.dev/.default
+
+# Azure API Management
+AZURE_PRINT_API_URL=https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Print
+AZURE_PRINT_SUBSCRIPTION_KEY=c5dcb4c8fdf34250b33a5988b269fb8d;product=erpboat

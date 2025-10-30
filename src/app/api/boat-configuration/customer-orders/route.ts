@@ -1,99 +1,100 @@
 /**
  * API Route : Customer Orders
  * 
- * Récupère les informations d'un Customer Order à partir des données du Shop Order
- * Utilise OrderNo + LineNo pour éviter les timeouts liés au filtre CHullNumber
+ * ⭐ STRATÉGIE OPTIMALE : Recherche directe par HullNumber
+ * 
+ * Workflow :
+ * 1. INPUT: HullNumber (CHullNumber)
+ * 2. Recherche directe dans CustomerOrderLineSet
+ * 3. Récupération complète du Customer Order
+ * 
+ * Modes supportés (legacy pour compatibilité) :
+ * - Mode 1: Par HullNumber/SerialNumber (OPTIMAL, recommandé)
+ * - Mode 2: Par OrderNo + LineNo (legacy, pour compatibilité)
+ * 
+ * @deprecated Mode 2 (orderNo + lineNo) - Utilisez directement le HullNumber
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getCustomerOrderInfoFromShopOrder, getCustomerOrderInfo } from '@/tools/boat-configuration/services/customer-order-service'
+import { 
+  getCustomerOrderByHullNumber,
+  getCustomerOrderInfoFromShopOrder 
+} from '@/tools/boat-configuration/services/customer-order-service'
 
 /**
- * GET /api/customer-orders
+ * GET /api/boat-configuration/customer-orders
  * 
- * Query params (deux modes possibles):
+ * Query params :
  * 
- * Mode 1: Recherche par OrderNo + LineNo (recommandé, rapide)
+ * Mode 1: Recherche par HullNumber (OPTIMAL, recommandé)
+ * - hullNumber: Hull Number / Serial Number (ex: "LG5MA0114")
+ * - site: (RECOMMANDÉ) Site/CustomerNo pour filtrer (ex: "FR05A") - Évite les timeouts ⚡
+ * 
+ * Mode 2: Recherche par OrderNo + LineNo (legacy, compatibilité)
  * - orderNo: Customer Order Number (ex: "C1000038587")
  * - lineNo: Customer Order Line Number (ex: "1")
- * - serialNumber: (optionnel) Serial Number attendu pour validation
- * 
- * Mode 2: Recherche par Serial Number seulement (fallback, plus lent)
- * - serialNumber: Serial Number de la pièce (ex: "LG5MA0114")
+ * - serialNumber: (optionnel) Serial Number pour validation
  * 
  * @example
- * // Mode 1: Par OrderNo + LineNo
- * GET /api/customer-orders?orderNo=C1000038587&lineNo=1&serialNumber=LG5MA0114
+ * // Mode 1: Par HullNumber (OPTIMAL)
+ * GET /api/boat-configuration/customer-orders?hullNumber=LG5MA0114
  * 
- * // Mode 2: Par Serial Number seulement
- * GET /api/customer-orders?serialNumber=LG5MA0114
+ * // Mode 1: Par HullNumber + Site (⚡ PLUS RAPIDE, évite timeouts)
+ * GET /api/boat-configuration/customer-orders?hullNumber=LG5MA0114&site=FR05A
+ * 
+ * // Mode 2: Par OrderNo + LineNo (legacy)
+ * GET /api/boat-configuration/customer-orders?orderNo=C1000038587&lineNo=1
  */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
+    
+    // Paramètres Mode 1 (OPTIMAL)
+    const hullNumber = searchParams.get('hullNumber') || searchParams.get('serialNumber')
+    const siteFilter = searchParams.get('site') || searchParams.get('customerNo')
+    
+    // Paramètres Mode 2 (Legacy)
     const orderNo = searchParams.get('orderNo')
     const lineNo = searchParams.get('lineNo')
-    const serialNumber = searchParams.get('serialNumber')
-
-    // Validation des paramètres (deux modes possibles)
-    const hasOrderInfo = orderNo && lineNo
-    const hasSerialOnly = serialNumber && !orderNo && !lineNo
-
-    if (!hasOrderInfo && !hasSerialOnly) {
-      console.log('❌ Missing required parameters')
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Missing required parameters: either (orderNo + lineNo) or serialNumber is required',
-        },
-        { status: 400 }
-      )
-    }
 
     let customerOrderInfo = null
     let searchMode = ''
 
-    // Mode 1: Recherche par OrderNo + LineNo (recommandé)
-    if (hasOrderInfo) {
-      console.log(`🔍 API: Fetching Customer Order ${orderNo} - Line ${lineNo} (OrderNo mode)`)
-      if (serialNumber) {
-        console.log(`   Expected Serial: ${serialNumber}`)
+    // ⭐ MODE 1 : Recherche directe par HullNumber (OPTIMAL)
+    if (hullNumber && !orderNo && !lineNo) {
+      console.log(`🔍 API: Fetching Customer Order by Hull Number: ${hullNumber} (OPTIMAL mode)`)
+      if (siteFilter) {
+        console.log(`   ⚡ Site filter: ${siteFilter} (performance boost)`)
+      } else {
+        console.log(`   ⚠️  No site filter - query may be slow. Recommend adding ?site=FR05A`)
       }
+
+      customerOrderInfo = await getCustomerOrderByHullNumber(hullNumber, siteFilter || undefined)
+      searchMode = 'hull-number-direct'
+    }
+    // 🔄 MODE 2 : Recherche par OrderNo + LineNo (Legacy, pour compatibilité)
+    else if (orderNo && lineNo) {
+      console.log(`🔍 API: Fetching Customer Order ${orderNo} - Line ${lineNo} (Legacy mode)`)
+      console.log('   ⚠️  Using legacy OrderNo+LineNo mode (consider migrating to HullNumber)')
 
       customerOrderInfo = await getCustomerOrderInfoFromShopOrder(
         orderNo,
         lineNo,
-        serialNumber || undefined
+        hullNumber || undefined
       )
-      searchMode = 'orderNo'
+      searchMode = 'order-line-legacy'
     }
-    // Mode 2: Recherche par Serial Number seulement (fallback)
-    else if (hasSerialOnly) {
-      console.log(`🔍 API: Fetching Customer Order by Serial Number ${serialNumber} (Serial mode)`)
-      console.log('⚠️  Using Serial Number search (may be slower)')
-
-      // TEMPORAIRE: Mapping connu pour les tests
-      // TODO: Implémenter une vraie logique de recherche par Serial Number
-      const knownMappings: Record<string, { orderNo: string; lineNo: string }> = {
-        'LG5MA0114': { orderNo: 'C1000038587', lineNo: '1' }, // Shop Order 97277
-        'JY6MB0019': { orderNo: 'C1000038587', lineNo: '1' }, // Shop Order 563
-        'LX6MA0116': { orderNo: 'C1000038587', lineNo: '1' }, // Shop Order 949
-        'LX6MA0115': { orderNo: 'C1000038587', lineNo: '1' }, // Shop Order 1043
-      }
-
-      const mapping = knownMappings[serialNumber]
-      if (mapping) {
-        console.log(`🔗 Found known mapping: ${serialNumber} → ${mapping.orderNo} Line ${mapping.lineNo}`)
-        customerOrderInfo = await getCustomerOrderInfoFromShopOrder(
-          mapping.orderNo,
-          mapping.lineNo,
-          serialNumber
-        )
-        searchMode = 'serial-mapped'
-      } else {
-        console.log(`❌ No known mapping for Serial Number: ${serialNumber}`)
-        customerOrderInfo = null
-      }
+    // ❌ Paramètres invalides
+    else {
+      console.log('❌ Missing or invalid parameters')
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Missing required parameters. Use either: hullNumber (optimal) OR orderNo+lineNo (legacy)',
+          hint: 'Recommended: ?hullNumber=LG5MA0114'
+        },
+        { status: 400 }
+      )
     }
 
     if (!customerOrderInfo) {
@@ -107,15 +108,15 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Validation du Serial Number si fourni
-    const serialNumberMatch = serialNumber
-      ? customerOrderInfo.chullNumber === serialNumber
+    // Validation du Hull Number si fourni en mode legacy
+    const hullNumberMatch = hullNumber
+      ? customerOrderInfo.chullNumber === hullNumber
       : null
 
     console.log('✅ Customer Order retrieved successfully')
     console.log(`   Mode: ${searchMode}`)
-    if (serialNumberMatch !== null) {
-      console.log(`   Serial Number: ${serialNumberMatch ? '✅ Match' : '⚠️ Mismatch'}`)
+    if (hullNumberMatch !== null) {
+      console.log(`   Hull Number: ${hullNumberMatch ? '✅ Match' : '⚠️ Mismatch'}`)
     }
 
     return NextResponse.json({
@@ -123,10 +124,14 @@ export async function GET(request: NextRequest) {
       data: {
         customerOrder: customerOrderInfo,
         validation: {
-          serialNumberMatch,
-          expectedSerial: serialNumber || null,
-          foundSerial: customerOrderInfo.chullNumber,
+          hullNumberMatch,
+          expectedHull: hullNumber || null,
+          foundHull: customerOrderInfo.chullNumber,
         },
+        meta: {
+          searchMode,
+          performance: searchMode === 'hull-number-direct' ? 'optimal' : 'legacy'
+        }
       },
     })
   } catch (error) {

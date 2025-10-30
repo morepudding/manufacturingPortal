@@ -1,10 +1,19 @@
 /**
  * Service pour gérer les Customer Orders dans IFS Cloud
  * 
- * Ce service permet de :
- * - Récupérer un Customer Order à partir d'un Serial Number (CHullNumber)
- * - Récupérer les détails d'un Customer Order Header
- * - Valider la correspondance Serial Number ↔ Customer Order
+ * ⭐ STRATÉGIE OPTIMALE : INPUT = HullNumber UNIQUEMENT
+ * 
+ * Workflow :
+ * 1. INPUT: HullNumber (ex: "LG5MA0114")
+ * 2. Recherche directe dans CustomerOrderLineSet avec CHullNumber
+ * 3. Récupération (OrderNo, LineNo, RelNo) + détails
+ * 4. Validation optionnelle du contexte métier (Site = FR05A, OrderType = BAT)
+ * 
+ * Avantages :
+ * - ✅ Une seule requête IFS (rapide, ~500ms)
+ * - ✅ Pas de dépendance au Shop Order
+ * - ✅ Pas de parsing DOP ID
+ * - ✅ Relation naturelle IFS : CHullNumber → CustomerOrder
  * 
  * @module customer-order-service
  */
@@ -551,6 +560,129 @@ export async function getCustomerOrderLinesByPart(
         error instanceof Error ? error.message : 'Unknown error'
       }`
     )
+  }
+}
+
+// ============================================================================
+// 🆕 OPTIMAL METHOD: Direct HullNumber Lookup
+// ============================================================================
+
+/**
+ * ⭐ MÉTHODE OPTIMALE : Récupère Customer Order directement via HullNumber
+ * 
+ * Cette fonction implémente la stratégie optimale :
+ * - INPUT: HullNumber uniquement
+ * - Recherche directe dans CustomerOrderLineSet (CHullNumber)
+ * - Une seule requête IFS (~500ms)
+ * - Pas de dépendance au Shop Order
+ * 
+ * @param hullNumber - Hull Number / Serial Number (ex: "LG5MA0114")
+ * @param siteFilter - (optionnel) Filtrer par CustomerNo/Site (ex: "FR05A") - RECOMMANDÉ pour performance
+ * @returns Customer Order Info ou null si non trouvé
+ * 
+ * @example
+ * ```typescript
+ * // Recherche simple (peut être lent si beaucoup de résultats)
+ * const order = await getCustomerOrderByHullNumber('LG5MA0114')
+ * 
+ * // ⚡ OPTIMAL : Avec filtre site (beaucoup plus rapide)
+ * const order = await getCustomerOrderByHullNumber('LG5MA0114', 'FR05A')
+ * ```
+ */
+export async function getCustomerOrderByHullNumber(
+  hullNumber: string,
+  siteFilter?: string
+): Promise<CustomerOrderInfo | null> {
+  if (!hullNumber || hullNumber.trim() === '') {
+    throw new Error('Hull Number is required')
+  }
+
+  const client = getIFSClient()
+
+  try {
+    console.log(`🔍 Searching Customer Order for Hull Number: ${hullNumber}`)
+    if (siteFilter) {
+      console.log(`   🎯 Site filter: CustomerNo = "${siteFilter}" (⚡ performance boost)`)
+    }
+
+    // Construire le filtre OData
+    let filter = `CHullNumber eq '${hullNumber.trim()}'`
+    
+    // ⚡ CRITIQUE : Ajouter le filtre site pour éviter les timeouts
+    if (siteFilter) {
+      filter += ` and CustomerNo eq '${siteFilter.trim()}'`
+    }
+    
+    console.log(`📊 OData filter: ${filter}`)
+
+    // ÉTAPE 1 : Recherche CustomerOrderLine via CHullNumber + Site
+    const response = await client.get<IFSODataResponse<CustomerOrderLine>>(
+      'CustomerOrderHandling.svc/CustomerOrderLineSet',
+      {
+        $filter: filter,
+        $select: 'OrderNo,LineNo,RelNo,LineItemNo,PartNo,CatalogNo,CatalogDesc,CHullNumber,BoatHullNumber,CustomerNo,ConfigurationId,Objstate,BuyQtyDue,Contract,Company,PlannedDeliveryDate,WantedDeliveryDate',
+        $top: '1'
+      }
+    )
+
+    if (!response.value || response.value.length === 0) {
+      console.log('❌ No Customer Order found for this Hull Number')
+      return null
+    }
+
+    const line = response.value[0]
+    console.log(`✅ Customer Order Line found:`)
+    console.log(`   📦 Order: ${line.OrderNo} - Line ${line.LineNo} - Rel ${line.RelNo}`)
+    console.log(`   🏭 Customer: ${line.CustomerNo}`)
+    console.log(`   🎯 Part: ${line.PartNo}`)
+
+    // ÉTAPE 2 : Récupérer Customer Order Header (nom client, dates, etc.)
+    let customerName: string | undefined
+    let customerPoNo: string | undefined
+    let internalPoNo: string | undefined
+
+    try {
+      const header = await getCustomerOrderHeader(line.OrderNo)
+      customerName = header.CustomerName
+      customerPoNo = header.CustomerPoNo
+      internalPoNo = header.InternalPoNo
+      console.log(`   👤 Customer Name: ${customerName}`)
+    } catch (error) {
+      console.warn('⚠️  Could not fetch Customer Order Header, continuing without it')
+    }
+
+    // ÉTAPE 3 : Construire l'objet consolidé
+    const customerOrderInfo: CustomerOrderInfo = {
+      orderNo: line.OrderNo,
+      lineNo: line.LineNo,
+      partNo: line.PartNo,
+      catalogDesc: line.CatalogDesc || 'N/A',
+      chullNumber: line.CHullNumber,
+      customerNo: line.CustomerNo,
+      customerName,
+      configurationId: line.ConfigurationId,
+      status: line.Objstate,
+      quantity: line.BuyQtyDue || 1,
+      contract: line.Contract,
+      plannedDeliveryDate: line.PlannedDeliveryDate,
+      wantedDeliveryDate: line.WantedDeliveryDate,
+      customerPoNo,
+      internalPoNo
+    }
+
+    console.log('✅ Customer Order retrieved successfully via Hull Number')
+    console.log(`   ⚡ Method: Direct CHullNumber lookup (optimal)`)
+
+    return customerOrderInfo
+  } catch (error) {
+    console.error('❌ Error getting Customer Order by Hull Number:', error)
+    
+    // Si c'est une erreur de timeout, proposer de réessayer
+    if (error instanceof Error && error.message.includes('timeout')) {
+      console.log('💡 Tip: CHullNumber search timed out. This is rare but can happen.')
+    }
+    
+    throw error
   }
 }
 

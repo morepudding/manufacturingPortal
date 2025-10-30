@@ -174,11 +174,39 @@ export interface ShopOrderFilterParams {
   site: string                           // Required: "BDR", "PRTBX", etc.
   productionLine?: string                // Optional: "L1", "L2", etc.
   startDate: string                      // Required: ISO date
-  blockDate: boolean                     // true = filtre CBlockDates=true, false = pas de filtre
   
-  // ✅ RÉACTIVÉ (17 oct 2025) : Filtre OperationBlockId avec 3 options
-  // Remplace blockIdEmpty (ancien boolean) par une union type plus flexible
+  // ✅ Step 5: Block Date filter (enabled/disabled, TRUE/FALSE)
+  blockDateEnabled: boolean              // true = filtrer par CBlockDates, false = pas de filtre
+  blockDateValue: boolean                // true = CBlockDates=true, false = CBlockDates=false (si blockDateEnabled=true)
+  
+  // ✅ Step 6: Sent to Cutting System filter (enabled/disabled, TRUE/FALSE)
+  sentToCuttingEnabled: boolean          // true = filtrer par SentToCutting, false = pas de filtre
+  sentToCuttingValue: boolean            // true = SentToCutting=true, false = SentToCutting=false (si sentToCuttingEnabled=true)
+  
+  // Filtre OperationBlockId (conservé)
   operationBlockIdFilter: 'all' | 'empty' | 'not-empty'  // all = tous, empty = vide uniquement, not-empty = non-vide uniquement
+}
+
+// ============================================================================
+// Print Mode (Step 7)
+// ============================================================================
+
+/**
+ * Mode d'impression pour Part Printer (Step 7)
+ * 
+ * - listing-only: Générer le listing PDF uniquement (téléchargement local)
+ * - labels-only: Envoyer les étiquettes à l'imprimante IFS uniquement (pas de listing)
+ * - listing-and-labels: Générer le listing PDF ET envoyer les étiquettes à l'imprimante
+ */
+export type PrintMode = 'listing-only' | 'labels-only' | 'listing-and-labels'
+
+/**
+ * Imprimante IFS (LogicalPrinter)
+ */
+export interface IFSPrinter {
+  LogicalPrinter: string    // ID de l'imprimante logique (ex: "PRINTER_01")
+  Description: string       // Description (ex: "Imprimante Production Line 1")
+  PhysicalPrinter: string   // Imprimante physique associée
 }
 
 // ============================================================================
@@ -213,4 +241,31 @@ export interface RangeResponse {
   site: string
   startDate: string
   endDate: string
+}
+
+export interface PrintersResponse {
+  printers: IFSPrinter[]
+  count: number
+}
+
+/**
+ * Requête d'impression (Step 7)
+ */
+export interface PrintRequest {
+  mode: PrintMode
+  shopOrders: IFSShopOrderExtended[]
+  site: string
+  printer?: string          // Requis si mode = 'labels-only' ou 'listing-and-labels'
+}
+
+/**
+ * Réponse d'impression (Step 7)
+ */
+export interface PrintResponse {
+  success: boolean
+  mode: PrintMode
+  listingPdfUrl?: string    // Base64 ou URL du PDF (si mode inclut 'listing')
+  labelsPrinted?: number    // Nombre d'étiquettes imprimées (si mode inclut 'labels')
+  printer?: string          // Imprimante utilisée (si applicable)
+  message?: string
 }

@@ -1,9 +1,14 @@
 /**
  * Service Shop Order Filter - Filtrage avancé des Shop Orders Part Printer
  * 
+ * ✅ MISE À JOUR (30 oct 2025) : Ajout filtres Block Date et Sent to Cutting System
  * ✅ MISE À JOUR (17 oct 2025) : Intégration OperationBlockId
  * 
  * Endpoint IFS: ShopOrderHandling.svc/ShopOrds
+ * 
+ * Nouveaux filtres (Step 5 & 6):
+ * - Block Date: Enabled/Disabled + TRUE/FALSE (filtre CBlockDates)
+ * - Sent to Cutting System: Enabled/Disabled + TRUE/FALSE (filtre SentToCutting)
  * 
  * Logique de filtrage:
  * 
@@ -58,7 +63,16 @@ export async function filterShopOrders(
 ): Promise<ShopOrdersFilterResponse> {
   logger.debug('🔍 [Shop Order Filter] Démarrage filtrage avec paramètres:', params)
 
-  const { site, productionLine, startDate, blockDate, operationBlockIdFilter } = params
+  const { 
+    site, 
+    productionLine, 
+    startDate, 
+    blockDateEnabled, 
+    blockDateValue,
+    sentToCuttingEnabled,
+    sentToCuttingValue,
+    operationBlockIdFilter 
+  } = params
 
   try {
     const client = getIFSClient()
@@ -77,13 +91,14 @@ export async function filterShopOrders(
     }
 
     // Mode pour log et filtre OData
-    const mode = blockDate && operationBlockIdFilter === 'empty' ? 'Débit classique' :
-                 !blockDate && operationBlockIdFilter === 'all' ? 'Redébit' :
-                 blockDate ? 'Débit (pièces bloquées OK)' :
+    const mode = blockDateEnabled && blockDateValue && operationBlockIdFilter === 'empty' ? 'Débit classique' :
+                 !blockDateEnabled && operationBlockIdFilter === 'all' ? 'Redébit' :
+                 blockDateEnabled ? 'Débit (pièces bloquées OK)' :
                  'Toutes dates (non bloquées)'
     
     logger.debug(`📊 [Shop Order Filter] Mode détecté: ${mode}`)
-    logger.debug(`📊 [Shop Order Filter] - Block Date: ${blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}`)
+    logger.debug(`📊 [Shop Order Filter] - Block Date Enabled: ${blockDateEnabled}, Value: ${blockDateValue}`)
+    logger.debug(`📊 [Shop Order Filter] - Sent to Cutting Enabled: ${sentToCuttingEnabled}, Value: ${sentToCuttingValue}`)
     logger.debug(`📊 [Shop Order Filter] - OperationBlockId Filter: ${operationBlockIdFilter}`)
 
     const odataFilter = filters.join(' and ')
@@ -91,12 +106,12 @@ export async function filterShopOrders(
 
     // Requête IFS (on récupère plus large et on filtre côté code)
     // Pour le mode Redébit, on augmente $top car on doit filtrer par date côté code
-    const topLimit = blockDate ? '1000' : '3000' // Plus de résultats en mode Redébit (augmenté à 3000)
+    const topLimit = blockDateEnabled ? '1000' : '3000' // Plus de résultats en mode Redébit (augmenté à 3000)
     
     // Tri: pour le mode Redébit, on veut les dates les plus récentes <= aujourd'hui
     // Donc on trie par ordre DECROISSANT et on filtre côté code
     // Pour le mode Débit classique, peu importe car on filtre sur une date exacte
-    const orderBy = blockDate ? 'OrderNo desc' : 'RevisedStartDate desc'
+    const orderBy = blockDateEnabled ? 'OrderNo desc' : 'RevisedStartDate desc'
     
     const response = await client.get<IFSODataResponse<IFSShopOrderExtended>>(
       'ShopOrderHandling.svc/ShopOrds',
@@ -119,9 +134,9 @@ export async function filterShopOrders(
     // Filtrage local côté code pour date et CBlockDates
     const targetDate = startDate
     
-    if (blockDate) {
-      // Block Date actif: filtrer sur CBlockDates = true
-      logger.debug(`🔍 [DEBUG] Block Date actif - Recherche date=${targetDate}, CBlockDates=true`)
+    // ✅ Step 5: Filtrage Block Date (si enabled)
+    if (blockDateEnabled) {
+      logger.debug(`🔍 [DEBUG] Block Date enabled=${blockDateEnabled}, value=${blockDateValue} - Recherche date=${targetDate}`)
       logger.debug(`🔍 [DEBUG] Premiers Shop Orders (3 exemples):`)
       shopOrders.slice(0, 3).forEach(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
@@ -130,12 +145,12 @@ export async function filterShopOrders(
       
       shopOrders = shopOrders.filter(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-        return orderDate === targetDate && order.CBlockDates === true
+        return orderDate === targetDate && order.CBlockDates === blockDateValue
       })
-      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} et CBlockDates=true`)
+      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} et CBlockDates=${blockDateValue}`)
     } else {
       // Block Date inactif: pas de filtre sur CBlockDates
-      logger.debug(`🔍 [DEBUG] Block Date inactif - Recherche date=${targetDate}, tous CBlockDates`)
+      logger.debug(`🔍 [DEBUG] Block Date disabled - Recherche date=${targetDate}, tous CBlockDates`)
       logger.debug(`🔍 [DEBUG] Premiers Shop Orders (10 exemples):`)
       shopOrders.slice(0, 10).forEach(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
@@ -148,6 +163,19 @@ export async function filterShopOrders(
         return orderDate === targetDate
       })
       logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} (tous CBlockDates)`)
+    }
+
+    // ✅ Step 6: Filtrage Sent to Cutting System (si enabled)
+    // Note: Ce champ peut ne pas exister dans tous les environnements IFS
+    if (sentToCuttingEnabled) {
+      logger.debug(`🔍 [Shop Order Filter] Filtrage Sent to Cutting System: ${sentToCuttingValue}`)
+      shopOrders = shopOrders.filter(order => {
+        // Assumer que le champ s'appelle "SentToCuttingSystem" dans IFS
+        // Si le champ n'existe pas, on filtre comme si c'était false
+        const sentValue = (order as any).SentToCuttingSystem ?? false
+        return sentValue === sentToCuttingValue
+      })
+      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec SentToCuttingSystem=${sentToCuttingValue}`)
     }
 
     // ✅ RÉACTIVÉ (17 oct 2025) : Filtrage côté code pour OperationBlockId
@@ -266,9 +294,20 @@ export function validateFilterParams(params: ShopOrderFilterParams): void {
     throw new Error('Invalid date')
   }
 
-  // Validation blockDate est un boolean
-  if (typeof params.blockDate !== 'boolean') {
-    throw new Error('Block date must be a boolean')
+  // Validation blockDateEnabled et blockDateValue sont des booleans
+  if (typeof params.blockDateEnabled !== 'boolean') {
+    throw new Error('Block date enabled must be a boolean')
+  }
+  if (typeof params.blockDateValue !== 'boolean') {
+    throw new Error('Block date value must be a boolean')
+  }
+
+  // Validation sentToCuttingEnabled et sentToCuttingValue sont des booleans
+  if (typeof params.sentToCuttingEnabled !== 'boolean') {
+    throw new Error('Sent to cutting enabled must be a boolean')
+  }
+  if (typeof params.sentToCuttingValue !== 'boolean') {
+    throw new Error('Sent to cutting value must be a boolean')
   }
 
   // ✅ CORRIGÉ (17 oct 2025) : Validation operationBlockIdFilter

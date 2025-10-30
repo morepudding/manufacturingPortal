@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
       let pdfInfo: PdfArchiveInfo | null = null
       let pdfBlob: Buffer | null = null
 
-      // Attendre que le PDF soit généré (max 30 secondes)
-      for (let attempt = 0; attempt < 30; attempt++) {
+      // Attendre que le PDF soit généré (max 60 secondes)
+      for (let attempt = 0; attempt < 60; attempt++) {
         await new Promise(resolve => setTimeout(resolve, 1000))
 
         try {
@@ -161,14 +161,14 @@ export async function POST(request: NextRequest) {
           }
         } catch (err) {
           // PDF pas encore prêt, continuer d'attendre
-          if (attempt < 29) {
-            console.log(`⏳ Tentative ${attempt + 1}/30...`)
+          if (attempt < 59) {
+            console.log(`⏳ Tentative ${attempt + 1}/60...`)
           }
         }
       }
 
       if (!pdfBlob) {
-        console.warn('⚠️ PDF non disponible après 30 secondes')
+        console.warn('⚠️ PDF non disponible après 60 secondes')
         return NextResponse.json(
           { error: 'PDF generation timeout' },
           { status: 408 }

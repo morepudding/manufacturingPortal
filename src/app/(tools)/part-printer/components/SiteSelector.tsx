@@ -25,7 +25,9 @@ import {
   SelectValue,
 } from '@/shared/components/atoms/Select'
 import { Label } from '@/shared/components/atoms/Label'
+import { ErrorDialog } from './ErrorDialog'
 import type { IFSSite } from '@/tools/part-printer/types'
+import type { PartPrinterError } from '@/tools/part-printer/types/error'
 
 interface SiteSelectorProps {
   value?: string
@@ -36,7 +38,8 @@ interface SiteSelectorProps {
 export function SiteSelector({ value, onChange, disabled }: SiteSelectorProps) {
   const [sites, setSites] = useState<IFSSite[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<PartPrinterError | null>(null)
+  const [showErrorDialog, setShowErrorDialog] = useState(false)
 
   // Chargement des sites au montage du composant
   useEffect(() => {
@@ -45,17 +48,53 @@ export function SiteSelector({ value, onChange, disabled }: SiteSelectorProps) {
         setLoading(true)
         setError(null)
 
-        const response = await fetch('/api/shared/sites')
+        const response = await fetch('/api/part-printer/sites')
         const json = await response.json()
 
+        // ❌ PP_E001: No Sites (BLOQUANT)
         if (!response.ok || !json.success) {
-          throw new Error(json.message || 'Failed to fetch sites')
+          // L'API retourne l'erreur structurée PP_E001
+          if (json.error) {
+            setError(json.error as PartPrinterError)
+            setShowErrorDialog(true)
+          } else {
+            throw new Error(json.message || 'Failed to fetch sites')
+          }
+          return
         }
 
-        setSites(json.data.sites || [])
+        // Vérifier si des sites sont présents
+        if (!json.data || json.data.length === 0) {
+          // Créer erreur PP_E001 manuellement si l'API n'a pas renvoyé l'erreur
+          const noSitesError: PartPrinterError = {
+            code: 'PP_E001' as any,
+            severity: 'blocking' as any,
+            message: 'No Site data could be retrieved. Unable to load available sites from IFS. Please contact support.',
+            action: 'stop' as any,
+            timestamp: new Date(),
+          }
+          setError(noSitesError)
+          setShowErrorDialog(true)
+          return
+        }
+
+        setSites(json.data || [])
       } catch (err) {
-        console.error('Error loading sites:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load sites')
+        console.error('❌ [SiteSelector] Error loading sites:', err)
+        
+        // Erreur technique générique (erreur réseau, etc.)
+        const technicalError: PartPrinterError = {
+          code: 'PP_E001' as any,
+          severity: 'blocking' as any,
+          message: 'Technical error while loading sites. Please check your connection and try again.',
+          action: 'stop' as any,
+          details: {
+            technical: err instanceof Error ? err.message : 'Unknown error',
+          },
+          timestamp: new Date(),
+        }
+        setError(technicalError)
+        setShowErrorDialog(true)
       } finally {
         setLoading(false)
       }
@@ -73,7 +112,7 @@ export function SiteSelector({ value, onChange, disabled }: SiteSelectorProps) {
       <Select
         value={value}
         onValueChange={onChange}
-        disabled={disabled || loading}
+        disabled={disabled || loading || !!error}
       >
         <SelectTrigger id="site-selector" className="w-full">
           <SelectValue 
@@ -81,7 +120,7 @@ export function SiteSelector({ value, onChange, disabled }: SiteSelectorProps) {
               loading 
                 ? "Chargement des sites..." 
                 : error 
-                ? "Erreur de chargement" 
+                ? "❌ Erreur - Sites indisponibles" 
                 : "Sélectionnez un site"
             } 
           />
@@ -96,9 +135,10 @@ export function SiteSelector({ value, onChange, disabled }: SiteSelectorProps) {
         </SelectContent>
       </Select>
 
+      {/* Affichage du message d'erreur sous le champ */}
       {error && (
         <p className="text-sm text-red-500">
-          ⚠️ {error}
+          ⚠️ {error.message}
         </p>
       )}
 
@@ -107,6 +147,15 @@ export function SiteSelector({ value, onChange, disabled }: SiteSelectorProps) {
           Aucun site disponible
         </p>
       )}
+
+      {/* ErrorDialog pour erreurs bloquantes (PP_E001) */}
+      <ErrorDialog
+        error={error}
+        open={showErrorDialog}
+        onClose={() => setShowErrorDialog(false)}
+        actionText="Fermer"
+        showDetails={false}
+      />
     </div>
   )
 }

@@ -1,14 +1,18 @@
 /**
  * API Route - GET /api/part-printer/ranges
  * 
- * Phase 3.3 - Extraction Range ID
+ * Phase 2 Jour 2 - Validation PP_W001 (NO_RANGES)
  * 
  * Récupère le Range ID pour un site et une date donnée
  * Logique: StartDate <= date <= EndDate
+ * 
+ * ⚠️ Si aucun range trouvé: WARNING (continue sans filtre Range)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getRangeId } from '@/tools/part-printer/services/range-service'
+import { getErrorService } from '@/tools/part-printer/services/error-service'
+import { ErrorCode } from '@/tools/part-printer/types/error'
 
 /**
  * GET /api/part-printer/ranges
@@ -28,6 +32,8 @@ import { getRangeId } from '@/tools/part-printer/services/range-service'
  * }
  */
 export async function GET(request: NextRequest) {
+  const errorService = getErrorService()
+  
   console.log('📥 [API] GET /api/part-printer/ranges')
 
   try {
@@ -65,15 +71,26 @@ export async function GET(request: NextRequest) {
     // 3. Récupérer Range ID
     const rangeId = await getRangeId(site, date)
 
+    // ⚠️ PP_W001: Aucun Range trouvé (WARNING - Continue sans Range)
     if (!rangeId) {
-      console.log(`⚠️ [API] Aucun Range trouvé pour ${site} à ${date}`)
-      return NextResponse.json(
-        {
-          success: false,
-          error: `No range found for site ${site} at date ${date}`
-        },
-        { status: 404 }
+      const warning = errorService.createError(
+        ErrorCode.NO_RANGES,
+        { site, date }
       )
+      errorService.handleError(warning)
+
+      console.log(`⚠️ [API] PP_W001: Aucun Range trouvé pour ${site} à ${date} - Continue sans filtre Range`)
+
+      return NextResponse.json({
+        success: true, // ✅ Continue malgré le warning
+        data: null,
+        warning: {
+          code: warning.code,
+          message: warning.message,
+          severity: warning.severity,
+          action: warning.action,
+        },
+      })
     }
 
     console.log(`✅ [API] Range ID trouvé: ${rangeId}`)

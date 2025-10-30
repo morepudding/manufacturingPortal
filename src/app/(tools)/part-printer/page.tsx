@@ -17,11 +17,13 @@
 
 import { useState, useEffect } from 'react'
 import { SiteSelector, ProductionLineSelector } from './components'
+import { PrintModeSelector } from './components/PrintModeSelector'
+import { PrinterSelector } from '@/shared/components/molecules/PrinterSelector'
 import { Button } from '@/shared/components/atoms/Button'
 import { Label } from '@/shared/components/atoms/Label'
 import { Input } from '@/shared/components/atoms/Input'
 import { ChevronDown, Loader2, FileText, Calculator, CheckCircle, Search } from 'lucide-react'
-import type { ShopOrderFilterParams, IFSShopOrderExtended, PartLabel } from '@/tools/part-printer/types'
+import type { ShopOrderFilterParams, IFSShopOrderExtended, PartLabel, PrintMode } from '@/tools/part-printer/types'
 
 export default function PartPrinterPage() {
   // États formulaire (4 sections)
@@ -29,7 +31,16 @@ export default function PartPrinterPage() {
   const [productionLine, setProductionLine] = useState('')
   const [startDate, setStartDate] = useState('')
   const [blockId, setBlockId] = useState('')
-  const [advancedOption, setAdvancedOption] = useState<'blockDate' | 'sentToCutting'>('blockDate')
+  
+  // ✅ Step 5 & 6: Advanced Options (enabled/disabled + value TRUE/FALSE)
+  const [blockDateEnabled, setBlockDateEnabled] = useState(false)      // Disabled by default
+  const [blockDateValue, setBlockDateValue] = useState(false)          // FALSE by default
+  const [sentToCuttingEnabled, setSentToCuttingEnabled] = useState(false)  // Disabled by default
+  const [sentToCuttingValue, setSentToCuttingValue] = useState(false)      // FALSE by default
+  
+  // ✅ Step 7: Print Mode & Printer Selection
+  const [printMode, setPrintMode] = useState<PrintMode>('listing-only')  // Listing only by default
+  const [printer, setPrinter] = useState<string>('')                      // Requis si labels-only ou listing-and-labels
   
   // États existants (logique métier conservée)
   const [shopOrders, setShopOrders] = useState<IFSShopOrderExtended[]>([])
@@ -191,7 +202,10 @@ export default function PartPrinterPage() {
     const params: ShopOrderFilterParams = {
       site,
       startDate,
-      blockDate: advancedOption === 'blockDate',
+      blockDateEnabled,
+      blockDateValue,
+      sentToCuttingEnabled,
+      sentToCuttingValue,
       operationBlockIdFilter: blockId ? 'not-empty' : 'all', 
     }
     
@@ -309,7 +323,12 @@ export default function PartPrinterPage() {
     setProductionLine('')
     setStartDate('')
     setBlockId('')
-    setAdvancedOption('blockDate')
+    setBlockDateEnabled(false)
+    setBlockDateValue(false)
+    setSentToCuttingEnabled(false)
+    setSentToCuttingValue(false)
+    setPrintMode('listing-only')
+    setPrinter('')
     setShowPreview(false)
     setShopOrders([])
     setSelectedOrders(new Set())
@@ -449,34 +468,143 @@ export default function PartPrinterPage() {
             Advanced Options
           </h2>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Block Date */}
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:bg-amber-50 hover:border-amber-300 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:shadow-md">
-              <input
-                type="radio"
-                name="advancedOption"
-                value="blockDate"
-                checked={advancedOption === 'blockDate'}
-                onChange={(e) => setAdvancedOption(e.target.value as 'blockDate')}
-                className="w-4 h-4 text-amber-600 focus:ring-amber-500"
-                disabled={loading}
-              />
-              <span className="text-sm font-medium text-gray-900">Block Date</span>
-            </label>
+          <div className="space-y-6">
+            {/* Block Date Filter */}
+            <div className="border border-gray-200 rounded-lg p-6 bg-gray-50/50">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Block Date Filter</h3>
+                  <p className="text-xs text-gray-600">Filter shop orders by block date status</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={blockDateEnabled}
+                    onChange={(e) => setBlockDateEnabled(e.target.checked)}
+                    disabled={loading}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                  <span className="ml-3 text-sm font-medium text-gray-700">
+                    {blockDateEnabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                </label>
+              </div>
+              
+              {blockDateEnabled && (
+                <div className="flex gap-3 mt-4 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => setBlockDateValue(false)}
+                    disabled={loading}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all ${
+                      !blockDateValue
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    }`}
+                  >
+                    FALSE
+                  </button>
+                  <button
+                    onClick={() => setBlockDateValue(true)}
+                    disabled={loading}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all ${
+                      blockDateValue
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    }`}
+                  >
+                    TRUE
+                  </button>
+                </div>
+              )}
+            </div>
 
-            {/* Sent To Cutting System */}
-            <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:bg-amber-50 hover:border-amber-300 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:shadow-md">
-              <input
-                type="radio"
-                name="advancedOption"
-                value="sentToCutting"
-                checked={advancedOption === 'sentToCutting'}
-                onChange={(e) => setAdvancedOption(e.target.value as 'sentToCutting')}
-                className="w-4 h-4 text-amber-600 focus:ring-amber-500"
-                disabled={loading}
+            {/* Sent to Cutting System Filter */}
+            <div className="border border-gray-200 rounded-lg p-6 bg-gray-50/50">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">Sent to Cutting System Filter</h3>
+                  <p className="text-xs text-gray-600">Filter shop orders sent to cutting system</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={sentToCuttingEnabled}
+                    onChange={(e) => setSentToCuttingEnabled(e.target.checked)}
+                    disabled={loading}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                  <span className="ml-3 text-sm font-medium text-gray-700">
+                    {sentToCuttingEnabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                </label>
+              </div>
+              
+              {sentToCuttingEnabled && (
+                <div className="flex gap-3 mt-4 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => setSentToCuttingValue(false)}
+                    disabled={loading}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all ${
+                      !sentToCuttingValue
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    }`}
+                  >
+                    FALSE
+                  </button>
+                  <button
+                    onClick={() => setSentToCuttingValue(true)}
+                    disabled={loading}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium text-sm transition-all ${
+                      sentToCuttingValue
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    }`}
+                  >
+                    TRUE
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 4: PRINT TYPE */}
+        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-amber-200/50 p-8 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-3">
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white text-sm font-bold shadow-md">
+              4
+            </span>
+            Print Type
+          </h2>
+
+          <div className="space-y-6">
+            {/* Print Mode Selection */}
+            <div>
+              <PrintModeSelector
+                value={printMode}
+                onChange={setPrintMode}
+                disabled={loading || generatingLabels}
               />
-              <span className="text-sm font-medium text-gray-900">Sent To Cutting System</span>
-            </label>
+            </div>
+
+            {/* Printer Selection (conditional) */}
+            {(printMode === 'labels-only' || printMode === 'listing-and-labels') && (
+              <div className="pt-4 border-t border-gray-200">
+                <PrinterSelector
+                  value={printer}
+                  onChange={setPrinter}
+                  disabled={loading || generatingLabels}
+                  required
+                  label="Select IFS Printer"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  ⚠️ Printer selection is required for printing labels
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -523,18 +651,29 @@ export default function PartPrinterPage() {
                   console.log('🔘 [DEBUG] Button clicked, calculationStatus:', calculationStatus)
                   handleGeneratePreview()
                 }}
-                disabled={!site || !startDate || loading || generatingLabels || calculationStatus === 'calculating'}
+                disabled={
+                  !site || 
+                  !startDate || 
+                  (printMode !== 'listing-only' && !printer) ||  // Printer requis si labels
+                  loading || 
+                  generatingLabels || 
+                  calculationStatus === 'calculating'
+                }
               >
                 {calculationStatus === 'calculating' ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
                     <Calculator className="w-5 h-5 mr-2 animate-pulse" />
-                    Calculating Labels...
+                    {printMode === 'listing-only' ? 'Generating Listing...' :
+                     printMode === 'labels-only' ? 'Printing Labels...' :
+                     'Generating & Printing...'}
                   </>
                 ) : (
                   <>
                     <Search className="w-5 h-5 mr-2" />
-                    Generate Preview
+                    {printMode === 'listing-only' ? 'Generate Listing' :
+                     printMode === 'labels-only' ? 'Print Labels' :
+                     'Generate & Print'}
                   </>
                 )}
               </Button>

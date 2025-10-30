@@ -112,46 +112,61 @@ export default function BoatConfigurationPage() {
   }
 
   const handleConfirmYes = async () => {
-    // Charger le Customer Order via Serial Number (toujours, même si Shop Order n'a pas les champs)
+    // ⭐ MÉTHODE OPTIMALE : Charger Customer Order directement via HullNumber + Site
     if (serialNumber && serialNumber !== 'N/A') {
       setLoadingCustomerOrder(true)
       setError(null)
 
       try {
-        // Essayer d'abord avec OrderNo + LineNo si disponibles
-        if (searchResult?.shopOrder?.CustomerOrderNo && searchResult?.shopOrder?.CustomerLineNo) {
-          console.log('🔍 Loading Customer Order from Shop Order data...')
-          const response = await fetch(
-            `/api/boat-configuration/customer-orders?orderNo=${searchResult.shopOrder.CustomerOrderNo}&lineNo=${searchResult.shopOrder.CustomerLineNo}&serialNumber=${serialNumber}`
-          )
-
-          const data = await response.json()
-
-          if (!response.ok) throw new Error(data.error || 'Failed to fetch Customer Order')
-
-          if (data.success && data.data?.customerOrder) {
-            setCustomerOrder(data.data.customerOrder)
-            setCurrentStep('customer-order')
-            setLoadingCustomerOrder(false)
-            return
+        console.log('🚀 Loading Customer Order via Hull Number (optimal method)...')
+        
+        // ⚡ STRATÉGIE: Essayer avec CustomerNo communs, sinon sans filtre
+        const commonSites = ['FR05A', 'FR02A', 'FR01A']
+        
+        let customerOrder = null
+        let attempts = 0
+        
+        // Tentative 1: Essayer les sites courants avec filtre (rapide)
+        for (const site of commonSites) {
+          attempts++
+          console.log(`   🔍 Tentative ${attempts}: Site ${site}...`)
+          
+          try {
+            const response = await fetch(
+              `/api/boat-configuration/customer-orders?hullNumber=${serialNumber}&site=${site}`
+            )
+            const data = await response.json()
+            
+            if (response.ok && data.success && data.data?.customerOrder) {
+              customerOrder = data.data.customerOrder
+              console.log(`   ✅ Trouvé sur site ${site} !`)
+              break
+            }
+          } catch (err) {
+            console.log(`   ⚠️  Échec site ${site}`)
           }
         }
-
-        // Fallback: Chercher via Serial Number (plus lent mais fonctionne toujours)
-        console.log('🔍 Loading Customer Order via Serial Number...')
-        const response = await fetch(
-          `/api/boat-configuration/customer-orders?serialNumber=${serialNumber}`
-        )
-
-        const data = await response.json()
-
-        if (!response.ok) throw new Error(data.error || 'Failed to fetch Customer Order')
-
-        if (data.success && data.data?.customerOrder) {
-          setCustomerOrder(data.data.customerOrder)
+        
+        // Tentative 2: Si rien trouvé, recherche sans filtre (plus lent mais exhaustif)
+        if (!customerOrder) {
+          console.log(`   🔍 Tentative ${attempts + 1}: Recherche sans filtre site (peut être lent)...`)
+          const response = await fetch(
+            `/api/boat-configuration/customer-orders?hullNumber=${serialNumber}`
+          )
+          const data = await response.json()
+          
+          if (response.ok && data.success && data.data?.customerOrder) {
+            customerOrder = data.data.customerOrder
+            console.log(`   ✅ Trouvé sans filtre site`)
+          }
+        }
+        
+        if (customerOrder) {
+          console.log('✅ Customer Order loaded successfully')
+          setCustomerOrder(customerOrder)
           setCurrentStep('customer-order')
         } else {
-          // Pas de Customer Order trouvé, passer directement à la sélection imprimante/langue
+          // Pas de Customer Order trouvé
           console.log('ℹ️ No Customer Order found, skipping to printer selection')
           setCurrentStep('selection')
         }

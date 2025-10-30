@@ -1,4 +1,13 @@
 # ========================================
+# IFS Cloud (OAuth2)
+# ========================================
+IFS_BASE_URL=https://beneteau-group-ast.ifs.cloud/main/ifsapplications/projection/v1
+IFS_CLIENT_ID=***REMOVED***
+IFS_CLIENT_SECRET=***REMOVED***
+IFS_TOKEN_URL=https://beneteau-group-ast.ifs.cloud/auth/realms/beneast1/protocol/openid-connect/token
+IFS_SCOPE=openid microprofile-jwt
+
+# ========================================
 # Azure Print API (Bénéteau ERP Boat)
 # ========================================
 # Configuration pour l'impression via Azure API Management

@@ -45,7 +45,7 @@ export function PrintExecution({
           reportId: 'CUSTOMER_ORDER_CONF_REP',
           printerId,
           languageCode,
-          layoutName: 'BEN_Inventory-BAT.rdl',
+          layoutName: 'BEN_Boat_configuration_for_production.rdl',
           downloadPdf: true,
         }),
       })

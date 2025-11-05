@@ -5,7 +5,7 @@
  * 
  * CONFIGURATION PRODUCTION - Testé et validé :
  * - Report ID: CUSTOMER_ORDER_CONF_REP
- * - Layout: BEN_Inventory-BAT.rdl (layout par défaut IFS avec contenu)
+ * - Layout: BEN_Boat_configuration_for_production.rdl (layout officiel Boat Configuration)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 🔥 CONFIGURATION PRODUCTION - Layout validé
-    const layoutName = body.layoutName || 'BEN_Inventory-BAT.rdl'
+    const layoutName = body.layoutName || 'BEN_Boat_configuration_for_production.rdl'
 
     console.log('📋 Configuration impression:')
     console.log(`   Order No: ${body.orderNo}`)
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       'PrintDialog.svc/ReportPrintRequest',
       {
         ResultKey: dialogResponse.ResultKey,
-        LayoutName: layoutName, // ✅ Utiliser le layout spécifié (BEN_Inventory-BAT.rdl)
+        LayoutName: layoutName, // ✅ Utiliser le layout spécifié (BEN_Boat_configuration_for_production.rdl)
         LanguageCode: body.languageCode,
         LogicalPrinter: body.printerId,
         Copies: body.copies || 1

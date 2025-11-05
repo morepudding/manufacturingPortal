@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Portal - Documentation Métier</title>
+    <script src="./mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --secondary-color: #2ecc71;
+            --dark-bg: #2c3e50;
+            --light-bg: #ecf0f1;
+            --text-color: #333;
+            --border-color: #ddd;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f5f7fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #005a9e);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .version-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .version-info div {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        nav {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        nav h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        nav ol {
+            list-style-position: inside;
+            padding-left: 10px;
+        }
+
+        nav ol li {
+            margin: 8px 0;
+        }
+
+        nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        section {
+            background: white;
+            margin: 30px 0;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        h3 {
+            color: var(--dark-bg);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        h4 {
+            color: var(--primary-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        h5 {
+            color: var(--text-color);
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        p {
+            margin: 15px 0;
+            text-align: justify;
+        }
+
+        .mermaid {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        table th,
+        table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        table tbody tr:hover {
+            background: #f0f8ff;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-test {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-planned {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box.warning {
+            background: #fff3cd;
+            border-left-color: var(--warning-color);
+        }
+
+        .highlight-box.success {
+            background: #d4edda;
+            border-left-color: var(--success-color);
+        }
+
+        .highlight-box.danger {
+            background: #f8d7da;
+            border-left-color: var(--danger-color);
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container p {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        strong {
+            color: var(--dark-bg);
+        }
+
+        footer {
+            background: var(--dark-bg);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+        }
+
+        footer p {
+            margin: 10px 0;
+        }
+
+        .emoji {
+            font-style: normal;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            nav {
+                position: static;
+            }
+
+            section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .version-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            section {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            table th,
+            table td {
+                padding: 10px;
+            }
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .scroll-to-top:hover {
+            background: #005a9e;
+            transform: translateY(-5px);
+        }
+
+        .scroll-to-top.visible {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><span class="emoji">🏭</span> Manufacturing Portal - Documentation Métier</h1>
+        <div class="version-info">
+            <div><strong>Version :</strong> 1.0</div>
+            <div><strong>Date :</strong> 16 octobre 2025</div>
+            <div><strong>Développé par :</strong> Romain BOTTERO - Alternant Concepteur d'Application</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <h2><span class="emoji">📋</span> Table des Matières</h2>
+            <ol>
+                <li><a href="#section-1">Vue d'Ensemble du Portal</a></li>
+                <li><a href="#section-2">Architecture et Organisation</a></li>
+                <li><a href="#section-3">Les Outils et Workflows</a></li>
+                <li><a href="#section-4">Déploiement et Infrastructure Azure</a></li>
+                <li><a href="#section-5">Évolutions Futures</a></li>
+            </ol>
+        </nav>
+
+        <section id="section-1">
+            <h2>1. Vue d'Ensemble du Portal</h2>
+
+            <h3>Contexte & Objectif</h3>
+            <p>Le <strong>Manufacturing Portal</strong> est une plateforme web centralisée développée pour Bénéteau qui regroupe plusieurs outils de production. L'objectif est de <strong>simplifier et standardiser</strong> l'accès aux outils numériques utilisés sur les sites de production.</p>
+
+            <h3>Principe Fondamental</h3>
+            <p>Au lieu de développer chaque outil de manière isolée, nous avons construit une <strong>infrastructure commune</strong> où chaque nouvel outil bénéficie automatiquement de composants, services et fonctionnalités partagés.</p>
+
+            <div class="mermaid">
+flowchart TB
+    Portal["🏭 Manufacturing Portal<br/>(Plateforme Commune)"]
+    
+    Portal --> Tool1["🚢 Boat Configuration Editor"]
+    Portal --> Tool2["🏷️ Part Printer"]
+    Portal --> Tool3["🔧 Outil 3 (à venir)"]
+    Portal --> ToolN["... + 5 outils prévus"]
+    
+    style Portal fill:#4a90e2,stroke:#2c5aa0,color:#fff
+    style Tool1 fill:#50c878,stroke:#2d7a4a,color:#fff
+    style Tool2 fill:#50c878,stroke:#2d7a4a,color:#fff
+    style Tool3 fill:#ddd,stroke:#999,color:#666
+    style ToolN fill:#ddd,stroke:#999,color:#666
+            </div>
+
+            <h3>État Actuel</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Outil</th>
+                        <th>Statut</th>
+                        <th>Déploiement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Boat Configuration Editor</strong></td>
+                        <td><span class="status-badge status-test">🧪 En phase de test</span></td>
+                        <td>Novembre 2025</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Part Printer</strong></td>
+                        <td><span class="status-badge status-test">🧪 En phase de test</span></td>
+                        <td>Novembre 2025</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5+ outils futurs</strong></td>
+                        <td><span class="status-badge status-planned">📋 Planifié</span></td>
+                        <td>2026+</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Interface du Portal</h3>
+            <div class="image-container">
+                <img src="tools/acceuil.png" alt="Page d'accueil du Manufacturing Portal">
+                <p>Page d'accueil centralisée donnant accès aux différents outils de production</p>
+            </div>
+
+            <h3>Valeur Ajoutée</h3>
+            
+            <div class="highlight-box success">
+                <h4>Pour les opérateurs :</h4>
+                <ul>
+                    <li>Interface unique et cohérente pour tous les outils</li>
+                    <li>Accès centralisé avec authentification unique (Azure AD)</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Pour l'entreprise :</h4>
+                <ul>
+                    <li>Réduction des coûts de développement (réutilisation du code)</li>
+                    <li>Maintenance simplifiée (un seul codebase)</li>
+                    <li>Déploiement plus rapide de nouveaux outils</li>
+                    <li>Évolutivité garantie</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="section-2">
+            <h2>2. Architecture et Organisation</h2>
+
+            <h3>2.1 Architecture Partagée vs Spécifique</h3>
+            <p>Le Manufacturing Portal utilise une architecture <strong>modulaire</strong> qui sépare clairement ce qui est commun de ce qui est spécifique à chaque outil.</p>
+
+            <div class="mermaid">
+flowchart LR
+    subgraph Shared["📦 COMMUN (Shared)"]
+        SharedUI["Interface utilisateur<br/>commune"]
+        SharedAPI["Connexion IFS Cloud<br/>centralisée"]
+        SharedPrint["Service<br/>d'impression"]
+    end
+    
+    subgraph Tool1["🚢 Boat Config"]
+        BC_Logic["Logique métier<br/>Shop Orders"]
+        BC_UI["Composants<br/>spécifiques"]
+    end
+    
+    subgraph Tool2["🏷️ Part Printer"]
+        PP_Logic["Logique métier<br/>Étiquettes"]
+        PP_UI["Composants<br/>spécifiques"]
+    end
+    
+    Shared --> Tool1
+    Shared --> Tool2
+    
+    style Shared fill:#4a90e2,stroke:#2c5aa0,color:#fff
+    style Tool1 fill:#50c878,stroke:#2d7a4a,color:#fff
+    style Tool2 fill:#50c878,stroke:#2d7a4a,color:#fff
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>Principe :</strong> Tout ce qui est utilisé par au moins 2 outils est placé dans <code>shared/</code> (partagé). Ce qui est propre à un seul outil reste dans son dossier dédié.</p>
+            </div>
+
+            <h3>2.2 Groupement de Routes (Route Grouping)</h3>
+            <p>Le portal utilise une technique d'organisation appelée <strong>route grouping</strong> qui permet de structurer le code sans affecter les URLs visibles par les utilisateurs.</p>
+
+            <div class="highlight-box">
+                <h4>URL visible par l'utilisateur :</h4>
+                <ul>
+                    <li><code>https://portal.beneteau.com/boat-configuration</code></li>
+                    <li><code>https://portal.beneteau.com/part-printer</code></li>
+                </ul>
+
+                <h4>Organisation du code (invisible pour l'utilisateur) :</h4>
+                <ul>
+                    <li><code>src/app/(tools)/boat-configuration/</code></li>
+                    <li><code>src/app/(tools)/part-printer/</code></li>
+                </ul>
+
+                <p><strong>Avantage :</strong> Le dossier <code>(tools)</code> permet de regrouper tous les outils dans le code sans que cela n'apparaisse dans l'URL. Cela facilite la maintenance et la navigation dans le projet.</p>
+            </div>
+
+            <h3>2.3 Structure du Code</h3>
+            <div class="mermaid">
+flowchart TD
+    Root["Manufacturing Portal"]
+    
+    Root --> Shared["📦 shared/<br/>(Code Partagé)"]
+    Root --> Tools["🔧 tools/<br/>(Code Spécifique)"]
+    Root --> AppTools["🎨 app/(tools)/<br/>(Pages & Interface)"]
+    
+    Shared --> SharedComp["Composants UI<br/>réutilisables"]
+    Shared --> SharedServ["Services IFS<br/>communs"]
+    Shared --> SharedTypes["Types de données<br/>partagés"]
+    
+    Tools --> ToolBC["boat-configuration/<br/>Services métier"]
+    Tools --> ToolPP["part-printer/<br/>Services métier"]
+    
+    AppTools --> PageBC["boat-configuration/<br/>Interface utilisateur"]
+    AppTools --> PagePP["part-printer/<br/>Interface utilisateur"]
+    
+    style Root fill:#2c3e50,stroke:#1a252f,color:#fff
+    style Shared fill:#4a90e2,stroke:#2c5aa0,color:#fff
+    style Tools fill:#f39c12,stroke:#d68910,color:#fff
+    style AppTools fill:#9b59b6,stroke:#7d3c98,color:#fff
+            </div>
+
+            <div class="highlight-box">
+                <h4>Organisation en 3 niveaux :</h4>
+                <ol>
+                    <li><strong>shared/</strong> : Tout ce qui est réutilisable (boutons, connexion IFS, impression)</li>
+                    <li><strong>tools/</strong> : La logique métier propre à chaque outil (calculs, règles de gestion)</li>
+                    <li><strong>app/(tools)/</strong> : Les pages et l'interface visuelle de chaque outil</li>
+                </ol>
+            </div>
+
+            <h3>2.4 Flux de Données et Authentification</h3>
+            <p>Le schéma suivant montre comment les données circulent depuis IFS Cloud jusqu'à l'utilisateur, en passant par l'authentification Azure AD :</p>
+
+            <div class="mermaid">
+flowchart TD
+    User["👤 Opérateur"] --> Login["🔐 Azure AD<br/>Authentification SSO"]
+    Login --> Token["🎫 JWT Token<br/>(2h validité)"]
+    Token --> Portal["🏭 Portal<br/>Session active"]
+    
+    Portal --> Request["📤 Requête<br/>utilisateur"]
+    Request --> API["🔌 API Routes<br/>(app/api/)"]
+    API --> Auth["🔒 Vérification<br/>Token"]
+    Auth --> Services["⚙️ Services Métier<br/>(tools/)"]
+    Services --> IFSAuth["🔑 OAuth2<br/>IFS Cloud"]
+    IFSAuth --> IFS["☁️ IFS Cloud<br/>(Base de données)"]
+    
+    IFS --> Response["📦 Données"]
+    Response --> Services
+    Services --> API
+    API --> Portal
+    Portal --> User
+    
+    style User fill:#34495e,stroke:#2c3e50,color:#fff
+    style Login fill:#0078d4,stroke:#005a9e,color:#fff
+    style Token fill:#50c878,stroke:#2d7a4a,color:#fff
+    style Portal fill:#4a90e2,stroke:#2c5aa0,color:#fff
+    style Auth fill:#f39c12,stroke:#d68910,color:#fff
+    style Services fill:#3498db,stroke:#2980b9,color:#fff
+    style IFSAuth fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style IFS fill:#e74c3c,stroke:#c0392b,color:#fff
+            </div>
+
+            <div class="highlight-box success">
+                <h4>Double sécurité :</h4>
+                <ul>
+                    <li><strong>Azure AD</strong> : Authentification de l'utilisateur (qui est-il ?)</li>
+                    <li><strong>OAuth2 IFS</strong> : Autorisation d'accès aux données IFS (que peut-il faire ?)</li>
+                </ul>
+
+                <h4>Session utilisateur :</h4>
+                <ul>
+                    <li>Durée : 2 heures d'inactivité</li>
+                    <li>Renouvellement : Automatique en arrière-plan</li>
+                    <li>Déconnexion : Manuelle ou expiration automatique</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="section-3">
+            <h2>3. Les Outils et Workflows</h2>
+
+            <h3>3.1 Boat Configuration Editor</h3>
+
+            <h4>Objectif Métier</h4>
+            <p>Permettre aux opérateurs d'<strong>imprimer rapidement</strong> les documents de configuration des bateaux (formulaire MA_FO_CR_1419) en recherchant un Shop Order dans IFS Cloud.</p>
+
+            <h4>Workflow Simplifié</h4>
+            <div class="mermaid">
+flowchart LR
+    A["📝 Saisie<br/>Shop Order"] --> B["🔍 Recherche<br/>dans IFS"]
+    B --> C["📊 Récupération<br/>Serial Number"]
+    C --> D["🖨️ Sélection<br/>imprimante"]
+    D --> E["✅ Impression<br/>document"]
+    
+    style A fill:#3498db,stroke:#2980b9,color:#fff
+    style B fill:#3498db,stroke:#2980b9,color:#fff
+    style C fill:#3498db,stroke:#2980b9,color:#fff
+    style D fill:#3498db,stroke:#2980b9,color:#fff
+    style E fill:#2ecc71,stroke:#27ae60,color:#fff
+            </div>
+
+            <h4>Problème Résolu</h4>
+            <div class="highlight-box warning">
+                <p><strong>Avant :</strong> L'opérateur devait naviguer dans plusieurs écrans IFS, noter manuellement le Serial Number, puis lancer l'impression.</p>
+            </div>
+            <div class="highlight-box success">
+                <p><strong>Après :</strong> L'opérateur saisit uniquement le numéro de Shop Order. Le système récupère automatiquement toutes les informations nécessaires et imprime en un clic.</p>
+            </div>
+
+            <h4>Statut</h4>
+            <p><span class="status-badge status-test">🧪 En phase de test</span> - Déploiement prévu novembre 2025</p>
+
+            <h4>Interface de l'Outil</h4>
+            <div class="image-container">
+                <img src="tools/boatconfigeditor.png" alt="Interface Boat Configuration Editor">
+                <p>Interface de recherche et d'impression des configurations de bateaux</p>
+            </div>
+
+            <h3>3.2 Part Printer (Étiquettes Bois)</h3>
+
+            <h4>Objectif Métier</h4>
+            <p>Automatiser l'<strong>impression d'étiquettes</strong> pour les pièces en bois en consolidant les informations provenant de plusieurs sources IFS Cloud (Shop Orders, opérations, caractéristiques techniques).</p>
+
+            <h4>Workflow Simplifié</h4>
+            <div class="mermaid">
+flowchart TD
+    A["🔎 Filtres<br/>(Site, Date, Ligne)"] --> B["📋 Liste des<br/>Shop Orders"]
+    B --> C["🔍 Extraction<br/>données techniques"]
+    C --> D["📊 Consolidation<br/>& groupement"]
+    D --> E["📄 Génération<br/>PDF étiquettes"]
+    E --> F["🖨️ Impression<br/>par lot"]
+    
+    style A fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style B fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style C fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style D fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style E fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style F fill:#2ecc71,stroke:#27ae60,color:#fff
+            </div>
+
+            <h4>Complexité Technique</h4>
+            <p>Cet outil nécessite d'interroger <strong>5 endpoints différents</strong> dans IFS Cloud pour consolider les informations d'une seule étiquette. Cette complexité a nécessité un <strong>travail approfondi d'exploration et d'analyse</strong> des APIs IFS Cloud.</p>
+
+            <h5>Traitement Complexe des Données</h5>
+
+            <p><strong>Étape 1 : Collecte Multi-Sources</strong></p>
+            <div class="mermaid">
+flowchart TB
+    subgraph IFS["☁️ IFS Cloud"]
+        SO["Shop Order<br/>OrderNo, PartNo"]
+        MAT["Material Lines<br/>Raw Material"]
+        OP["Operations<br/>Block ID OP10"]
+        PART["Master Part<br/>TechnicalSpecNo"]
+        ATTR["Technical Attributes<br/>50+ attributs"]
+    end
+    
+    subgraph Extraction["🔍 Extraction"]
+        E1["Récupération<br/>Shop Order"]
+        E2["Navigation<br/>MaterialArray"]
+        E3["Requête<br/>Operation 10"]
+        E4["Navigation<br/>PartCatalog"]
+        E5["Filtrage<br/>TechnicalSpec"]
+    end
+    
+    SO --> E1
+    MAT --> E2
+    OP --> E3
+    PART --> E4
+    ATTR --> E5
+    
+    style IFS fill:#e74c3c,stroke:#c0392b,color:#fff
+    style Extraction fill:#3498db,stroke:#2980b9,color:#fff
+            </div>
+
+            <p><strong>Étape 2 : Navigation OData Multi-Niveaux</strong></p>
+            <div class="mermaid">
+flowchart LR
+    Start["🎯 Shop Order<br/>454853"] --> Nav1["Navigation 1<br/>MaterialArray"]
+    Nav1 --> Filter1["Filtrage<br/>OperationNo = 10"]
+    Filter1 --> Result1["✅ Raw Material<br/>D8588H"]
+    
+    Start --> Nav2["Navigation 2<br/>PartCatalogArray"]
+    Nav2 --> Nav3["Navigation 3<br/>TechnicalSpecBothArray"]
+    Nav3 --> Filter2["Filtrage par<br/>attribut spécifique"]
+    Filter2 --> Result2["✅ Generic Code<br/>Length Setup<br/>Varnish Code"]
+    
+    style Start fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Nav1 fill:#3498db,stroke:#2980b9,color:#fff
+    style Nav2 fill:#3498db,stroke:#2980b9,color:#fff
+    style Nav3 fill:#3498db,stroke:#2980b9,color:#fff
+    style Filter1 fill:#f39c12,stroke:#d68910,color:#fff
+    style Filter2 fill:#f39c12,stroke:#d68910,color:#fff
+    style Result1 fill:#2ecc71,stroke:#27ae60,color:#fff
+    style Result2 fill:#2ecc71,stroke:#27ae60,color:#fff
+            </div>
+
+            <p><strong>Étape 3 : Consolidation & Génération</strong></p>
+            <div class="mermaid">
+flowchart TD
+    subgraph Sources["📊 Données Collectées"]
+        D1["Shop Order<br/>454853"]
+        D2["Raw Material<br/>D8588H"]
+        D3["Block ID<br/>B25"]
+        D4["Generic Code<br/>1000014690"]
+        D5["Length<br/>1904mm"]
+        D6["Varnish<br/>RCTV1210"]
+    end
+    
+    subgraph Consolidation["⚙️ Consolidation"]
+        C1["Validation<br/>données complètes"]
+        C2["Groupement par<br/>Raw Material & Varnish"]
+        C3["Tri par<br/>Length décroissant"]
+    end
+    
+    subgraph Output["📄 Génération"]
+        O1["Code-barres<br/>CODE128"]
+        O2["Étiquette PDF<br/>A4 paysage"]
+        O3["Lot d'impression<br/>groupé"]
+    end
+    
+    D1 & D2 & D3 & D4 & D5 & D6 --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> O1 & O2 & O3
+    
+    style Sources fill:#e74c3c,stroke:#c0392b,color:#fff
+    style Consolidation fill:#f39c12,stroke:#d68910,color:#fff
+    style Output fill:#2ecc71,stroke:#27ae60,color:#fff
+            </div>
+
+            <p>Cette architecture de traitement permet de <strong>transformer des données complexes et éparpillées</strong> en étiquettes prêtes à l'impression, tout en optimisant les performances grâce à des requêtes ciblées.</p>
+
+            <h4>Types d'Étiquettes</h4>
+            <ol>
+                <li><strong>Débit classique</strong> : Étiquettes pour les nouvelles pièces à débiter</li>
+                <li><strong>Redébit</strong> : Étiquettes pour les pièces nécessitant un second débit</li>
+            </ol>
+            <p>Chaque mode a ses propres règles métier qui sont automatiquement appliquées par l'outil.</p>
+
+            <h4>Statut</h4>
+            <p><span class="status-badge status-test">🧪 En phase de test</span> - Déploiement prévu novembre 2025</p>
+
+            <h4>Interface de l'Outil</h4>
+            <div class="image-container">
+                <img src="tools/partprinter.png" alt="Interface Part Printer">
+                <p>Interface de filtrage et de génération d'étiquettes pour les pièces en bois</p>
+            </div>
+
+            <h3>3.3 Comparaison des Outils</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Boat Configuration Editor</th>
+                        <th>Part Printer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Complexité</strong></td>
+                        <td>🟢 Simple (3 étapes)</td>
+                        <td>🟠 Complexe (7 étapes)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sources IFS</strong></td>
+                        <td>2 endpoints</td>
+                        <td>5+ endpoints</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Volume</strong></td>
+                        <td>1 document à la fois</td>
+                        <td>Batch (10-100 étiquettes)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Utilisateurs</strong></td>
+                        <td>Sites d'assemblage</td>
+                        <td>Ateliers bois</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3.4 Traitement des Données : De l'API à l'Étiquette</h3>
+            <p>Les deux outils illustrent différents niveaux de complexité dans le traitement des données IFS.</p>
+
+            <h4>Boat Configuration Editor : Workflow Simple</h4>
+            <div class="mermaid">
+flowchart LR
+    Input["📝 Shop Order<br/>97277"] --> API1["🔌 API 1<br/>ShopOrderHandling"]
+    API1 --> Parse["⚙️ Extraction<br/>DOP ID"]
+    Parse --> API2["🔌 API 2<br/>DopHeaderHandling"]
+    API2 --> Output["✅ Serial Number<br/>LG5MA0114"]
+    
+    style Input fill:#3498db,stroke:#2980b9,color:#fff
+    style API1 fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Parse fill:#f39c12,stroke:#d68910,color:#fff
+    style API2 fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Output fill:#2ecc71,stroke:#27ae60,color:#fff
+            </div>
+            <p><strong>Principe :</strong> Traitement linéaire avec 2 APIs en séquence.</p>
+
+            <h4>Part Printer : Workflow Complexe</h4>
+            <div class="mermaid">
+flowchart TD
+    Input["📝 Filtres<br/>Site + Date"] --> API1["🔌 API 1<br/>ShopOrds"]
+    API1 --> SO["Shop Order<br/>454853"]
+    
+    SO --> Branch1["🔀 Parallélisation"]
+    
+    Branch1 --> API2["🔌 API 2<br/>MaterialArray"]
+    Branch1 --> API3["🔌 API 3<br/>OperationBlock"]
+    Branch1 --> API4["🔌 API 4<br/>PartCatalog"]
+    
+    API2 --> D1["Raw Material"]
+    API3 --> D2["Block ID"]
+    API4 --> API5["🔌 API 5<br/>TechnicalSpec"]
+    
+    API5 --> D3["Generic Code"]
+    API5 --> D4["Length Setup"]
+    API5 --> D5["Varnish Code"]
+    
+    D1 & D2 & D3 & D4 & D5 --> Merge["⚙️ Consolidation"]
+    Merge --> Barcode["📊 Code-barres"]
+    Barcode --> PDF["📄 PDF Étiquette"]
+    
+    style Input fill:#3498db,stroke:#2980b9,color:#fff
+    style API1 fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style API2 fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style API3 fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style API4 fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style API5 fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Branch1 fill:#e74c3c,stroke:#c0392b,color:#fff
+    style Merge fill:#f39c12,stroke:#d68910,color:#fff
+    style PDF fill:#2ecc71,stroke:#27ae60,color:#fff
+            </div>
+            <p><strong>Principe :</strong> Traitement parallèle avec 5 APIs et consolidation finale.</p>
+            <div class="highlight-box">
+                <p><strong>Différence clé :</strong> Le Part Printer nécessite une orchestration complexe de multiples sources de données et une logique de consolidation avancée.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Annexe : Méthodologie d'Exploration IFS Cloud</h2>
+            <p>Le développement des outils a nécessité une <strong>méthodologie rigoureuse</strong> pour comprendre et exploiter les APIs IFS Cloud.</p>
+
+            <h3>Approche Itérative</h3>
+            <div class="mermaid">
+flowchart LR
+    A["📋 Besoin<br/>métier"] --> B["🔍 Exploration<br/>APIs IFS"]
+    B --> C["🧪 Tests<br/>endpoints"]
+    C --> D{"✅ Données<br/>correctes?"}
+    D -->|Non| B
+    D -->|Oui| E["⚙️ Implémentation<br/>service"]
+    E --> F["✅ Validation"]
+    
+    style A fill:#3498db,stroke:#2980b9,color:#fff
+    style B fill:#f39c12,stroke:#d68910,color:#fff
+    style C fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style D fill:#e74c3c,stroke:#c0392b,color:#fff
+    style E fill:#2ecc71,stroke:#27ae60,color:#fff
+    style F fill:#27ae60,stroke:#1e8449,color:#fff
+            </div>
+
+            <h3>Techniques Utilisées</h3>
+            <ol>
+                <li><strong>Analyse des métadonnées OData</strong> : Étude des <code>$metadata</code> pour comprendre la structure</li>
+                <li><strong>Navigation progressive</strong> : Tests des relations entre entités (<code>NavigationProperty</code>)</li>
+                <li><strong>Optimisation des filtres</strong> : Utilisation de <code>$filter</code>, <code>$select</code>, <code>$expand</code> pour limiter les données</li>
+                <li><strong>Documentation systématique</strong> : Chaque découverte documentée pour référence future</li>
+            </ol>
+
+            <h3>Exemple Concret : Extraction Raw Material</h3>
+            <div class="highlight-box warning">
+                <p><strong>Problème :</strong> Aucun endpoint direct pour récupérer les matières premières d'une opération.</p>
+            </div>
+            <div class="highlight-box success">
+                <p><strong>Solution trouvée :</strong></p>
+                <ul>
+                    <li>Navigation OData : <code>ShopOrds(...)/MaterialArray</code></li>
+                    <li>Filtrage côté code pour isoler l'opération 10 (OP10)</li>
+                    <li>Résultat : Accès aux données sans endpoint dédié</li>
+                </ul>
+            </div>
+            <p>Cette approche méthodique a permis de <strong>surmonter les limitations</strong> de la documentation IFS et d'exploiter pleinement les capacités de l'API OData.</p>
+        </section>
+
+        <section id="section-4">
+            <h2>4. Déploiement et Infrastructure Azure</h2>
+
+            <h3>4.1 Architecture de Déploiement</h3>
+            <p>Le Manufacturing Portal est conçu pour être déployé sur <strong>Microsoft Azure</strong> avec une infrastructure moderne et sécurisée.</p>
+
+            <div class="mermaid">
+flowchart TB
+    subgraph Azure["☁️ Microsoft Azure"]
+        subgraph Auth["🔐 Authentification"]
+            AzureAD["Azure Active Directory<br/>(SSO Entreprise)"]
+            AppReg["App Registration<br/>(OAuth2 Client)"]
+        end
+        
+        subgraph Envs["🌍 Environnements"]
+            Dev["DEV<br/>Azure App Service"]
+            PreProd["PRE-PROD<br/>Azure App Service"]
+            Prod["PROD<br/>Azure App Service"]
+        end
+        
+        subgraph Pipeline["🔄 CI/CD"]
+            GitHub["GitHub Actions<br/>(Source Code)"]
+            Build["Build & Test<br/>(Node.js)"]
+            Deploy["Deployment<br/>(Automatique)"]
+        end
+        
+        AzureAD --> AppReg
+        AppReg --> Dev
+        AppReg --> PreProd
+        AppReg --> Prod
+        
+        GitHub --> Build
+        Build --> Deploy
+        Deploy --> Dev
+        Deploy --> PreProd
+        Deploy --> Prod
+    end
+    
+    Users["👥 Utilisateurs<br/>Bénéteau"] --> AzureAD
+    
+    style Azure fill:#0078d4,stroke:#005a9e,color:#fff
+    style Auth fill:#50c878,stroke:#2d7a4a,color:#fff
+    style Envs fill:#f39c12,stroke:#d68910,color:#fff
+    style Pipeline fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Users fill:#34495e,stroke:#2c3e50,color:#fff
+            </div>
+
+            <h3>4.2 Authentification Azure AD</h3>
+
+            <h4>Configuration Technique Azure AD</h4>
+            <p>L'authentification utilise <strong>Azure Active Directory</strong> pour permettre aux utilisateurs de se connecter avec leurs identifiants Bénéteau (Single Sign-On).</p>
+
+            <div class="highlight-box">
+                <p><strong>App Registration Azure AD :</strong></p>
+                <ul>
+                    <li>Type : Web Application</li>
+                    <li>Redirect URI : <code>https://portal.beneteau.com/api/auth/callback/azure-ad</code></li>
+                    <li>Permissions API : <code>User.Read</code> (profil utilisateur basique)</li>
+                    <li>Token : JWT avec durée de vie de 2 heures</li>
+                </ul>
+            </div>
+
+            <p><strong>Variables d'environnement requises :</strong></p>
+            <pre><code>AZURE_AD_CLIENT_ID=&lt;Application (client) ID&gt;
+AZURE_AD_CLIENT_SECRET=&lt;Client Secret&gt;
+AZURE_AD_TENANT_ID=&lt;Directory (tenant) ID&gt;
+NEXTAUTH_URL=https://portal.beneteau.com
+NEXTAUTH_SECRET=&lt;Random Secret Key&gt;</code></pre>
+
+            <div class="highlight-box success">
+                <p><strong>Sécurité :</strong></p>
+                <ul>
+                    <li>✅ Tokens stockés côté serveur uniquement</li>
+                    <li>✅ Session expiration après 2 heures d'inactivité</li>
+                    <li>✅ Refresh automatique du token</li>
+                    <li>✅ Déconnexion automatique en cas d'expiration</li>
+                </ul>
+            </div>
+
+            <h3>4.3 Environnements et Pipeline CI/CD</h3>
+
+            <h4>Les 3 Environnements</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Environnement</th>
+                        <th>URL</th>
+                        <th>Usage</th>
+                        <th>Auto-Deploy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>DEV</strong></td>
+                        <td><code>https://portal-dev.beneteau.com</code></td>
+                        <td>Tests développeurs</td>
+                        <td>✅ Oui (branche <code>dev</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PRE-PROD</strong></td>
+                        <td><code>https://portal-preprod.beneteau.com</code></td>
+                        <td>Validation métier</td>
+                        <td>✅ Oui (branche <code>staging</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PROD</strong></td>
+                        <td><code>https://portal.beneteau.com</code></td>
+                        <td>Utilisation réelle</td>
+                        <td>⚠️ Manuel (branche <code>main</code>)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Pipeline CI/CD GitHub Actions</h4>
+            <div class="mermaid">
+flowchart TD
+    Push["📤 Push Code<br/>GitHub"] --> Trigger["🔔 Déclenchement<br/>Pipeline"]
+    
+    Trigger --> Build["🔨 Build"]
+    Build --> BuildSteps["Node.js 18<br/>pnpm install<br/>pnpm build"]
+    
+    BuildSteps --> Test["🧪 Tests"]
+    Test --> TestSteps["ESLint<br/>TypeScript Check<br/>Unit Tests"]
+    
+    TestSteps --> Check{"✅ Tests<br/>OK?"}
+    Check -->|❌ Non| Fail["❌ Pipeline Failed<br/>Notification"]
+    
+    Check -->|✅ Oui| Deploy{"🌍 Env?"}
+    
+    Deploy -->|dev| DevDeploy["🚀 Deploy DEV<br/>Azure App Service"]
+    Deploy -->|staging| PreProdDeploy["🚀 Deploy PRE-PROD<br/>Azure App Service"]
+    Deploy -->|main| ManualApprove["👤 Approbation<br/>Manuelle"]
+    
+    ManualApprove --> ProdDeploy["🚀 Deploy PROD<br/>Azure App Service"]
+    
+    DevDeploy --> Success["✅ Déploiement<br/>Réussi"]
+    PreProdDeploy --> Success
+    ProdDeploy --> Success
+    
+    style Push fill:#3498db,stroke:#2980b9,color:#fff
+    style Build fill:#f39c12,stroke:#d68910,color:#fff
+    style Test fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style Check fill:#e74c3c,stroke:#c0392b,color:#fff
+    style DevDeploy fill:#2ecc71,stroke:#27ae60,color:#fff
+    style PreProdDeploy fill:#2ecc71,stroke:#27ae60,color:#fff
+    style ProdDeploy fill:#27ae60,stroke:#1e8449,color:#fff
+    style Success fill:#27ae60,stroke:#1e8449,color:#fff
+            </div>
+
+            <h4>Stratégie de Déploiement</h4>
+
+            <div class="highlight-box">
+                <p><strong>DEV</strong> : Déploiement continu automatique</p>
+                <ul>
+                    <li>Chaque commit sur <code>dev</code> → déploiement immédiat</li>
+                    <li>Tests de nouvelles fonctionnalités</li>
+                    <li>Pas de validation requise</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box warning">
+                <p><strong>PRE-PROD</strong> : Déploiement automatique avec validation</p>
+                <ul>
+                    <li>Merge <code>dev</code> → <code>staging</code> → déploiement automatique</li>
+                    <li>Tests d'acceptation utilisateur (UAT)</li>
+                    <li>Validation métier avant production</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box danger">
+                <p><strong>PROD</strong> : Déploiement manuel contrôlé</p>
+                <ul>
+                    <li>Merge <code>staging</code> → <code>main</code> → approbation manuelle requise</li>
+                    <li>Déploiement planifié (heures creuses)</li>
+                    <li>Rollback rapide en cas de problème</li>
+                </ul>
+            </div>
+
+            <h3>4.4 Infrastructure Azure</h3>
+
+            <h4>Services Utilisés</h4>
+            <div class="mermaid">
+flowchart TB
+    subgraph Azure["☁️ Infrastructure Azure"]
+        AppService["Azure App Service<br/>(Node.js 18)"]
+        AppInsights["Application Insights<br/>(Monitoring)"]
+        KeyVault["Key Vault<br/>(Secrets)"]
+        AzureAD["Azure AD<br/>(Auth)"]
+        
+        AppService --> AppInsights
+        AppService --> KeyVault
+        AppService --> AzureAD
+    end
+    
+    IFS["☁️ IFS Cloud<br/>(External)"] --> AppService
+    
+    style Azure fill:#0078d4,stroke:#005a9e,color:#fff
+    style AppService fill:#2ecc71,stroke:#27ae60,color:#fff
+    style AppInsights fill:#f39c12,stroke:#d68910,color:#fff
+    style KeyVault fill:#e74c3c,stroke:#c0392b,color:#fff
+    style AzureAD fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style IFS fill:#34495e,stroke:#2c3e50,color:#fff
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>Ressources :</strong></p>
+                <ul>
+                    <li><strong>Azure App Service</strong> : Hébergement de l'application Next.js</li>
+                    <li><strong>Application Insights</strong> : Monitoring, logs, alertes</li>
+                    <li><strong>Key Vault</strong> : Stockage sécurisé des secrets (API keys, tokens)</li>
+                    <li><strong>Azure AD</strong> : Authentification et gestion des identités</li>
+                </ul>
+
+                <p><strong>Monitoring & Alertes :</strong></p>
+                <ul>
+                    <li>✅ Temps de réponse API</li>
+                    <li>✅ Taux d'erreur</li>
+                    <li>✅ Disponibilité (uptime)</li>
+                    <li>✅ Utilisation ressources (CPU, RAM)</li>
+                    <li>✅ Logs centralisés</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="section-5">
+            <h2>5. Évolutions Futures</h2>
+
+            <h3>5.1 Améliorations Planifiées Court Terme</h3>
+
+            <h4>Boat Configuration Editor : Imprimantes Favorites</h4>
+            <div class="highlight-box warning">
+                <p><strong>Problème actuel :</strong> L'utilisateur doit sélectionner l'imprimante à chaque impression.</p>
+            </div>
+            <div class="highlight-box success">
+                <p><strong>Solution proposée :</strong> Mémoriser les préférences utilisateur.</p>
+            </div>
+
+            <div class="mermaid">
+flowchart LR
+    User["👤 Utilisateur"] --> First["1ère utilisation<br/>Sélection imprimante"]
+    First --> Save["💾 Sauvegarde<br/>préférence"]
+    Save --> Next["Prochaine<br/>utilisation"]
+    Next --> Auto["🎯 Pré-sélection<br/>automatique"]
+    Auto --> Modify["✏️ Modification<br/>possible"]
+    
+    style User fill:#34495e,stroke:#2c3e50,color:#fff
+    style First fill:#3498db,stroke:#2980b9,color:#fff
+    style Save fill:#2ecc71,stroke:#27ae60,color:#fff
+    style Auto fill:#f39c12,stroke:#d68910,color:#fff
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>Fonctionnalités :</strong></p>
+                <ul>
+                    <li>✅ Sauvegarde imprimante favorite par utilisateur</li>
+                    <li>✅ Sauvegarde langue préférée</li>
+                    <li>✅ Pré-sélection automatique au prochain usage</li>
+                    <li>✅ Possibilité de modifier à tout moment</li>
+                </ul>
+
+                <p><strong>Stockage :</strong></p>
+                <ul>
+                    <li>Option 1 : Local Storage (navigateur)</li>
+                    <li>Option 2 : Base de données avec profil utilisateur</li>
+                    <li><strong>Recommandation</strong> : Local Storage pour MVP, base de données pour V2</li>
+                </ul>
+            </div>
+
+            <h4>Part Printer : Filtres Prédéfinis</h4>
+            <p><strong>Fonctionnalité :</strong> Sauvegarder des combinaisons de filtres fréquentes.</p>
+            <p><strong>Exemple :</strong></p>
+            <ul>
+                <li>"BDR - Ligne MASSIF - Débit"</li>
+                <li>"FR017 - Toutes lignes - Redébit"</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>Le <strong>Manufacturing Portal</strong> représente une approche moderne et évolutive du développement d'outils de production. En mutualisant l'infrastructure commune et en standardisant l'architecture, nous garantissons :</p>
+
+            <div class="highlight-box success">
+                <ul>
+                    <li>✅ <strong>Rapidité</strong> : Développement accéléré des nouveaux outils</li>
+                    <li>✅ <strong>Qualité</strong> : Standards uniformes et code testé</li>
+                    <li>✅ <strong>Évolutivité</strong> : Architecture prête pour 10+ outils</li>
+                    <li>✅ <strong>Maintenance</strong> : Corrections et améliorations partagées</li>
+                    <li>✅ <strong>Expérience utilisateur</strong> : Interface cohérente et intuitive</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p><strong>Développement</strong></p>
+        <p><strong>Romain BOTTERO</strong> - Alternant Concepteur d'Application</p>
+        <br>
+        <p><strong>Documentation & Support</strong></p>
+        <p><strong>Marc TOCQUARD</strong> - Chef de Projet Informatique (Documentation antérieure)</p>
+        <br>
+        <p><strong>Date de mise à jour :</strong> 16 octobre 2025</p>
+        <p><strong>Version :</strong> 1.0</p>
+    </footer>
+
+    <div class="scroll-to-top" id="scrollToTop">
+        ↑
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Scroll to top button
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

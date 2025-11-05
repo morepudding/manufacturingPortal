@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import HeaderWrapper from "@/components/organisms/HeaderWrapper";
+import HeaderWrapper from "@/shared/components/organisms/HeaderWrapper";
 
-import { getServerSession } from "next-auth/next";
-import { AuthProvider } from "@/contexts/auth";
-import authOptions from "../../auth.config";
-import SignInRedirect from "./SignInRedirect";
+// ⚠️ AUTHENTIFICATION DÉSACTIVÉE - Décommenter pour réactiver
+// import { getServerSession } from "next-auth/next";
+// import { AuthProvider } from "@/contexts/auth";
+// import authOptions from "../../auth.config";
 
 export const metadata: Metadata = {
-    title: "Back Office SpareParts",
+    title: "Manufacturing Portal - Bénéteau",
     description:
-        "Application back office pour administrer les pièces détachées chez Bénéteau",
+        "Plateforme de gestion des outils de production pour Bénéteau",
 };
 
 export default async function RootLayout({
@@ -18,16 +18,11 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const session = await getServerSession(authOptions);
-
     return (
         <html lang="en">
             <body>
-                <AuthProvider session={session}>
-                    <HeaderWrapper />
-                    {process.env.NODE_ENV!=='development' && !session && <SignInRedirect />}
-                    {children}
-                </AuthProvider>
+                <HeaderWrapper />
+                {children}
             </body>
         </html>
     );

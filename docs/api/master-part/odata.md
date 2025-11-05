@@ -1,0 +1,1 @@
+{"@odata.context":"https://beneteau-group-ast.ifs.cloud/int/ifsapplications/projection/v1/PartService.svc/$metadata","value":[{"name":"Reference_AttributeStructure","url":"Reference_AttributeStructure"},{"name":"Reference_AssortmentPartStructure","url":"Reference_AssortmentPartStructure"}]}

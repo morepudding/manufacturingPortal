@@ -1,0 +1,53 @@
+# .vercelignore
+# Fichiers et dossiers à exclure du déploiement Vercel
+
+# Documentation (pas nécessaire en production)
+docs/
+*.md
+!README.md
+
+# Tests
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+coverage/
+.vitest/
+
+# Storybook
+.storybook/
+storybook-static/
+*storybook.log
+
+# Scripts de développement
+scripts/
+
+# Fichiers d'environnement locaux
+.env
+.env.local
+.env*.local
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Git
+.git/
+.gitignore
+
+# Autres
+.DS_Store
+*.pem
+settings.json

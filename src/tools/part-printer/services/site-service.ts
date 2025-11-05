@@ -3,8 +3,7 @@
  * 
  * Phase 1.2 - Services IFS de base
  * 
- * NOTE: IFS n'a pas d'endpoint dédié pour les sites/contracts.
- * On récupère les contracts distincts depuis les Shop Orders.
+ * NOTE: Utilise CompanySiteHandling.svc/CompanySiteSet pour lister TOUS les sites disponibles.
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
@@ -12,53 +11,50 @@ import { logger } from '../utils/logger'
 import type { IFSODataResponse } from '@/shared/types/ifs'
 import type { IFSSite, SitesResponse } from '../types'
 
+interface IFSCompanySite {
+  Contract: string
+  Company: string
+  Description?: string
+}
+
 /**
- * Récupérer la liste des sites/contracts IFS depuis les Shop Orders
+ * Récupérer la liste de TOUS les sites/contracts IFS
  * 
- * NOTE: Utilise ShopOrderHandling.svc/ShopOrds pour extraire les contracts distincts
+ * NOTE: Utilise CompanySiteHandling.svc/CompanySiteSet pour récupérer tous les sites
  * 
- * @returns Liste des sites disponibles
+ * @returns Liste de tous les sites disponibles
  * 
  * @example
  * ```typescript
  * const sites = await getSites()
  * logger.debug("Sites disponibles:", sites.sites)
- * // [{ Contract: "BDR", Name: "Site BDR" }, ...]
+ * // [{ Contract: "FR018", Name: "BDX TAKT COURT" }, ...]
  * ```
  */
 export async function getSites(): Promise<SitesResponse> {
-  logger.debug('🔍 [Site Service] Récupération des sites IFS depuis Shop Orders...')
+  logger.debug('🔍 [Site Service] Récupération de TOUS les sites IFS...')
 
   try {
     const client = getIFSClient()
 
-    // Récupérer un échantillon de Shop Orders pour extraire les contracts
-    const response = await client.get<IFSODataResponse<{ Contract: string }>>(
-      'ShopOrderHandling.svc/ShopOrds',
+    // Utiliser CompanySiteHandling pour avoir TOUS les sites
+    const response = await client.get<IFSODataResponse<IFSCompanySite>>(
+      'CompanySiteHandling.svc/CompanySiteSet',
       {
-        $select: 'Contract',
-        $top: '1000', // Échantillon large pour capturer tous les contracts
+        $select: 'Contract,Company,Description',
       }
     )
 
-    // Extraire les contracts uniques
-    const contractsSet = new Set<string>()
-    response.value?.forEach(order => {
-      if (order.Contract) {
-        contractsSet.add(order.Contract)
-      }
-    })
-
     // Convertir en format IFSSite
-    const sites: IFSSite[] = Array.from(contractsSet)
-      .sort()
-      .map(contract => ({
-        Contract: contract,
-        Name: `Site ${contract}`,
-        Description: `Site de production ${contract}`,
+    const sites: IFSSite[] = (response.value || [])
+      .map(site => ({
+        Contract: site.Contract,
+        Name: site.Description || `Site ${site.Contract}`,
+        Description: site.Description || `Site de production ${site.Contract}`,
       }))
+      .sort((a, b) => a.Contract.localeCompare(b.Contract))
 
-    logger.debug(`✅ [Site Service] ${sites.length} sites uniques récupérés: ${Array.from(contractsSet).join(', ')}`)
+    logger.debug(`✅ [Site Service] ${sites.length} sites récupérés: ${sites.map(s => s.Contract).join(', ')}`)
 
     return {
       sites,

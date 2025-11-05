@@ -1,0 +1,889 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Part Printer - Business Documentation V2</title>
+  
+  <!-- Mermaid CDN -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+    window.mermaid = mermaid;
+  </script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #fff;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #3498db;
+    }
+    
+    h2 {
+      color: #34495e;
+      font-size: 2em;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #95a5a6;
+    }
+    
+    h3 {
+      color: #2c3e50;
+      font-size: 1.5em;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+    
+    h4 {
+      color: #34495e;
+      font-size: 1.2em;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      margin-bottom: 15px;
+      text-align: justify;
+    }
+    
+    ul, ol {
+      margin-bottom: 15px;
+      padding-left: 30px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
+    
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #e74c3c;
+    }
+    
+    pre {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+    
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+    }
+    
+    table th {
+      background: #3498db;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: bold;
+    }
+    
+    table td {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+    }
+    
+    table tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    
+    blockquote {
+      border-left: 4px solid #3498db;
+      padding-left: 20px;
+      margin: 20px 0;
+      color: #555;
+      font-style: italic;
+    }
+    
+    hr {
+      border: none;
+      border-top: 2px solid #ecf0f1;
+      margin: 40px 0;
+    }
+    
+    /* Mermaid diagrams */
+    .mermaid {
+      margin: 30px 0;
+      text-align: center;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+      page-break-inside: avoid;
+    }
+    
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* Page breaks */
+    h1, h2 {
+      page-break-after: avoid;
+    }
+    
+    h3, h4 {
+      page-break-after: avoid;
+    }
+    
+    table, figure, .mermaid {
+      page-break-inside: avoid;
+    }
+    
+    /* Badges/Icons */
+    strong {
+      color: #2c3e50;
+    }
+    
+    em {
+      color: #7f8c8d;
+    }
+    
+    /* Links (for PDF) */
+    a {
+      color: #3498db;
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Part Printer - Business Documentation V2</h1>
+<p><strong>Version</strong>: 2.0<br><strong>Date</strong>: October 30, 2025<br><strong>Developer</strong>: Romain BOTTERO - Application Developer<br><strong>Specification</strong>: Marc TOCQUARD - IT Project Manager</p>
+<hr>
+<h2>📋 Table of Contents</h2>
+<ol>
+<li><a href="#1-overview">Overview</a></li>
+<li><a href="#2-user-workflow-7-steps">User Workflow (7 Steps)</a></li>
+<li><a href="#3-technical-data-flow">Technical Data Flow</a></li>
+<li><a href="#4-print-modes--azure-integration">Print Modes &amp; Azure Integration</a></li>
+<li><a href="#5-error-handling-system">Error Handling System</a></li>
+</ol>
+<hr>
+<h2>1. Overview</h2>
+<h3>Purpose</h3>
+<p><strong>Part Printer</strong> is a web application for manufacturing wood parts that automates the generation and printing of labels and listing documents. It replaces manual processes by consolidating data from multiple IFS Cloud sources into ready-to-print PDF documents and IFS labels.</p>
+<h3>Business Context</h3>
+<ul>
+<li><strong>Target Users</strong>: GAP Leaders, Supervisors</li>
+<li><strong>Use Case</strong>: Print labels for wood parts (semi-finished products) at production sites</li>
+<li><strong>Sites</strong>: BDR (Boatyard Rochefort), FR017, PRTBX, etc.</li>
+<li><strong>Form</strong>: MA_FO_CR_184 (IFS Report for labels)</li>
+<li><strong>Interface</strong>: MA_IN_EN_1543 (Azure Logic App for print jobs)</li>
+</ul>
+<h3>Key Features</h3>
+<p>✅ <strong>Filter shop orders</strong> by site, date, production line, block ID<br>✅ <strong>3 print modes</strong>: Listing Only, Labels Only, Listing + Labels<br>✅ <strong>PDF generation</strong> (A4 landscape, multi-page with grouping)<br>✅ <strong>IFS printing</strong> via Azure Print API (OAuth2 + retry logic)<br>✅ <strong>Error handling</strong> system (blocking errors vs warnings)<br>✅ <strong>Data consolidation</strong> from 5+ IFS endpoints per label</p>
+<hr>
+<h2>2. User Workflow (7 Steps)</h2>
+<h3>Step 1: Site Selection (Mandatory)</h3>
+<p><strong>Field</strong>: Site (Contract)<br><strong>Type</strong>: List of Values (LOV) from IFS Contracts<br><strong>Example</strong>: &quot;BDR&quot;, &quot;FR017&quot;, &quot;PRTBX&quot;<br><strong>API</strong>: <code>GET /api/part-printer/sites</code></p>
+<p><strong>User Action</strong>: Select the production site from the dropdown</p>
+<p><strong>Error Handling</strong>:</p>
+<ul>
+<li>If no sites retrieved → <strong>PP_E001</strong> (BLOCKING): &quot;No Site data could be retrieved&quot;</li>
+<li>Stops processing, user must contact support</li>
+</ul>
+<hr>
+<h3>Step 2: Production Date (Mandatory*)</h3>
+<p><strong>Field</strong>: Start Date<br><strong>Type</strong>: Calendar date picker<br><strong>Format</strong>: ISO date (YYYY-MM-DD)<br><strong>Example</strong>: &quot;2025-10-13&quot;</p>
+<p><strong>User Action</strong>: Select the production day for shop orders</p>
+<p><strong>Business Rule</strong>: Mandatory UNLESS Block ID (Step 4) is filled<br><strong>Filter</strong>: Filters shop orders by <code>RevisedStartDate</code></p>
+<hr>
+<h3>Step 3: Production Line (Optional)</h3>
+<p><strong>Field</strong>: Production Line<br><strong>Type</strong>: LOV from IFS (filtered by selected site)<br><strong>Example</strong>: &quot;Line 1&quot;, &quot;CP&quot;, &quot;M5&quot;<br><strong>API</strong>: <code>GET /api/part-printer/production-lines?site={site}</code></p>
+<p><strong>User Action</strong>: Optionally filter by specific production line</p>
+<p><strong>Error Handling</strong>:</p>
+<ul>
+<li>If no production lines retrieved → <strong>PP_W002</strong> (WARNING): &quot;No Production Line data could be retrieved&quot;</li>
+<li>Continues, but production line filter unavailable</li>
+</ul>
+<p><strong>Business Rule</strong>: </p>
+<ul>
+<li>Dropdown disabled until Site is selected</li>
+<li>Optional filter (can leave empty)</li>
+</ul>
+<hr>
+<h3>Step 4: Block ID (Optional)</h3>
+<p><strong>Field</strong>: OP10 Block ID<br><strong>Type</strong>: Text input (alphanumeric)<br><strong>Example</strong>: &quot;B25&quot;, &quot;B89&quot;, &quot;B92&quot;</p>
+<p><strong>User Action</strong>: Optionally filter by specific operation Block ID</p>
+<p><strong>Business Rule</strong>: </p>
+<ul>
+<li>If Block ID is filled → Date and Production Line become OPTIONAL</li>
+<li>Filters shop orders by <code>OperationBlockId</code> (Operation No = 10)</li>
+<li>Used for targeted label printing (specific block of parts)</li>
+</ul>
+<hr>
+<h3>Step 5: Block Date Filter (Advanced Option)</h3>
+<p><strong>Field</strong>: Block Date<br><strong>Type</strong>: Toggle (Enabled/Disabled) + Boolean (TRUE/FALSE)<br><strong>Default</strong>: Disabled</p>
+<p><strong>User Action</strong>:</p>
+<ol>
+<li>Enable the filter (toggle)</li>
+<li>Select TRUE or FALSE value</li>
+</ol>
+<p><strong>Business Logic</strong>:</p>
+<ul>
+<li><strong>Enabled + TRUE</strong>: Filters shop orders with <code>CBlockDates = true</code> (classic cutting)</li>
+<li><strong>Enabled + FALSE</strong>: Filters shop orders with <code>CBlockDates = false</code> (re-cutting)</li>
+<li><strong>Disabled</strong>: No filter on Block Date field</li>
+</ul>
+<p><strong>Typical Use Cases</strong>:</p>
+<ul>
+<li><strong>Classic Cutting (Débit classique)</strong>: Enabled + TRUE</li>
+<li><strong>Re-cutting (Redébit)</strong>: Enabled + FALSE</li>
+<li><strong>All</strong>: Disabled</li>
+</ul>
+<hr>
+<h3>Step 6: Sent to Cutting System Filter (Advanced Option)</h3>
+<p><strong>Field</strong>: Sent to Cutting System<br><strong>Type</strong>: Toggle (Enabled/Disabled) + Boolean (TRUE/FALSE)<br><strong>Default</strong>: Disabled</p>
+<p><strong>User Action</strong>:</p>
+<ol>
+<li>Enable the filter (toggle)</li>
+<li>Select TRUE or FALSE value</li>
+</ol>
+<p><strong>Business Logic</strong>:</p>
+<ul>
+<li><strong>Enabled + TRUE</strong>: Only shop orders already sent to cutting system</li>
+<li><strong>Enabled + FALSE</strong>: Only shop orders NOT sent to cutting system</li>
+<li><strong>Disabled</strong>: No filter on this field</li>
+</ul>
+<hr>
+<h3>Step 7: Print Mode Selection (Mandatory)</h3>
+<p><strong>Field</strong>: Print Type<br><strong>Type</strong>: Radio buttons (3 options)<br><strong>Options</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Description</th>
+<th>Printer Required</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Listing Only</strong></td>
+<td>Generate PDF listing only</td>
+<td>❌ No</td>
+<td>PDF download (local)</td>
+</tr>
+<tr>
+<td><strong>Labels Only</strong></td>
+<td>Print labels to IFS printer</td>
+<td>✅ Yes</td>
+<td>IFS print job (no PDF)</td>
+</tr>
+<tr>
+<td><strong>Listing + Labels</strong></td>
+<td>Both PDF and IFS printing</td>
+<td>✅ Yes</td>
+<td>PDF download + IFS print</td>
+</tr>
+</tbody></table>
+<p><strong>Printer Selection</strong>:</p>
+<ul>
+<li><strong>Required for</strong>: Labels Only, Listing + Labels</li>
+<li><strong>Type</strong>: LOV from IFS Logical Printers</li>
+<li><strong>Example</strong>: &quot;PRTBX105_P&quot;, &quot;PRTBX101&quot;</li>
+<li><strong>API</strong>: <code>GET /api/shared/printers</code></li>
+</ul>
+<p><strong>Error Handling</strong>:</p>
+<ul>
+<li>If no printers retrieved → <strong>PP_W003</strong> (WARNING): &quot;No logical printers could be retrieved&quot;</li>
+<li>Forces <strong>Listing Only</strong> mode (labels unavailable)</li>
+</ul>
+<p><strong>Button Behavior</strong>:</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│ Print Mode          │ Button Color │ Button Text        │
+├─────────────────────────────────────────────────────────┤
+│ Listing Only        │ 🔵 Blue      │ DOWNLOAD PDF       │
+│ Labels Only         │ 🟢 Green     │ PRINT TO IFS       │
+│ Listing + Labels    │ 🟣 Purple    │ PRINT &amp; DOWNLOAD   │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h3>Step 8: Generate/Print</h3>
+<p><strong>Action</strong>: Click the dynamic button based on selected print mode</p>
+<p><strong>Processing</strong>:</p>
+<ol>
+<li>Validate form fields (site, date, printer if required)</li>
+<li>Call API to filter shop orders</li>
+<li>Extract data from IFS (5+ endpoints per label)</li>
+<li>Generate PDF (if Listing mode)</li>
+<li>Send to Azure Print API (if Labels mode)</li>
+<li>Display results or errors</li>
+</ol>
+<hr>
+<h3>Step 9: Results Display</h3>
+<p><strong>Success</strong>:</p>
+<ul>
+<li><strong>Listing Only</strong>: PDF ready to download (opens in new tab)</li>
+<li><strong>Labels Only</strong>: Confirmation message &quot;X labels printed to {printer}&quot;</li>
+<li><strong>Listing + Labels</strong>: PDF download + print confirmation</li>
+</ul>
+<p><strong>Preview</strong> (collapsible section):</p>
+<ul>
+<li>Shows filtered shop orders</li>
+<li>Displays: Order No, Part No, Contract, Status</li>
+<li>Count: &quot;X Shop Orders found&quot;</li>
+</ul>
+<hr>
+<h2>3. Technical Data Flow</h2>
+<h3>3.1 Data Consolidation (5+ IFS Endpoints)</h3>
+<p>For EACH shop order, the system must query multiple IFS Cloud endpoints to build a complete label:</p>
+<pre><code class="language-mermaid">flowchart TD
+    SO[&quot;Shop Order&lt;br/&gt;(OrderNo, PartNo, Contract)&quot;] --&gt; MAT[&quot;Material Lines API&lt;br/&gt;→ Raw Material&lt;br/&gt;(OperationNo = 10)&quot;]
+    SO --&gt; OP[&quot;Operations API&lt;br/&gt;→ Block ID&lt;br/&gt;(OperationNo = 10)&quot;]
+    SO --&gt; PART[&quot;Master Part API&lt;br/&gt;→ TechnicalSpecNo&quot;]
+    
+    PART --&gt; ATTR[&quot;Technical Attributes API&lt;br/&gt;→ 50+ attributes&lt;br/&gt;Filter by attribute name&quot;]
+    
+    ATTR --&gt; GC[&quot;GENERIC CODE&lt;br/&gt;(ValueText)&quot;]
+    ATTR --&gt; LS[&quot;LENGTH SETUP&lt;br/&gt;(ValueNo)&quot;]
+    ATTR --&gt; VC[&quot;VARNISH CODE&lt;br/&gt;(ValueText)&quot;]
+    
+    SO --&gt; RANGE[&quot;Range Service&lt;br/&gt;→ Range ID&lt;br/&gt;(Site + Time)&quot;]
+    
+    GC --&gt; BARCODE[&quot;Barcode Generation&lt;br/&gt;(CODE128 format)&quot;]
+    VC --&gt; BARCODE
+    
+    MAT &amp; OP &amp; GC &amp; LS &amp; VC &amp; RANGE &amp; BARCODE --&gt; LABEL[&quot;Complete Label&quot;]
+    
+    style SO fill:#3498db,stroke:#2980b9,color:#fff
+    style MAT fill:#e74c3c,stroke:#c0392b,color:#fff
+    style OP fill:#e74c3c,stroke:#c0392b,color:#fff
+    style PART fill:#e74c3c,stroke:#c0392b,color:#fff
+    style ATTR fill:#f39c12,stroke:#d68910,color:#fff
+    style RANGE fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style BARCODE fill:#2ecc71,stroke:#27ae60,color:#fff
+    style LABEL fill:#1abc9c,stroke:#16a085,color:#fff
+</code></pre>
+<h3>3.2 Label Data Structure</h3>
+<p>Each label contains:</p>
+<p><strong>From Shop Order</strong> (<code>ShopOrderHandling.svc</code>):</p>
+<ul>
+<li><code>OrderNo</code>, <code>ReleaseNo</code>, <code>SequenceNo</code></li>
+<li><code>PartNo</code>, <code>Contract</code></li>
+<li><code>RevisedStartDate</code> (production date)</li>
+<li><code>ProductionLine</code> (optional)</li>
+</ul>
+<p><strong>From Operation 10</strong> (<code>ShopOrd(...)/ShopOrdOperationArray</code>):</p>
+<ul>
+<li><code>OperationBlockId</code> (Block ID for OP10)</li>
+</ul>
+<p><strong>From Material Lines</strong> (<code>ShopOrd(...)/MaterialArray</code>):</p>
+<ul>
+<li><code>RawMaterial</code> (Part code, filtered by OperationNo = 10)</li>
+</ul>
+<p><strong>From Master Part</strong> (<code>PartCatalogHandling.svc/.../TechnicalSpecBothArray</code>):</p>
+<ul>
+<li><code>GENERIC CODE</code> (ValueText) → Mandatory (PP_E004 if missing)</li>
+<li><code>LENGTH SETUP</code> (ValueNo) → Mandatory (PP_E005 if missing)</li>
+<li><code>VARNISH CODE</code> (ValueText) → Optional (PP_W004 if missing, uses &quot;N/A&quot;)</li>
+<li><code>EngineeringPartRev</code> (latest active revision)</li>
+</ul>
+<p><strong>From Range Service</strong> (site-specific time ranges):</p>
+<ul>
+<li><code>RangeId</code> format: &quot;DDD X&quot; (e.g., &quot;274 A&quot;)</li>
+<li>DDD = day of year</li>
+<li>X = letter based on time ranges (A/B/C/R from site configuration)</li>
+</ul>
+<p><strong>Generated</strong>:</p>
+<ul>
+<li><code>Barcode</code> (CODE128): <code>{GenericCode}_{Revision}</code> (e.g., &quot;1000014690_Rev_02&quot;)</li>
+</ul>
+<h3>3.3 PDF Generation Logic</h3>
+<p><strong>Format</strong>: A4 Landscape (297mm x 210mm)</p>
+<p><strong>Grouping</strong>:</p>
+<ol>
+<li>Group labels by <code>(RawMaterial, VarnishCode)</code> pair</li>
+<li>Create 1 page per group</li>
+<li>Sort labels within each group by <code>LengthSetup</code> descending</li>
+</ol>
+<p><strong>Columns</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Range</th>
+<th>Varnish</th>
+<th>Raw Material</th>
+<th>Shop Order</th>
+<th>Generic Code</th>
+<th>Length</th>
+<th>Barcode</th>
+<th>OP10 Block ID</th>
+</tr>
+</thead>
+</table>
+<p><strong>Pagination</strong>:</p>
+<ul>
+<li>Insert page break when max lines reached</li>
+<li>Repeat header on each page</li>
+<li>Footer with page number</li>
+</ul>
+<hr>
+<h2>4. Print Modes &amp; Azure Integration</h2>
+<h3>4.1 Azure Print API Architecture</h3>
+<p>The <strong>Labels Only</strong> and <strong>Listing + Labels</strong> modes use the Azure Print API to send print jobs directly to IFS printers.</p>
+<p><strong>Azure Print API Details</strong>:</p>
+<ul>
+<li><strong>Endpoint</strong>: <code>https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Print</code></li>
+<li><strong>Authentication</strong>: OAuth2 Client Credentials (Azure AD)</li>
+<li><strong>Token Caching</strong>: 55 minutes (token valid 60 min)</li>
+<li><strong>Timeout</strong>: 120 seconds (IFS generates labels)</li>
+<li><strong>Retry Logic</strong>: 3 attempts with exponential backoff</li>
+<li><strong>Format</strong>: JSON payload with <code>Selection</code> string</li>
+</ul>
+<p><strong>OAuth2 Configuration</strong>:</p>
+<pre><code class="language-bash">AZURE_PRINT_CLIENT_ID=1ed5fa70-9e6c-4bda-9540-32bd72c4b590
+AZURE_PRINT_CLIENT_SECRET=&lt;secret&gt;
+AZURE_PRINT_TENANT_ID=&lt;tenant_id&gt;
+AZURE_PRINT_SCOPE=https://management.azure.com/.default
+</code></pre>
+<p><strong>API Request Payload</strong>:</p>
+<pre><code class="language-json">{
+  &quot;Printer&quot;: &quot;PRTBX105_P&quot;,
+  &quot;PrintModel&quot;: &quot;BEN_MA_FO_CR_184.rdl&quot;,
+  &quot;Selection&quot;: &quot;ORDER_NO=495642^RELEASE_NO=*^SEQUENCE_NO=*^;&quot;
+}
+</code></pre>
+<p><strong>Selection String Format</strong>:</p>
+<ul>
+<li>Multiple shop orders separated by semicolons</li>
+<li>Wildcards <code>*</code> for ReleaseNo and SequenceNo (print all)</li>
+<li>Example: <code>&quot;ORDER_NO=495642^RELEASE_NO=*^SEQUENCE_NO=*^;ORDER_NO=495643^RELEASE_NO=*^SEQUENCE_NO=*^;&quot;</code></li>
+</ul>
+<h3>4.2 Print Mode Workflows</h3>
+<h4>Mode 1: Listing Only 📄</h4>
+<pre><code>1. User selects &quot;Listing Only&quot;
+2. Fills: Site + Date (no printer required)
+3. Clicks BLUE button &quot;DOWNLOAD PDF&quot;
+4. System:
+   → Filters shop orders
+   → Consolidates data (5+ endpoints per order)
+   → Generates PDF (A4 landscape, grouped)
+5. PDF opens in new tab (user can download/print locally)
+6. ✅ NO IFS print job sent
+</code></pre>
+<h4>Mode 2: Labels Only 🖨️</h4>
+<pre><code>1. User selects &quot;Labels Only&quot;
+2. Fills: Site + Date + Printer (mandatory)
+3. Clicks GREEN button &quot;PRINT TO IFS&quot;
+4. System:
+   → Filters shop orders
+   → Generates Selection string
+   → Calls Azure Print API (OAuth2)
+   → Sends job to IFS printer
+5. Confirmation: &quot;X labels printed to {printer}&quot;
+6. ✅ NO PDF generated
+</code></pre>
+<h4>Mode 3: Listing + Labels 🎯</h4>
+<pre><code>1. User selects &quot;Listing + Labels&quot;
+2. Fills: Site + Date + Printer (mandatory)
+3. Clicks PURPLE button &quot;PRINT &amp; DOWNLOAD&quot;
+4. System:
+   → Filters shop orders
+   → Consolidates data
+   → Generates PDF (parallel)
+   → Calls Azure Print API (parallel)
+5. Results:
+   → PDF opens in new tab
+   → Confirmation: &quot;X labels printed to {printer}&quot;
+6. ✅ Both PDF and IFS print job
+</code></pre>
+<h3>4.3 Azure Print Service Features</h3>
+<p><strong>Token Caching</strong>:</p>
+<ul>
+<li>Tokens cached for 55 minutes (5 min safety margin)</li>
+<li>Automatic renewal on expiration</li>
+<li>Reduces OAuth2 calls</li>
+</ul>
+<p><strong>Retry Logic</strong>:</p>
+<ul>
+<li>3 attempts with exponential backoff (1s, 2s, 4s)</li>
+<li>Handles transient network errors</li>
+<li>Logs each retry attempt</li>
+</ul>
+<p><strong>Error Handling</strong>:</p>
+<ul>
+<li><strong>PP_E006</strong> (BLOCKING): &quot;Azure Print API failed&quot; if all retries fail</li>
+<li>Detailed error message with context (printer, shop order count)</li>
+<li>Logged to Error Service for tracking</li>
+</ul>
+<hr>
+<h2>5. Error Handling System</h2>
+<h3>5.1 Error Classification</h3>
+<p>Part Printer uses a centralized error system with <strong>error codes</strong> and <strong>severity levels</strong>:</p>
+<p><strong>Error Code Format</strong>: <code>PP_[E|W][XXX]</code></p>
+<ul>
+<li><code>E</code> = Error (blocking)</li>
+<li><code>W</code> = Warning (continue)</li>
+<li><code>XXX</code> = Sequential number</li>
+</ul>
+<p><strong>Severity Levels</strong>:</p>
+<ul>
+<li>🛑 <strong>BLOCKING</strong>: Stops processing, user must fix the issue</li>
+<li>⚠️ <strong>WARNING</strong>: Continues with degraded functionality or default values</li>
+<li>ℹ️ <strong>INFO</strong>: Informational message, no impact</li>
+</ul>
+<h3>5.2 Blocking Errors (PP_E001 - PP_E006)</h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Trigger</th>
+<th>Message</th>
+<th>User Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>PP_E001</strong></td>
+<td>No sites retrieved from IFS</td>
+<td>&quot;No Site data could be retrieved&quot;</td>
+<td>Contact support</td>
+</tr>
+<tr>
+<td><strong>PP_E002</strong></td>
+<td>No shop orders match filters</td>
+<td>&quot;No Shop Orders found&quot;</td>
+<td>Adjust filters</td>
+</tr>
+<tr>
+<td><strong>PP_E003</strong></td>
+<td>Raw Material not found (OP10)</td>
+<td>&quot;Missing Raw Material data for order {orderNo}&quot;</td>
+<td>Check IFS data</td>
+</tr>
+<tr>
+<td><strong>PP_E004</strong></td>
+<td>Generic Code attribute missing</td>
+<td>&quot;Missing Generic Code (mandatory attribute)&quot;</td>
+<td>Configure in IFS</td>
+</tr>
+<tr>
+<td><strong>PP_E005</strong></td>
+<td>Length Setup attribute missing</td>
+<td>&quot;Missing Length Setup (mandatory attribute)&quot;</td>
+<td>Configure in IFS</td>
+</tr>
+<tr>
+<td><strong>PP_E006</strong></td>
+<td>Azure Print API call failed</td>
+<td>&quot;Azure Print API failed: {error}&quot;</td>
+<td>Retry or contact IT</td>
+</tr>
+</tbody></table>
+<p><strong>Blocking Behavior</strong>:</p>
+<ul>
+<li><strong>Stops processing immediately</strong></li>
+<li>Displays error dialog with code and message</li>
+<li>Logs error with stack trace</li>
+<li>User must fix the issue before proceeding</li>
+</ul>
+<h3>5.3 Warning Errors (PP_W001 - PP_W004)</h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Trigger</th>
+<th>Message</th>
+<th>Degraded Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>PP_W001</strong></td>
+<td>No ranges for site</td>
+<td>&quot;No Range data available for this site&quot;</td>
+<td>Uses &quot;N/A&quot; for Range ID</td>
+</tr>
+<tr>
+<td><strong>PP_W002</strong></td>
+<td>No production lines</td>
+<td>&quot;No Production Line data could be retrieved&quot;</td>
+<td>Production line filter disabled</td>
+</tr>
+<tr>
+<td><strong>PP_W003</strong></td>
+<td>No logical printers</td>
+<td>&quot;No logical printers could be retrieved&quot;</td>
+<td>Forces <strong>Listing Only</strong> mode</td>
+</tr>
+<tr>
+<td><strong>PP_W004</strong></td>
+<td>Varnish Code missing</td>
+<td>&quot;No Varnish Code found for part&quot;</td>
+<td>Uses &quot;N/A&quot; as default</td>
+</tr>
+</tbody></table>
+<p><strong>Warning Behavior</strong>:</p>
+<ul>
+<li><strong>Continues processing with degradation</strong></li>
+<li>Displays warning toast/banner</li>
+<li>Logs warning with details</li>
+<li>Uses default values where applicable</li>
+</ul>
+<h3>5.4 Error Service Architecture</h3>
+<p><strong>Error Service</strong> (<code>error-service.ts</code>):</p>
+<ul>
+<li>Centralized error handling</li>
+<li>Error history tracking (last 100 errors)</li>
+<li>Logging with severity-based formatting</li>
+<li>Stop/continue decision logic</li>
+</ul>
+<p><strong>Error Type</strong> (<code>error.ts</code>):</p>
+<pre><code class="language-typescript">interface PartPrinterError {
+  code: ErrorCode           // PP_E001, PP_W002, etc.
+  severity: ErrorSeverity   // BLOCKING, WARNING, INFO
+  message: string           // User-friendly message
+  details?: Record&lt;string, any&gt;  // Context (orderNo, filters, etc.)
+  action: ErrorAction       // STOP, CONTINUE, DEFAULT
+  timestamp?: Date
+  stack?: string            // Stack trace (debug)
+}
+</code></pre>
+<p><strong>Usage Example</strong>:</p>
+<pre><code class="language-typescript">// Create blocking error
+const error = errorService.createError(
+  ErrorCode.NO_GENERIC_CODE,
+  { partNo: &quot;AN29-13-00&quot;, orderNo: &quot;495642&quot; }
+)
+
+// Handle error (logs + decides to stop)
+const shouldStop = errorService.handleError(error)
+
+if (shouldStop) {
+  // Display error dialog + stop processing
+}
+</code></pre>
+<h3>5.5 Error Display (UI)</h3>
+<p><strong>Blocking Errors</strong>:</p>
+<ul>
+<li>🔴 <strong>Error Dialog</strong>: Modal with error code, message, and details</li>
+<li>❌ <strong>Red banner</strong>: At top of page until dismissed</li>
+<li><strong>No results</strong>: Processing stops, no PDF/labels generated</li>
+</ul>
+<p><strong>Warning Errors</strong>:</p>
+<ul>
+<li>🟡 <strong>Warning Toast</strong>: Auto-dismiss after 5 seconds (top-right corner)</li>
+<li>⚠️ <strong>Yellow banner</strong>: Persistent until user acknowledges</li>
+<li><strong>Degraded mode</strong>: Feature disabled or default value used</li>
+</ul>
+<p><strong>Error History</strong>:</p>
+<ul>
+<li>Accessible via &quot;Error Log&quot; button (dev mode)</li>
+<li>Shows last 100 errors with timestamps</li>
+<li>Filterable by severity</li>
+<li>Exportable to JSON</li>
+</ul>
+<hr>
+<h2>6. Technical Specifications</h2>
+<h3>6.1 IFS APIs Used</h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Endpoint</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Sites</strong></td>
+<td><code>CompanySiteHandling.svc/CompanySiteSet</code></td>
+<td>List of contracts (BDR, FR017, etc.)</td>
+</tr>
+<tr>
+<td><strong>Production Lines</strong></td>
+<td><code>ProductionLineHandling.svc/ProductionLineSet</code></td>
+<td>Filter by site</td>
+</tr>
+<tr>
+<td><strong>Shop Orders</strong></td>
+<td><code>ShopOrderHandling.svc/ShopOrds</code></td>
+<td>Filter by site, date, line, block date</td>
+</tr>
+<tr>
+<td><strong>Operations</strong></td>
+<td><code>ShopOrd(...)/ShopOrdOperationArray</code></td>
+<td>Get Block ID for OP10</td>
+</tr>
+<tr>
+<td><strong>Material Lines</strong></td>
+<td><code>ShopOrd(...)/MaterialArray</code></td>
+<td>Get Raw Material (OP10)</td>
+</tr>
+<tr>
+<td><strong>Master Part</strong></td>
+<td><code>PartCatalogHandling.svc/.../TechnicalSpecBothArray</code></td>
+<td>Get technical attributes (50+ per part)</td>
+</tr>
+<tr>
+<td><strong>Ranges</strong></td>
+<td><code>CompanySite(...)/SiteMfgstdRangeArray</code></td>
+<td>Time-based ranges per site</td>
+</tr>
+<tr>
+<td><strong>Printers</strong></td>
+<td><code>PrintDialogHandling.svc/LogicalPrinters</code></td>
+<td>List of IFS logical printers</td>
+</tr>
+</tbody></table>
+<h3>6.2 Technology Stack</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Technology</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Framework</strong></td>
+<td>Next.js</td>
+<td>15.2.1</td>
+</tr>
+<tr>
+<td><strong>Language</strong></td>
+<td>TypeScript</td>
+<td>5.8.2</td>
+</tr>
+<tr>
+<td><strong>UI</strong></td>
+<td>shadcn/ui + Tailwind CSS</td>
+<td>4.1.7</td>
+</tr>
+<tr>
+<td><strong>PDF Generation</strong></td>
+<td>jsPDF</td>
+<td>Latest</td>
+</tr>
+<tr>
+<td><strong>Barcode</strong></td>
+<td>JsBarcode</td>
+<td>Latest</td>
+</tr>
+<tr>
+<td><strong>HTTP Client</strong></td>
+<td>Axios</td>
+<td>1.13.1</td>
+</tr>
+<tr>
+<td><strong>IFS Integration</strong></td>
+<td>OData + OAuth2</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h3>6.3 Performance Considerations</h3>
+<p><strong>Parallel Processing</strong>:</p>
+<ul>
+<li>Shop orders filtered once (batch)</li>
+<li>Data extraction per order (sequential to avoid IFS overload)</li>
+<li>PDF generation and Azure Print API can run in parallel (Listing + Labels mode)</li>
+</ul>
+<p><strong>Caching</strong>:</p>
+<ul>
+<li><strong>OAuth2 tokens</strong>: 55 min cache (Azure Print API)</li>
+<li><strong>IFS tokens</strong>: 55 min cache (IFS OData API)</li>
+<li><strong>Sites/Printers</strong>: Client-side cache (session)</li>
+</ul>
+<p><strong>Timeouts</strong>:</p>
+<ul>
+<li><strong>Shop Order filter</strong>: 30 seconds</li>
+<li><strong>Data extraction</strong>: 10 seconds per endpoint</li>
+<li><strong>PDF generation</strong>: 60 seconds</li>
+<li><strong>Azure Print API</strong>: 120 seconds (IFS label generation time)</li>
+</ul>
+<hr>
+<h2>7. Deployment &amp; Configuration</h2>
+<h3>7.1 Environment Variables</h3>
+<pre><code class="language-bash"># IFS Cloud OAuth2
+IFS_BASE_URL=https://beneteau-group-ast.ifs.cloud/main/ifsapplications/projection/v1
+IFS_CLIENT_ID=AIS_IFS_MA_AST
+IFS_CLIENT_SECRET=&lt;secret&gt;
+IFS_TOKEN_URL=https://beneteau-group-ast.ifs.cloud/auth/realms/beneast1/protocol/openid-connect/token
+
+# Azure Print API OAuth2
+AZURE_PRINT_CLIENT_ID=1ed5fa70-9e6c-4bda-9540-32bd72c4b590
+AZURE_PRINT_CLIENT_SECRET=&lt;secret&gt;
+AZURE_PRINT_TENANT_ID=&lt;tenant_id&gt;
+AZURE_PRINT_SCOPE=https://management.azure.com/.default
+
+# Azure Print API Endpoint
+AZURE_PRINT_API_URL=https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Print
+AZURE_PRINT_SUBSCRIPTION_KEY=c5dcb4c8fdf34250b33a5988b269fb8d;product=erpboat
+</code></pre>
+<h3>7.2 Access Control</h3>
+<p><strong>User Groups</strong> (managed in Manufacturing Portal):</p>
+<ul>
+<li>GAP Leaders</li>
+<li>Supervisors</li>
+<li>Administrators (IT)</li>
+</ul>
+<p><strong>Permissions</strong>:</p>
+<ul>
+<li>View: Access Part Printer interface</li>
+<li>Execute: Generate listings and print labels</li>
+<li>Admin: View error logs and system diagnostics</li>
+</ul>
+<p><strong>Authentication</strong>: Azure AD SSO (if enabled for portal)</p>
+<hr>
+<h2>Conclusion</h2>
+<p><strong>Part Printer</strong> is a complex data orchestration tool that consolidates information from 5+ IFS Cloud endpoints to generate production labels and listings. Key achievements:</p>
+<p>✅ <strong>Automated workflow</strong>: Replaces manual IFS navigation<br>✅ <strong>3 print modes</strong>: Flexibility for different use cases<br>✅ <strong>Robust error handling</strong>: Clear distinction between blocking errors and warnings<br>✅ <strong>Azure integration</strong>: Direct printing to IFS printers via cloud API<br>✅ <strong>PDF generation</strong>: Professional A4 landscape documents with grouping/sorting</p>
+<p><strong>Next Steps</strong>:</p>
+<ul>
+<li>User acceptance testing (UAT) at BDR site</li>
+<li>Performance testing with 100+ shop orders</li>
+<li>Integration with Dataprivilège for permission management</li>
+<li>Deployment to production (November 2025)</li>
+</ul>
+<hr>
+<p><strong>Developer</strong>: Romain BOTTERO - Application Developer<br><strong>Specification</strong>: Marc TOCQUARD - IT Project Manager<br><strong>Last Update</strong>: October 30, 2025<br><strong>Version</strong>: 2.0</p>
+
+</body>
+</html>

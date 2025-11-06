@@ -8,7 +8,7 @@ const https = require('https');
 const fs = require('fs');
 
 const IFS_BASE_URL = 'beneteau-group-ast.ifs.cloud';
-const IFS_CLIENT_ID = process.env.IFS_CLIENT_ID || 'AIS_IFS_MA_AST';
+const IFS_CLIENT_ID = process.env.IFS_CLIENT_ID || '***REMOVED***';
 const IFS_CLIENT_SECRET = process.env.IFS_CLIENT_SECRET;
 
 const RESULT_KEY = 558555; // ResultKey du dernier test

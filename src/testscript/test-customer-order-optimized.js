@@ -9,8 +9,8 @@ const https = require('https');
 
 // Configuration IFS
 const IFS_BASE_URL = 'beneteau-group-ast.ifs.cloud';
-const IFS_CLIENT_ID = 'AIS_IFS_MA_AST';
-const IFS_CLIENT_SECRET = 'ifiW7xzKNmj3a1fpEukFIImPFztb51R9';
+const IFS_CLIENT_ID = process.env.IFS_CLIENT_ID || '';
+const IFS_CLIENT_SECRET = process.env.IFS_CLIENT_SECRET || '';
 const IFS_TOKEN_URL = '/auth/realms/beneast1/protocol/openid-connect/token';
 
 // Données de test (depuis Shop Order 97277)

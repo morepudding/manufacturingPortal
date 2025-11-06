@@ -106,14 +106,14 @@ L'intégration de l'**Azure Print API** dans le **Part Printer** est complète e
 
 ```bash
 # Azure Print API - OAuth2
-AZURE_PRINT_CLIENT_ID=1ed5fa70-9e6c-4bda-9540-32bd72c4b590
+AZURE_PRINT_CLIENT_ID=***REMOVED***
 AZURE_PRINT_CLIENT_SECRET=your_secret_here
 AZURE_PRINT_TENANT_ID=your_tenant_id_here
 AZURE_PRINT_SCOPE=https://management.azure.com/.default
 
 # Azure Print API - Endpoint
 AZURE_PRINT_API_URL=https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Print
-AZURE_PRINT_SUBSCRIPTION_KEY=c5dcb4c8fdf34250b33a5988b269fb8d;product=erpboat
+AZURE_PRINT_SUBSCRIPTION_KEY=***REMOVED***;product=erpboat
 ```
 
 ⚠️ **IMPORTANT**: Mettre à jour `AZURE_PRINT_CLIENT_SECRET` et `AZURE_PRINT_TENANT_ID` avec les valeurs réelles.

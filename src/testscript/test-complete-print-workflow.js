@@ -12,7 +12,7 @@
 const https = require('https');
 
 const IFS_BASE_URL = 'beneteau-group-ast.ifs.cloud';
-const IFS_CLIENT_ID = process.env.IFS_CLIENT_ID || 'AIS_IFS_MA_AST';
+const IFS_CLIENT_ID = process.env.IFS_CLIENT_ID || '***REMOVED***';
 const IFS_CLIENT_SECRET = process.env.IFS_CLIENT_SECRET;
 
 // Configuration du test

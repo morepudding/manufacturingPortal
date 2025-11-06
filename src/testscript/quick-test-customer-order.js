@@ -7,8 +7,8 @@ const https = require('https');
 const IFS_CONFIG = {
   hostname: 'beneteau-group-ast.ifs.cloud',
   realm: 'beneast1',
-  clientId: 'AIS_IFS_MA_AST',
-  clientSecret: 'ifiW7xzKNmj3a1fpEukFIImPFztb51R9'
+  clientId: '***REMOVED***',
+  clientSecret: '***REMOVED***'
 };
 
 function getAccessToken() {

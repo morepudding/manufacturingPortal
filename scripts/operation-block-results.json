@@ -1,0 +1,2021 @@
+{
+  "timestamp": "2025-10-17T12:54:36.633Z",
+  "summary": {
+    "totalOperations": 100,
+    "uniqueShopOrders": 100,
+    "uniqueBlockIds": 2,
+    "sitesWithBlocks": 1
+  },
+  "shopOrders": [
+    {
+      "shopOrderKey": "99931-*-*",
+      "orderNo": "99931",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000000842345G124",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CL",
+          "blockId": "B92",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X09",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99929-*-*",
+      "orderNo": "99929",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000000842340G124",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CL",
+          "blockId": "B92",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X09",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99747-*-*",
+      "orderNo": "99747",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001687600A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99604-*-*",
+      "orderNo": "99604",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001225617P022D065",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99602-*-*",
+      "orderNo": "99602",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001225688A029D023",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99595-*-*",
+      "orderNo": "99595",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001183966A029D023",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99593-*-*",
+      "orderNo": "99593",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001183952A029D023",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99592-*-*",
+      "orderNo": "99592",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001183953A029D023",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99591-*-*",
+      "orderNo": "99591",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001384678A029D023",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99500-*-*",
+      "orderNo": "99500",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000000963099B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99493-*-*",
+      "orderNo": "99493",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737573A019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99492-*-*",
+      "orderNo": "99492",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737572A019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99491-*-*",
+      "orderNo": "99491",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737554B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99490-*-*",
+      "orderNo": "99490",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737525P022D056",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99489-*-*",
+      "orderNo": "99489",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731467B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99488-*-*",
+      "orderNo": "99488",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731467B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99487-*-*",
+      "orderNo": "99487",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731464B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99486-*-*",
+      "orderNo": "99486",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731463B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99485-*-*",
+      "orderNo": "99485",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731457B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99484-*-*",
+      "orderNo": "99484",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731456B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99483-*-*",
+      "orderNo": "99483",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731456B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99482-*-*",
+      "orderNo": "99482",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731455B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99481-*-*",
+      "orderNo": "99481",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731453B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99480-*-*",
+      "orderNo": "99480",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737168A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99479-*-*",
+      "orderNo": "99479",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737147A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99478-*-*",
+      "orderNo": "99478",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737115P022D056",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99477-*-*",
+      "orderNo": "99477",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737114P022D056",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99476-*-*",
+      "orderNo": "99476",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737088P022D056",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99475-*-*",
+      "orderNo": "99475",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737011P022D056",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99474-*-*",
+      "orderNo": "99474",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737010P022D056",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99473-*-*",
+      "orderNo": "99473",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001737009P022D056",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99472-*-*",
+      "orderNo": "99472",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730608A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99471-*-*",
+      "orderNo": "99471",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730607A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99470-*-*",
+      "orderNo": "99470",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730605A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99469-*-*",
+      "orderNo": "99469",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730604A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99468-*-*",
+      "orderNo": "99468",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730601A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99467-*-*",
+      "orderNo": "99467",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730600A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99466-*-*",
+      "orderNo": "99466",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730599A018D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99465-*-*",
+      "orderNo": "99465",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730597B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99464-*-*",
+      "orderNo": "99464",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730596B053D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99463-*-*",
+      "orderNo": "99463",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730595A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99462-*-*",
+      "orderNo": "99462",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001747959A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99461-*-*",
+      "orderNo": "99461",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001747959A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99460-*-*",
+      "orderNo": "99460",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730939B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99459-*-*",
+      "orderNo": "99459",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730932B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99458-*-*",
+      "orderNo": "99458",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730636A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99457-*-*",
+      "orderNo": "99457",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730635A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99456-*-*",
+      "orderNo": "99456",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730633B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99455-*-*",
+      "orderNo": "99455",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730632B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99454-*-*",
+      "orderNo": "99454",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730631A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99453-*-*",
+      "orderNo": "99453",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730630A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99452-*-*",
+      "orderNo": "99452",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730627A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99451-*-*",
+      "orderNo": "99451",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730623B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99450-*-*",
+      "orderNo": "99450",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730622B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99449-*-*",
+      "orderNo": "99449",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730621A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99448-*-*",
+      "orderNo": "99448",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730620B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99447-*-*",
+      "orderNo": "99447",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730619A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99446-*-*",
+      "orderNo": "99446",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730618B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99445-*-*",
+      "orderNo": "99445",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730617B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99444-*-*",
+      "orderNo": "99444",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730616B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99443-*-*",
+      "orderNo": "99443",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730615A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99442-*-*",
+      "orderNo": "99442",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730614B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99441-*-*",
+      "orderNo": "99441",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730612B053D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99440-*-*",
+      "orderNo": "99440",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730609A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99439-*-*",
+      "orderNo": "99439",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731751B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99438-*-*",
+      "orderNo": "99438",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731747B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99437-*-*",
+      "orderNo": "99437",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731476B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99436-*-*",
+      "orderNo": "99436",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731475B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99435-*-*",
+      "orderNo": "99435",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731475B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99434-*-*",
+      "orderNo": "99434",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731474B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99433-*-*",
+      "orderNo": "99433",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731473B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99432-*-*",
+      "orderNo": "99432",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731472B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99431-*-*",
+      "orderNo": "99431",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731472B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99430-*-*",
+      "orderNo": "99430",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731472B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99429-*-*",
+      "orderNo": "99429",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731472B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99428-*-*",
+      "orderNo": "99428",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731470B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99427-*-*",
+      "orderNo": "99427",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731469B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99426-*-*",
+      "orderNo": "99426",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731468B052D078",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99425-*-*",
+      "orderNo": "99425",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731447B052",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99424-*-*",
+      "orderNo": "99424",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731279B053D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99423-*-*",
+      "orderNo": "99423",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731255B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99422-*-*",
+      "orderNo": "99422",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731219A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99421-*-*",
+      "orderNo": "99421",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731215A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99420-*-*",
+      "orderNo": "99420",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731208A010",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99419-*-*",
+      "orderNo": "99419",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731190A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99418-*-*",
+      "orderNo": "99418",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731178A010D019",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99417-*-*",
+      "orderNo": "99417",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731115B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99416-*-*",
+      "orderNo": "99416",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731096B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99415-*-*",
+      "orderNo": "99415",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731086B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99414-*-*",
+      "orderNo": "99414",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731036B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99413-*-*",
+      "orderNo": "99413",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001731024B053D075",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99412-*-*",
+      "orderNo": "99412",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001730973B053D076",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99411-*-*",
+      "orderNo": "99411",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733326B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99410-*-*",
+      "orderNo": "99410",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733322A018",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99409-*-*",
+      "orderNo": "99409",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733321G123",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CL",
+          "blockId": "B92",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X09",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99408-*-*",
+      "orderNo": "99408",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733321G123",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CL",
+          "blockId": "B92",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X09",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99407-*-*",
+      "orderNo": "99407",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733319G123",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CL",
+          "blockId": "B92",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X09",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99406-*-*",
+      "orderNo": "99406",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733318B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99405-*-*",
+      "orderNo": "99405",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733317G123",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CL",
+          "blockId": "B92",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X09",
+          "remainingQty": 0
+        }
+      ]
+    },
+    {
+      "shopOrderKey": "99404-*-*",
+      "orderNo": "99404",
+      "releaseNo": "*",
+      "sequenceNo": "*",
+      "contract": "FR017",
+      "partNo": "C000001733313B053",
+      "operationsCount": 1,
+      "operations": [
+        {
+          "operationNo": 10,
+          "description": "CN",
+          "blockId": "B89",
+          "blockState": "Closed",
+          "status": "Closed",
+          "workCenter": "W4X01",
+          "remainingQty": 0
+        }
+      ]
+    }
+  ],
+  "blockIds": [
+    {
+      "blockId": "B92",
+      "usageCount": 6
+    },
+    {
+      "blockId": "B89",
+      "usageCount": 94
+    }
+  ]
+}

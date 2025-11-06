@@ -11,7 +11,7 @@ Aller sur GitHub : **Settings** → **Secrets and variables** → **Actions** �
 | Secret | Valeur | Description |
 |--------|--------|-------------|
 | `IFS_BASE_URL` | `https://beneteau-group-ast.ifs.cloud/main/ifsapplications/projection/v1` | Base URL IFS Cloud |
-| `IFS_CLIENT_ID` | `AIS_IFS_MA_AST` | Client ID IFS (non sensible) |
+| `IFS_CLIENT_ID` | `***REMOVED***` | Client ID IFS (non sensible) |
 
 ### Secrets optionnels (pour tests complets)
 
@@ -34,7 +34,7 @@ gh auth login
 
 # Ajouter les secrets
 gh secret set IFS_BASE_URL --body "https://beneteau-group-ast.ifs.cloud/main/ifsapplications/projection/v1"
-gh secret set IFS_CLIENT_ID --body "AIS_IFS_MA_AST"
+gh secret set IFS_CLIENT_ID --body "***REMOVED***"
 gh secret set IFS_CLIENT_SECRET --body "your_secret_here"
 # etc...
 ```

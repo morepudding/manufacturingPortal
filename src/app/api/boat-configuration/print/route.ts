@@ -119,13 +119,13 @@ export async function POST(request: NextRequest) {
       'PrintDialog.svc/ReportPrintRequest',
       {
         ResultKey: dialogResponse.ResultKey,
-        LayoutName: layoutName, // ✅ Utiliser le layout spécifié (BEN_Boat_configuration_for_production.rdl)
+        LayoutName: layoutName,
         LanguageCode: body.languageCode,
         LogicalPrinter: body.printerId,
         Copies: body.copies || 1
       }
     )
-    console.log(`✅ Impression envoyée à ${body.printerId}`)
+    console.log(`✅ Impression envoyée à ${body.printerId} avec layout : ${layoutName}`)
 
     // ===== ÉTAPE 5 (Optionnelle) : Télécharger le PDF =====
     if (body.downloadPdf) {

@@ -13,13 +13,13 @@ Cette API permet d'envoyer des jobs d'impression à des imprimantes IFS via Azur
 
 ```json
 {
-  "Client:ClientId": "1ed5fa70-9e6c-4bda-9540-32bd72c4b590",
-  "Client:ClientSecret": "GHrMn1da38vhMUEhoLOxTb+w5m31xG+ibAkJkfnAyMQ=",
+  "Client:ClientId": "***REMOVED***",
+  "Client:ClientSecret": "***REMOVED***",
   "OAuthURL": "https://login.microsoftonline.com/beneteaugroup.onmicrosoft.com/oauth2/v2.0/token",
   "RequestURL": "https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Print",
   "OAuthScope": "api://api.erpboat.dev/.default",
   "GrantType": "client_credentials",
-  "Ocpm": "c5dcb4c8fdf34250b33a5988b269fb8d;product=erpboat"
+  "Ocpm": "***REMOVED***;product=erpboat"
 }
 ```
 
@@ -27,12 +27,12 @@ Cette API permet d'envoyer des jobs d'impression à des imprimantes IFS via Azur
 
 ```bash
 # Azure Print API (Bénéteau ERP Boat)
-AZURE_PRINT_CLIENT_ID=1ed5fa70-9e6c-4bda-9540-32bd72c4b590
-AZURE_PRINT_CLIENT_SECRET=GHrMn1da38vhMUEhoLOxTb+w5m31xG+ibAkJkfnAyMQ=
+AZURE_PRINT_CLIENT_ID=***REMOVED***
+AZURE_PRINT_CLIENT_SECRET=***REMOVED***
 AZURE_PRINT_OAUTH_URL=https://login.microsoftonline.com/beneteaugroup.onmicrosoft.com/oauth2/v2.0/token
 AZURE_PRINT_API_URL=https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Print
 AZURE_PRINT_OAUTH_SCOPE=api://api.erpboat.dev/.default
-AZURE_PRINT_SUBSCRIPTION_KEY=c5dcb4c8fdf34250b33a5988b269fb8d;product=erpboat
+AZURE_PRINT_SUBSCRIPTION_KEY=***REMOVED***;product=erpboat
 ```
 
 ---
@@ -50,8 +50,8 @@ Content-Type: application/x-www-form-urlencoded
 
 **Body** :
 ```
-client_id=1ed5fa70-9e6c-4bda-9540-32bd72c4b590
-client_secret=GHrMn1da38vhMUEhoLOxTb+w5m31xG+ibAkJkfnAyMQ=
+client_id=***REMOVED***
+client_secret=***REMOVED***
 scope=api://api.erpboat.dev/.default
 grant_type=client_credentials
 ```
@@ -84,7 +84,7 @@ POST https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Pr
 ```http
 Authorization: Bearer {access_token}
 Content-Type: application/json
-Ocp-Apim-Subscription-Key: c5dcb4c8fdf34250b33a5988b269fb8d;product=erpboat
+Ocp-Apim-Subscription-Key: ***REMOVED***;product=erpboat
 ```
 
 ⚠️ **IMPORTANT** : Le header `Ocp-Apim-Subscription-Key` est **obligatoire** pour Azure API Management.
@@ -171,8 +171,8 @@ const selection = [
 TOKEN=$(curl -s -X POST \
   "https://login.microsoftonline.com/beneteaugroup.onmicrosoft.com/oauth2/v2.0/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "client_id=1ed5fa70-9e6c-4bda-9540-32bd72c4b590" \
-  -d "client_secret=GHrMn1da38vhMUEhoLOxTb+w5m31xG+ibAkJkfnAyMQ=" \
+  -d "client_id=***REMOVED***" \
+  -d "client_secret=***REMOVED***" \
   -d "scope=api://api.erpboat.dev/.default" \
   -d "grant_type=client_credentials" \
   | jq -r '.access_token')
@@ -184,7 +184,7 @@ curl -X POST \
   "https://gbenapimgtaiscommondev.azure-api.net/manufacturing/print/execute/Print" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -H "Ocp-Apim-Subscription-Key: c5dcb4c8fdf34250b33a5988b269fb8d;product=erpboat" \
+  -H "Ocp-Apim-Subscription-Key: ***REMOVED***;product=erpboat" \
   -d '{
     "printerName": "PRTBX105_P",
     "documentName": "test.pdf",

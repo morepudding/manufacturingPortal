@@ -576,16 +576,18 @@ export async function getCustomerOrderLinesByPart(
  * - Une seule requête IFS (~500ms)
  * - Pas de dépendance au Shop Order
  * 
+ * 🚨 BOAT CONFIGURATION EDITOR : Cette fonction utilise EXCLUSIVEMENT le site FR05A
+ * 
  * @param hullNumber - Hull Number / Serial Number (ex: "LG5MA0114")
- * @param siteFilter - (optionnel) Filtrer par CustomerNo/Site (ex: "FR05A") - RECOMMANDÉ pour performance
+ * @param siteFilter - (optionnel) Filtrer par CustomerNo/Site - Par défaut: "FR05A" (MANDATORY pour Boat Config)
  * @returns Customer Order Info ou null si non trouvé
  * 
  * @example
  * ```typescript
- * // Recherche simple (peut être lent si beaucoup de résultats)
+ * // Boat Configuration Editor : Utilise automatiquement FR05A
  * const order = await getCustomerOrderByHullNumber('LG5MA0114')
  * 
- * // ⚡ OPTIMAL : Avec filtre site (beaucoup plus rapide)
+ * // ⚡ OPTIMAL : Avec filtre site explicite (beaucoup plus rapide)
  * const order = await getCustomerOrderByHullNumber('LG5MA0114', 'FR05A')
  * ```
  */
@@ -597,25 +599,30 @@ export async function getCustomerOrderByHullNumber(
     throw new Error('Hull Number is required')
   }
 
+  // 🚨 CRITIQUE : Boat Configuration Editor utilise EXCLUSIVEMENT FR05A
+  const BOAT_CONFIG_SITE = 'FR05A'
+  const activeSite = siteFilter || BOAT_CONFIG_SITE
+
+  // Validation : Boat Configuration n'accepte QUE FR05A
+  if (activeSite !== BOAT_CONFIG_SITE) {
+    throw new Error(
+      `Invalid site: ${activeSite}. Boat Configuration Editor must use site ${BOAT_CONFIG_SITE} exclusively.`
+    )
+  }
+
   const client = getIFSClient()
 
   try {
     console.log(`🔍 Searching Customer Order for Hull Number: ${hullNumber}`)
-    if (siteFilter) {
-      console.log(`   🎯 Site filter: CustomerNo = "${siteFilter}" (⚡ performance boost)`)
-    }
+    console.log(`   🏭 Site: ${activeSite} (MANDATORY for Boat Configuration)`)
 
     // Construire le filtre OData
-    let filter = `CHullNumber eq '${hullNumber.trim()}'`
-    
-    // ⚡ CRITIQUE : Ajouter le filtre site pour éviter les timeouts
-    if (siteFilter) {
-      filter += ` and CustomerNo eq '${siteFilter.trim()}'`
-    }
+    // 🚨 CRITIQUE : Filtrer sur CustomerNo ET Contract = FR05A
+    const filter = `CHullNumber eq '${hullNumber.trim()}' and CustomerNo eq '${activeSite}' and Contract eq '${activeSite}'`
     
     console.log(`📊 OData filter: ${filter}`)
 
-    // ÉTAPE 1 : Recherche CustomerOrderLine via CHullNumber + Site
+    // ÉTAPE 1 : Recherche CustomerOrderLine via CHullNumber + CustomerNo + Contract = FR05A
     const response = await client.get<IFSODataResponse<CustomerOrderLine>>(
       'CustomerOrderHandling.svc/CustomerOrderLineSet',
       {
@@ -626,14 +633,32 @@ export async function getCustomerOrderByHullNumber(
     )
 
     if (!response.value || response.value.length === 0) {
-      console.log('❌ No Customer Order found for this Hull Number')
+      console.log(`❌ No Customer Order found for Hull Number: ${hullNumber} (Site: ${activeSite})`)
+      console.log(`   💡 Vérifiez que le Hull Number existe dans IFS pour le site ${activeSite}`)
       return null
     }
 
     const line = response.value[0]
+    
+    // 🚨 VALIDATION : Vérifier que CustomerNo ET Contract sont bien FR05A
+    if (line.CustomerNo !== BOAT_CONFIG_SITE) {
+      console.log(`❌ Customer Order found but with wrong CustomerNo: ${line.CustomerNo} (expected: ${BOAT_CONFIG_SITE})`)
+      throw new Error(
+        `Customer Order CustomerNo mismatch: found ${line.CustomerNo}, expected ${BOAT_CONFIG_SITE}`
+      )
+    }
+    
+    if (line.Contract !== BOAT_CONFIG_SITE) {
+      console.log(`❌ Customer Order found but with wrong Contract: ${line.Contract} (expected: ${BOAT_CONFIG_SITE})`)
+      throw new Error(
+        `Customer Order Contract mismatch: found ${line.Contract}, expected ${BOAT_CONFIG_SITE}`
+      )
+    }
+    
     console.log(`✅ Customer Order Line found:`)
     console.log(`   📦 Order: ${line.OrderNo} - Line ${line.LineNo} - Rel ${line.RelNo}`)
-    console.log(`   🏭 Customer: ${line.CustomerNo}`)
+    console.log(`   🏭 CustomerNo: ${line.CustomerNo} (✅ Validated: ${BOAT_CONFIG_SITE})`)
+    console.log(`   🏭 Contract: ${line.Contract} (✅ Validated: ${BOAT_CONFIG_SITE})`)
     console.log(`   🎯 Part: ${line.PartNo}`)
 
     // ÉTAPE 2 : Récupérer Customer Order Header (nom client, dates, etc.)
@@ -672,10 +697,16 @@ export async function getCustomerOrderByHullNumber(
 
     console.log('✅ Customer Order retrieved successfully via Hull Number')
     console.log(`   ⚡ Method: Direct CHullNumber lookup (optimal)`)
+    console.log(`   🏭 Site: ${BOAT_CONFIG_SITE} (MANDATORY)`)
 
     return customerOrderInfo
   } catch (error) {
     console.error('❌ Error getting Customer Order by Hull Number:', error)
+    
+    // Si c'est une erreur de site invalide, la propager directement
+    if (error instanceof Error && error.message.includes('site')) {
+      throw error
+    }
     
     // Si c'est une erreur de timeout, proposer de réessayer
     if (error instanceof Error && error.message.includes('timeout')) {

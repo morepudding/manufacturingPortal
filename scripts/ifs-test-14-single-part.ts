@@ -3,8 +3,8 @@
  */
 
 const IFS_BASE_URL = 'https://beneteau-group-ast.ifs.cloud/main/ifsapplications/projection/v1';
-const IFS_CLIENT_ID = '***REMOVED***';
-const IFS_CLIENT_SECRET = '***REMOVED***';
+const IFS_CLIENT_ID = process.env.IFS_CLIENT_ID || '';
+const IFS_CLIENT_SECRET = process.env.IFS_CLIENT_SECRET || '';
 const IFS_TOKEN_URL = 'https://beneteau-group-ast.ifs.cloud/auth/realms/beneast1/protocol/openid-connect/token';
 
 async function getToken() {

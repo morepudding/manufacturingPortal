@@ -58,8 +58,8 @@ La **Phase 1** implémente le workflow complet de recherche d'un Shop Order et r
 ```typescript
 // Configuration validée
 IFS_BASE_URL=https://beneteau-group-ast.ifs.cloud/main/ifsapplications/projection/v1
-IFS_CLIENT_ID=***REMOVED***
-IFS_CLIENT_SECRET=***REMOVED***
+IFS_CLIENT_ID=your_ifs_client_id_here
+IFS_CLIENT_SECRET=your_ifs_client_secret_here
 IFS_TOKEN_URL=https://beneteau-group-ast.ifs.cloud/auth/realms/beneast1/protocol/openid-connect/token
 IFS_SCOPE=openid microprofile-jwt
 ```

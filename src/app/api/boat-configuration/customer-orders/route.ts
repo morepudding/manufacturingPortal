@@ -3,10 +3,14 @@
  * 
  * ⭐ STRATÉGIE OPTIMALE : Recherche directe par HullNumber
  * 
+ * 🚨 CRITIQUE : Boat Configuration Editor utilise EXCLUSIVEMENT le site FR05A
+ * Toute tentative d'utiliser un autre site sera rejetée avec une erreur 400.
+ * 
  * Workflow :
  * 1. INPUT: HullNumber (CHullNumber)
- * 2. Recherche directe dans CustomerOrderLineSet
- * 3. Récupération complète du Customer Order
+ * 2. Site: FR05A (FORCED - pas d'autre option)
+ * 3. Recherche directe dans CustomerOrderLineSet
+ * 4. Récupération complète du Customer Order
  * 
  * Modes supportés (legacy pour compatibilité) :
  * - Mode 1: Par HullNumber/SerialNumber (OPTIMAL, recommandé)
@@ -28,7 +32,10 @@ import {
  * 
  * Mode 1: Recherche par HullNumber (OPTIMAL, recommandé)
  * - hullNumber: Hull Number / Serial Number (ex: "LG5MA0114")
- * - site: (RECOMMANDÉ) Site/CustomerNo pour filtrer (ex: "FR05A") - Évite les timeouts ⚡
+ * - site: (IGNORED) Site est automatiquement forcé à "FR05A"
+ * 
+ * 🚨 CRITIQUE : Le site FR05A est OBLIGATOIRE pour Boat Configuration Editor
+ * Toute tentative d'utiliser un autre site sera rejetée avec erreur 400.
  * 
  * Mode 2: Recherche par OrderNo + LineNo (legacy, compatibilité)
  * - orderNo: Customer Order Number (ex: "C1000038587")
@@ -36,11 +43,12 @@ import {
  * - serialNumber: (optionnel) Serial Number pour validation
  * 
  * @example
- * // Mode 1: Par HullNumber (OPTIMAL)
+ * // Mode 1: Par HullNumber (OPTIMAL - Site FR05A automatique)
  * GET /api/boat-configuration/customer-orders?hullNumber=LG5MA0114
  * 
- * // Mode 1: Par HullNumber + Site (⚡ PLUS RAPIDE, évite timeouts)
- * GET /api/boat-configuration/customer-orders?hullNumber=LG5MA0114&site=FR05A
+ * // Mode 1: Par HullNumber + Site (site doit être FR05A sinon erreur 400)
+ * GET /api/boat-configuration/customer-orders?hullNumber=LG5MA0114&site=FR05A  ✅
+ * GET /api/boat-configuration/customer-orders?hullNumber=LG5MA0114&site=FR018 ❌ (erreur 400)
  * 
  * // Mode 2: Par OrderNo + LineNo (legacy)
  * GET /api/boat-configuration/customer-orders?orderNo=C1000038587&lineNo=1
@@ -63,13 +71,24 @@ export async function GET(request: NextRequest) {
     // ⭐ MODE 1 : Recherche directe par HullNumber (OPTIMAL)
     if (hullNumber && !orderNo && !lineNo) {
       console.log(`🔍 API: Fetching Customer Order by Hull Number: ${hullNumber} (OPTIMAL mode)`)
-      if (siteFilter) {
-        console.log(`   ⚡ Site filter: ${siteFilter} (performance boost)`)
-      } else {
-        console.log(`   ⚠️  No site filter - query may be slow. Recommend adding ?site=FR05A`)
+      
+      // 🚨 CRITIQUE : Boat Configuration Editor utilise EXCLUSIVEMENT FR05A
+      const BOAT_CONFIG_SITE = 'FR05A'
+      
+      if (siteFilter && siteFilter !== BOAT_CONFIG_SITE) {
+        console.log(`❌ Site ${siteFilter} rejected - Boat Configuration MUST use ${BOAT_CONFIG_SITE}`)
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Invalid site: ${siteFilter}. Boat Configuration Editor must use site ${BOAT_CONFIG_SITE} exclusively.`,
+          },
+          { status: 400 }
+        )
       }
+      
+      console.log(`   ⚡ Site: ${BOAT_CONFIG_SITE} (MANDATORY for Boat Configuration)`)
 
-      customerOrderInfo = await getCustomerOrderByHullNumber(hullNumber, siteFilter || undefined)
+      customerOrderInfo = await getCustomerOrderByHullNumber(hullNumber, BOAT_CONFIG_SITE)
       searchMode = 'hull-number-direct'
     }
     // 🔄 MODE 2 : Recherche par OrderNo + LineNo (Legacy, pour compatibilité)

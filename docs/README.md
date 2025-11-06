@@ -1,10 +1,29 @@
-# 📚 Manufacturing Portal - Documentation# 📚 Manufacturing Portal - Documentation
+# 📚 Manufacturing Portal - Documentation
 
+**Dernière mise à jour** : 6 novembre 2025  
+**Version** : 2.1
 
+Bienvenue dans la documentation du **Manufacturing Portal** Bénéteau, une suite d'outils Next.js pour la gestion de la production.
 
-**Dernière mise à jour** : 13 octobre 2025  Bienvenue dans la documentation du **Manufacturing Portal** Bénéteau, une suite d'outils Next.js pour la gestion de la production.
+---
 
-**Version** : 2.0
+## 🆕 NOUVEAU - Documentation Endpoints IFS (6 nov 2025)
+
+**📡 Pour Thomas - Validation des permissions IFS requise :**
+
+| Document | Description | À lire |
+|----------|-------------|--------|
+| [**IFS_ENDPOINTS_SUMMARY.md**](./IFS_ENDPOINTS_SUMMARY.md) | Résumé des 11 services IFS utilisés + permissions | ⭐ **START HERE** |
+| [**IFS_ENDPOINTS_HTTP_VERBS.md**](./IFS_ENDPOINTS_HTTP_VERBS.md) | Liste des 26 endpoints avec verbes HTTP (GET/POST) | 🔧 **Simple & Quick** |
+| [**IFS_ENDPOINTS_TABLE.md**](./IFS_ENDPOINTS_TABLE.md) | Tableau des 26 endpoints + checklist validation | 📋 Détails |
+| [**IFS_ENDPOINTS_USED.md**](./IFS_ENDPOINTS_USED.md) | Documentation technique complète (OData params) | 👨‍💻 Dev only |
+
+**Résumé rapide :**
+- ✅ 11 services IFS utilisés (26 endpoints)
+- ✅ 22 GET + 3 POST + 1 GET binary
+- ✅ Code nettoyé (3 fichiers obsolètes supprimés)
+- ✅ Aucun endpoint inutilisé
+- ⚠️ Validation permissions client `***REMOVED***` requise
 
 ---
 

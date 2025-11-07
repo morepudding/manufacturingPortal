@@ -42,7 +42,7 @@ export function PrintExecution({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderNo,
-          reportId: 'CUSTOMER_ORDER_CONF_REP',
+          reportId: 'PROFORMA_INVOICE_REP',
           printerId,
           languageCode,
           layoutName: 'BEN_Boat_configuration_for_production.rdl',
@@ -52,6 +52,25 @@ export function PrintExecution({
       
       if (!response.ok) {
         const errorData = await response.json()
+        
+        // Gestion spécifique pour Customer Order manquant (404)
+        if (response.status === 404) {
+          throw new Error(
+            `❌ Customer Order introuvable\n\n` +
+            `${errorData.details || 'Le Customer Order n\'existe pas dans IFS.'}\n\n` +
+            `💡 ${errorData.hint || 'Vérifiez que le Shop Order a bien un Customer Order associé dans IFS Cloud.'}`
+          )
+        }
+        
+        // Gestion pour Customer Order manquant (400 - UNKNOWN)
+        if (response.status === 400 && errorData.error?.includes('Customer Order manquant')) {
+          throw new Error(
+            `⚠️ Impossible d'imprimer\n\n` +
+            `${errorData.details}\n\n` +
+            `💡 ${errorData.hint}`
+          )
+        }
+        
         throw new Error(errorData.error || 'PDF generation failed')
       }
       
@@ -135,11 +154,13 @@ export function PrintExecution({
 
       {error && (
         <div className="bg-red-900/50 border border-red-700 text-red-200 rounded-md p-4">
-          <p className="font-semibold flex items-center gap-2">
+          <p className="font-semibold flex items-center gap-2 text-lg mb-3">
             <XCircle className="w-5 h-5" />
-            Erreur de génération PDF
+            Erreur d'impression
           </p>
-          <p className="mt-2">{error}</p>
+          <div className="text-sm whitespace-pre-line leading-relaxed">
+            {error}
+          </div>
         </div>
       )}
 

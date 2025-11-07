@@ -1,18 +1,21 @@
 /**
- * Client IFS Cloud OData API avec authentification OAuth2
+ * Client IFS Cloud OData API via Azure APIM avec authentification OAuth2
+ * 
+ * Architecture:
+ * - Application → OAuth2 Azure AD → Azure APIM → IFS Cloud
  * 
  * Fonctionnalités:
- * - Authentification OAuth2 (Client Credentials Flow)
+ * - Authentification OAuth2 Azure AD (Client Credentials Flow)
  * - Cache du token avec expiration automatique
- * - Requêtes GET vers l'API OData IFS
+ * - Requêtes GET/POST vers l'API OData IFS via APIM
  * - Gestion des erreurs
  * 
  * Variables d'environnement requises:
- * - IFS_CLIENT_ID
- * - IFS_CLIENT_SECRET
- * - IFS_TOKEN_URL
- * - IFS_BASE_URL
- * - IFS_SCOPE
+ * - IFS_CLIENT_ID (Azure AD Client ID)
+ * - IFS_CLIENT_SECRET (Azure AD Client Secret)
+ * - IFS_TOKEN_URL (Azure AD Token endpoint)
+ * - IFS_BASE_URL (Azure APIM base URL)
+ * - IFS_SCOPE (Azure AD scope: api://api.IFS.dev/.default)
  */
 
 import type { IFSClientConfig, IFSToken } from '@/shared/types/ifs'
@@ -44,9 +47,9 @@ class IFSClient {
       return this.token
     }
 
-    if (IS_DEBUG) console.log('🔑 Requesting new OAuth2 token from IFS...')
+    if (IS_DEBUG) console.log('🔑 Requesting new OAuth2 token from Azure AD...')
 
-    // Préparer les paramètres de la requête OAuth2
+    // Préparer les paramètres de la requête OAuth2 Azure AD
     const params = new URLSearchParams({
       grant_type: 'client_credentials',
       client_id: this.config.clientId,
@@ -66,7 +69,7 @@ class IFSClient {
 
       if (!response.ok) {
         const errorText = await response.text()
-        throw new Error(`OAuth2 token request failed: ${response.status} - ${errorText}`)
+        throw new Error(`Azure AD OAuth2 token request failed: ${response.status} - ${errorText}`)
       }
 
       const data: IFSToken = await response.json()
@@ -75,17 +78,17 @@ class IFSClient {
       this.token = data.access_token
       this.tokenExpiry = Date.now() + data.expires_in * 1000
 
-      if (IS_DEBUG) console.log(`✅ OAuth2 token obtained (expires in ${data.expires_in}s)`)
+      if (IS_DEBUG) console.log(`✅ Azure AD OAuth2 token obtained (expires in ${data.expires_in}s)`)
 
       return this.token
     } catch (error) {
-      console.error('❌ Failed to get OAuth2 token:', error)
-      throw new Error(`OAuth2 authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error('❌ Failed to get Azure AD OAuth2 token:', error)
+      throw new Error(`Azure AD OAuth2 authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
   /**
-   * Effectuer une requête GET vers l'API OData IFS
+   * Effectuer une requête GET vers l'API OData IFS via Azure APIM
    * 
    * @param endpoint - Endpoint relatif (ex: 'ShopOrderHandling.svc/ShopOrds')
    * @param params - Paramètres OData (ex: { $filter, $select, $top })
@@ -108,7 +111,7 @@ class IFSClient {
   }
 
   /**
-   * Effectuer une requête POST vers l'API OData IFS
+   * Effectuer une requête POST vers l'API OData IFS via Azure APIM
    * 
    * @param endpoint - Endpoint relatif (ex: 'PrintDialog.svc/PrintDialogInit')
    * @param body - Corps de la requête (sera converti en JSON)
@@ -182,7 +185,7 @@ class IFSClient {
       url = `${url}?${queryString}`
     }
 
-    if (IS_DEBUG) console.log(`🔍 IFS API ${method}: ${url}`)
+    if (IS_DEBUG) console.log(`🔍 IFS API (via APIM) ${method}: ${url}`)
 
     try {
       // Préparer les headers
@@ -237,11 +240,11 @@ class IFSClient {
 let ifsClientInstance: IFSClient | null = null
 
 /**
- * Obtenir l'instance singleton du client IFS
+ * Obtenir l'instance singleton du client IFS (via Azure APIM)
  * 
  * Configuration automatique depuis les variables d'environnement.
  * 
- * @returns Instance du client IFS configuré
+ * @returns Instance du client IFS configuré pour Azure APIM
  * @throws Error si les variables d'environnement sont manquantes
  */
 export function getIFSClient(): IFSClient {

@@ -4,8 +4,8 @@
  * Impression Customer Order via IFS Cloud avec le bon layout
  * 
  * CONFIGURATION PRODUCTION - Testé et validé :
- * - Report ID: CUSTOMER_ORDER_CONF_REP
- * - Layout: BEN_Boat_configuration_for_production.rdl (layout officiel Boat Configuration)
+ * - Report ID: PROFORMA_INVOICE_REP (Proforma Invoice Report)
+ * - Layout: BEN_Boat_configuration_for_production (layout officiel Boat Configuration)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
   try {
     const body: PrintRequest = await request.json()
 
-    // Validation
+    // Validation des paramètres requis
     if (!body.orderNo) {
       return NextResponse.json({ error: 'Missing orderNo' }, { status: 400 })
     }
@@ -72,7 +72,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing languageCode' }, { status: 400 })
     }
 
+    // ⚠️ VALIDATION CRITIQUE : Vérifier que orderNo n'est pas "UNKNOWN"
+    if (body.orderNo === 'UNKNOWN' || body.orderNo.trim() === '') {
+      console.log('❌ Tentative d\'impression sans Customer Order valide')
+      return NextResponse.json(
+        {
+          error: 'Customer Order manquant',
+          details: 'Ce Shop Order n\'a pas de Customer Order associé dans IFS. L\'impression n\'est pas possible.',
+          hint: 'Vérifiez que le Shop Order est correctement lié à un Customer Order dans IFS Cloud.'
+        },
+        { status: 400 }
+      )
+    }
+
     // 🔥 CONFIGURATION PRODUCTION - Layout validé
+    // ⚠️ ATTENTION : Le layout DOIT avoir un "layout type owner" (printing solution) défini dans IFS
+    // Sinon erreur : ORA-20110: PrintJobContents.MISSINGOWNER
     const layoutName = body.layoutName || 'BEN_Boat_configuration_for_production.rdl'
 
     console.log('📋 Configuration impression:')
@@ -95,6 +110,9 @@ export async function POST(request: NextRequest) {
 
     // ===== ÉTAPE 2 : PrintResultKey =====
     console.log('\n🔑 ÉTAPE 2: Génération PrintResultKey')
+    console.log(`   Report ID: ${body.reportId}`)
+    console.log(`   Order No: ${body.orderNo}`)
+    
     const resultKeyResponse = await client.post<PrintResultKeyResponse>(
       `CustomerOrderHandling.svc/CustomerOrderSet(OrderNo='${body.orderNo}')/IfsApp.CustomerOrderHandling.CustomerOrder_PrintResultKey`,
       { ReportId: body.reportId },
@@ -113,19 +131,29 @@ export async function POST(request: NextRequest) {
     console.log(`   - Report Title: ${dialogResponse.ReportTitle}`)
     console.log(`   - Layout (défaut IFS): ${dialogResponse.LayoutName}`)
 
+    // Déterminer quel layout utiliser
+    const finalLayoutName = layoutName
+    console.log(`   - Layout demandé: ${finalLayoutName}`)
+    
+    if (finalLayoutName !== dialogResponse.LayoutName) {
+      console.log(`   ⚠️  Layout custom demandé (différent du défaut IFS)`)
+      console.log(`   💡 Si erreur MISSINGOWNER, le layout n'a pas de printing solution définie`)
+    }
+
     // ===== ÉTAPE 4 : ReportPrintRequest =====
     console.log('\n🖨️ ÉTAPE 4: Envoi ReportPrintRequest')
+    console.log(`   Layout: ${finalLayoutName}`)
     await client.post(
       'PrintDialog.svc/ReportPrintRequest',
       {
         ResultKey: dialogResponse.ResultKey,
-        LayoutName: layoutName,
+        LayoutName: finalLayoutName,
         LanguageCode: body.languageCode,
         LogicalPrinter: body.printerId,
         Copies: body.copies || 1
       }
     )
-    console.log(`✅ Impression envoyée à ${body.printerId} avec layout : ${layoutName}`)
+    console.log(`✅ Impression envoyée à ${body.printerId} avec layout : ${finalLayoutName}`)
 
     // ===== ÉTAPE 5 (Optionnelle) : Télécharger le PDF =====
     if (body.downloadPdf) {
@@ -197,9 +225,26 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ [API] Erreur impression:', error)
+    
+    // Gestion spécifique pour Customer Order introuvable (404)
+    if (error instanceof Error && error.message.includes('404')) {
+      console.log('💡 Customer Order inexistant dans IFS')
+      return NextResponse.json(
+        {
+          error: 'Customer Order introuvable',
+          details: 'Le Customer Order n\'existe pas dans IFS Cloud.',
+          hint: 'Ce Shop Order n\'a probablement pas de Customer Order associé. Vérifiez dans IFS Cloud.',
+          technicalError: error.message
+        },
+        { status: 404 }
+      )
+    }
+
+    // Autres erreurs
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Erreur lors de l\'impression',
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     )

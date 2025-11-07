@@ -573,13 +573,18 @@ export async function getCustomerOrderLinesByPart(
  * Cette fonction implémente la stratégie optimale :
  * - INPUT: HullNumber uniquement
  * - Recherche directe dans CustomerOrderLineSet (CHullNumber)
+ * - Filtre sur Contract (site de production FR05A)
  * - Une seule requête IFS (~500ms)
  * - Pas de dépendance au Shop Order
  * 
- * 🚨 BOAT CONFIGURATION EDITOR : Cette fonction utilise EXCLUSIVEMENT le site FR05A
+ * 🚨 BOAT CONFIGURATION EDITOR : Cette fonction filtre sur Contract = FR05A
+ * 
+ * 💡 IMPORTANT : 
+ * - Contract = Site de production (FR05A, FR02A, etc.)
+ * - CustomerNo = Code du CLIENT (CNB, BEN, etc.) - ne filtre PAS sur ce champ
  * 
  * @param hullNumber - Hull Number / Serial Number (ex: "LG5MA0114")
- * @param siteFilter - (optionnel) Filtrer par CustomerNo/Site - Par défaut: "FR05A" (MANDATORY pour Boat Config)
+ * @param siteFilter - (optionnel) Filtrer par Contract/Site de production - Par défaut: "FR05A" (MANDATORY pour Boat Config)
  * @returns Customer Order Info ou null si non trouvé
  * 
  * @example
@@ -588,7 +593,7 @@ export async function getCustomerOrderLinesByPart(
  * const order = await getCustomerOrderByHullNumber('LG5MA0114')
  * 
  * // ⚡ OPTIMAL : Avec filtre site explicite (beaucoup plus rapide)
- * const order = await getCustomerOrderByHullNumber('LG5MA0114', 'FR05A')
+ * const order = await getCustomerOrderByHullNumber('LX6MA0115', 'FR05A')
  * ```
  */
 export async function getCustomerOrderByHullNumber(
@@ -614,15 +619,16 @@ export async function getCustomerOrderByHullNumber(
 
   try {
     console.log(`🔍 Searching Customer Order for Hull Number: ${hullNumber}`)
-    console.log(`   🏭 Site: ${activeSite} (MANDATORY for Boat Configuration)`)
+    console.log(`   🏭 Site (Contract): ${activeSite} (MANDATORY for Boat Configuration)`)
 
     // Construire le filtre OData
-    // 🚨 CRITIQUE : Filtrer sur CustomerNo ET Contract = FR05A
-    const filter = `CHullNumber eq '${hullNumber.trim()}' and CustomerNo eq '${activeSite}' and Contract eq '${activeSite}'`
+    // 🚨 FIX : Filtrer UNIQUEMENT sur Contract (site de production)
+    // CustomerNo = Code du CLIENT (CNB, BEN, etc.) - ne pas filtrer dessus !
+    const filter = `CHullNumber eq '${hullNumber.trim()}' and Contract eq '${activeSite}'`
     
     console.log(`📊 OData filter: ${filter}`)
 
-    // ÉTAPE 1 : Recherche CustomerOrderLine via CHullNumber + CustomerNo + Contract = FR05A
+    // ÉTAPE 1 : Recherche CustomerOrderLine via CHullNumber + Contract = FR05A
     const response = await client.get<IFSODataResponse<CustomerOrderLine>>(
       'CustomerOrderHandling.svc/CustomerOrderLineSet',
       {
@@ -633,21 +639,14 @@ export async function getCustomerOrderByHullNumber(
     )
 
     if (!response.value || response.value.length === 0) {
-      console.log(`❌ No Customer Order found for Hull Number: ${hullNumber} (Site: ${activeSite})`)
-      console.log(`   💡 Vérifiez que le Hull Number existe dans IFS pour le site ${activeSite}`)
+      console.log(`❌ No Customer Order found for Hull Number: ${hullNumber} (Contract: ${activeSite})`)
+      console.log(`   💡 Vérifiez que le Hull Number existe dans IFS pour le site de production ${activeSite}`)
       return null
     }
 
     const line = response.value[0]
     
-    // 🚨 VALIDATION : Vérifier que CustomerNo ET Contract sont bien FR05A
-    if (line.CustomerNo !== BOAT_CONFIG_SITE) {
-      console.log(`❌ Customer Order found but with wrong CustomerNo: ${line.CustomerNo} (expected: ${BOAT_CONFIG_SITE})`)
-      throw new Error(
-        `Customer Order CustomerNo mismatch: found ${line.CustomerNo}, expected ${BOAT_CONFIG_SITE}`
-      )
-    }
-    
+    // 🚨 VALIDATION : Vérifier que Contract est bien FR05A
     if (line.Contract !== BOAT_CONFIG_SITE) {
       console.log(`❌ Customer Order found but with wrong Contract: ${line.Contract} (expected: ${BOAT_CONFIG_SITE})`)
       throw new Error(
@@ -657,7 +656,7 @@ export async function getCustomerOrderByHullNumber(
     
     console.log(`✅ Customer Order Line found:`)
     console.log(`   📦 Order: ${line.OrderNo} - Line ${line.LineNo} - Rel ${line.RelNo}`)
-    console.log(`   🏭 CustomerNo: ${line.CustomerNo} (✅ Validated: ${BOAT_CONFIG_SITE})`)
+    console.log(`   👤 CustomerNo: ${line.CustomerNo} (code client)`)
     console.log(`   🏭 Contract: ${line.Contract} (✅ Validated: ${BOAT_CONFIG_SITE})`)
     console.log(`   🎯 Part: ${line.PartNo}`)
 

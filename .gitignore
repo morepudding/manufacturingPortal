@@ -43,6 +43,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Scripts de test avec credentials (NE PAS COMMITER)
+scripts/test-*.ts
+scripts/*-debug.ts
+scripts/investigate-*.ts
+
+# Test artifacts (NE PAS COMMITER)
+playwright-report/
+test-results/
+tests/
 
 .vscode/
 *storybook.log

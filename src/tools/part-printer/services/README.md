@@ -6,7 +6,7 @@ Services métier spécifiques à l'outil Part Printer.
 
 ```
 services/
-├── site-service.ts               ⚠️ TODO: Mettre à jour endpoint IFS
+├── site-service.ts               ✅ Endpoint mis à jour (CompanySiteHandling.svc/CompanySiteSet)
 ├── production-line-service.ts    ⚠️ TODO: Mettre à jour endpoint IFS
 ├── shop-order-filter-service.ts  🚧 À créer
 ├── master-part-service.ts        🚧 À créer
@@ -19,18 +19,18 @@ services/
 
 ## 🎯 Phase 1 - Services de base
 
-### 1. site-service.ts ✅ TEMPLATE CRÉÉ
+### 1. site-service.ts ✅ COMPLÉTÉ
 
-**Status**: Template créé, à compléter avec vrais endpoints IFS
+**Status**: ✅ Endpoint mis à jour avec CompanySiteHandling.svc/CompanySiteSet (configuré dans Azure APIM)
 
 **Fonctions**:
 - `getSites()` - Liste tous les sites/contracts
 - `getSiteByContract(contract)` - Récupère un site spécifique
 
-**TODO**:
-- [ ] Trouver le bon endpoint IFS (ContractHandling.svc ?)
-- [ ] Vérifier les champs disponibles
-- [ ] Tester avec données réelles
+**Endpoint IFS**: `CompanySiteHandling.svc/CompanySiteSet`
+- Champs: Contract, Description, Company, Country
+- 9 sites disponibles (env AST): FR018, FR05A, FR001, FR019, etc.
+- Configuré dans Azure APIM par Thomas
 
 ### 2. production-line-service.ts ✅ TEMPLATE CRÉÉ
 

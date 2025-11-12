@@ -3,8 +3,8 @@
  * 
  * Phase 1.2 - Services IFS de base
  * 
- * NOTE: IFS n'a pas d'endpoint dédié pour les sites/contracts.
- * On récupère les contracts distincts depuis les Shop Orders.
+ * Utilise CompanySiteHandling.svc/CompanySiteSet (configuré dans Azure APIM par Thomas)
+ * Cet endpoint retourne tous les sites/contracts disponibles dans IFS.
  */
 
 import { getIFSClient } from '@/shared/services/ifs-client'
@@ -13,52 +13,71 @@ import type { IFSODataResponse } from '@/shared/types/ifs'
 import type { IFSSite, SitesResponse } from '../types'
 
 /**
- * Récupérer la liste des sites/contracts IFS depuis les Shop Orders
+ * Récupérer la liste de TOUS les sites/contracts IFS disponibles
  * 
- * NOTE: Utilise ShopOrderHandling.svc/ShopOrds pour extraire les contracts distincts
+ * Utilise CompanySiteHandling.svc/CompanySiteSet configuré dans Azure APIM.
  * 
- * @returns Liste des sites disponibles
+ * Sites disponibles (exemple AST environnement):
+ * - IT001: MONFALCONE
+ * - FR020: BDX PLT LOGISTIQUE
+ * - FR001: BELLEVILLE
+ * - FR019: BDX TAKT LONG
+ * - FR018: BDX TAKT COURT
+ * - IT01A: GBI ADMIN
+ * - FR013: LE POIRE
+ * - FR05A: BDX ADMIN
+ * - FR017: BDX AMONT
+ * 
+ * @returns Liste de tous les sites disponibles
  * 
  * @example
  * ```typescript
  * const sites = await getSites()
  * logger.debug("Sites disponibles:", sites.sites)
- * // [{ Contract: "BDR", Name: "Site BDR" }, ...]
+ * // [{ Contract: "FR018", Name: "BDX TAKT COURT", Description: "BDX TAKT COURT" }, ...]
  * ```
  */
 export async function getSites(): Promise<SitesResponse> {
-  logger.debug('🔍 [Site Service] Récupération des sites IFS depuis Shop Orders...')
+  logger.debug('🔍 [Site Service] Récupération de TOUS les sites IFS depuis CompanySiteHandling...')
 
   try {
     const client = getIFSClient()
 
-    // Récupérer un échantillon de Shop Orders pour extraire les contracts
-    const response = await client.get<IFSODataResponse<{ Contract: string }>>(
-      'ShopOrderHandling.svc/ShopOrds',
+    // Interface pour la réponse IFS CompanySite
+    interface IFSCompanySiteResponse {
+      Contract: string
+      Description?: string
+      Company?: string
+      Country?: string
+    }
+
+    // Récupérer TOUS les sites depuis CompanySiteHandling.svc/CompanySiteSet
+    // Endpoint configuré dans Azure APIM par Thomas
+    const response = await client.get<IFSODataResponse<IFSCompanySiteResponse>>(
+      'CompanySiteHandling.svc/CompanySiteSet',
       {
-        $select: 'Contract',
-        $top: '1000', // Échantillon large pour capturer tous les contracts
+        $select: 'Contract,Description,Company,Country',
+        $orderby: 'Contract asc',
       }
     )
 
-    // Extraire les contracts uniques
-    const contractsSet = new Set<string>()
-    response.value?.forEach(order => {
-      if (order.Contract) {
-        contractsSet.add(order.Contract)
+    // Vérifier que des sites ont été retournés
+    if (!response.value || response.value.length === 0) {
+      logger.warn('⚠️ [Site Service] Aucun site trouvé dans IFS')
+      return {
+        sites: [],
+        count: 0,
       }
-    })
+    }
 
     // Convertir en format IFSSite
-    const sites: IFSSite[] = Array.from(contractsSet)
-      .sort()
-      .map(contract => ({
-        Contract: contract,
-        Name: `Site ${contract}`,
-        Description: `Site de production ${contract}`,
-      }))
+    const sites: IFSSite[] = response.value.map(site => ({
+      Contract: site.Contract,
+      Name: site.Description || `Site ${site.Contract}`,
+      Description: site.Description || `Site de production ${site.Contract}`,
+    }))
 
-    logger.debug(`✅ [Site Service] ${sites.length} sites uniques récupérés: ${Array.from(contractsSet).join(', ')}`)
+    logger.debug(`✅ [Site Service] ${sites.length} sites récupérés depuis IFS: ${sites.map(s => s.Contract).join(', ')}`)
 
     return {
       sites,

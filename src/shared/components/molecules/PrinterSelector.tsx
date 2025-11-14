@@ -26,9 +26,8 @@ import { Printer, Loader2, AlertCircle } from 'lucide-react'
 import { Label } from '@/shared/components/atoms/Label'
 
 interface IFSPrinter {
-  LogicalPrinter: string
+  PrinterId: string        // ✅ Nom correct du champ IFS
   Description: string
-  PhysicalPrinter: string
 }
 
 interface PrinterSelectorProps {
@@ -74,7 +73,7 @@ export function PrinterSelector({
         
         // Sélectionner automatiquement la première imprimante si aucune n'est sélectionnée
         if (data.printers.length > 0 && !value) {
-          onChange(data.printers[0].LogicalPrinter)
+          onChange(data.printers[0].PrinterId)
         }
       }
     } catch (err) {
@@ -139,8 +138,8 @@ export function PrinterSelector({
       >
         <option value="">Select a printer...</option>
         {printers.map((printer) => (
-          <option key={printer.LogicalPrinter} value={printer.LogicalPrinter}>
-            {printer.LogicalPrinter}
+          <option key={printer.PrinterId} value={printer.PrinterId}>
+            {printer.PrinterId}
             {printer.Description && ` - ${printer.Description}`}
           </option>
         ))}

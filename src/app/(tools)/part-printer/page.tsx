@@ -19,6 +19,7 @@ import { useState, useEffect } from 'react'
 import { SiteSelector, ProductionLineSelector } from './components'
 import { PrintModeSelector } from './components/PrintModeSelector'
 import { PrinterSelector } from '@/shared/components/molecules/PrinterSelector'
+import { PrintProgressModal } from './components/PrintProgressModal'
 import { Button } from '@/shared/components/atoms/Button'
 import { Label } from '@/shared/components/atoms/Label'
 import { Input } from '@/shared/components/atoms/Input'
@@ -56,6 +57,10 @@ export default function PartPrinterPage() {
   const [showPreview, setShowPreview] = useState(false)
   const [calculationStatus, setCalculationStatus] = useState<'idle' | 'calculating' | 'success' | 'error'>('idle')
   const [isPrinting, setIsPrinting] = useState(false) // État pour l'impression Azure
+  
+  // État pour le modal de progression
+  const [showPrintProgress, setShowPrintProgress] = useState(false)
+  const [printingOrders, setPrintingOrders] = useState<IFSShopOrderExtended[]>([])
 
   // ===== HANDLERS =====
 
@@ -343,51 +348,16 @@ export default function PartPrinterPage() {
   }
 
   /**
-   * Envoie les Shop Orders à l'API Azure Print
+   * Envoie les Shop Orders à l'API Azure Print avec modal de progression
    */
   const handlePrintToIFS = async (orders: IFSShopOrderExtended[]) => {
     if (!printer) {
       throw new Error('Printer not selected')
     }
 
-    try {
-      setIsPrinting(true)
-      console.log('🖨️ [Part Printer] Impression de', orders.length, 'Shop Orders sur', printer)
-
-      // Préparer les données pour l'API
-      const shopOrdersToPrint = orders.map(order => ({
-        orderNo: order.OrderNo,
-        releaseNo: order.ReleaseNo,
-        sequenceNo: order.SequenceNo
-      }))
-
-      // Appeler l'API d'impression
-      const response = await fetch('/api/part-printer/labels/print', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shopOrders: shopOrdersToPrint,
-          printer: printer
-        })
-      })
-
-      const result = await response.json()
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Print failed')
-      }
-
-      console.log('✅ [Part Printer] Impression réussie:', result.data.message)
-
-      // TODO: Afficher une notification de succès (toast)
-      // toast.success(`Labels printed successfully to ${printer}`)
-
-    } catch (err) {
-      console.error('❌ [Part Printer] Erreur impression:', err)
-      throw new Error(err instanceof Error ? err.message : 'Print to IFS failed')
-    } finally {
-      setIsPrinting(false)
-    }
+    // Ouvrir le modal de progression
+    setPrintingOrders(orders)
+    setShowPrintProgress(true)
   }
 
   const handleCancel = () => {
@@ -855,6 +825,18 @@ export default function PartPrinterPage() {
         )}
       </div>
 
+      {/* Modal de progression d'impression */}
+      <PrintProgressModal
+        open={showPrintProgress}
+        onClose={() => setShowPrintProgress(false)}
+        shopOrders={printingOrders.map(order => ({
+          orderNo: order.OrderNo,
+          releaseNo: order.ReleaseNo,
+          sequenceNo: order.SequenceNo
+        }))}
+        printer={printer}
+        parallelism={10}
+      />
 
     </div>
   )

@@ -268,6 +268,12 @@ export async function printLabels(
 
   console.log(`🖨️  Impression de ${shopOrders.length} Shop Order(s) sur ${options.printer}...`)
   console.log(`📋 Selection: ${selectionString}`)
+  console.log('🔍 Payload complet:', JSON.stringify(payload, null, 2))
+  console.log('🔍 Headers:', {
+    'Authorization': 'Bearer [TOKEN]',
+    'Content-Type': 'application/json',
+    'Ocp-Apim-Subscription-Key': subscriptionKey
+  })
 
   // 4. Retry logic avec backoff exponentiel
   let lastError: Error | null = null
@@ -307,8 +313,15 @@ export async function printLabels(
         const axiosError = error as AxiosError<AzurePrintResponse>
         const status = axiosError.response?.status
         const message = axiosError.response?.data?.Message || axiosError.message
-
+        
+        // 🔍 LOG DÉTAILLÉ DE L'ERREUR
         console.error(`❌ Tentative ${attempt}/${maxRetries} échouée: ${status} - ${message}`)
+        console.error('📊 Détails de l\'erreur Azure APIM:')
+        console.error('  - Status:', status)
+        console.error('  - Headers:', JSON.stringify(axiosError.response?.headers || {}, null, 2))
+        console.error('  - Data:', JSON.stringify(axiosError.response?.data || {}, null, 2))
+        console.error('  - Request URL:', axiosError.config?.url)
+        console.error('  - Request Headers:', JSON.stringify(axiosError.config?.headers || {}, null, 2))
 
         // Ne pas retry sur certaines erreurs (400, 404 = erreurs client)
         if (status === 400 || status === 404) {

@@ -1565,802 +1565,166 @@ describe('POST /api/boat-configuration/print (via Azure APIM)', () => {
 
 ---
 
-## 🎭 Phase 4 : Tests E2E Playwright (Semaine 3 - 5 jours)
+## 🎭 Phase 4 : Tests E2E Playwright avec APIs IFS AST Réelles (Semaine 3-7 - 13 jours)
+
+### ⚠️ CHANGEMENT DE STRATÉGIE (12 novembre 2025)
+
+**Décision** : Abandonner les mocks MSW pour les tests E2E. **Utiliser les vraies APIs IFS AST.**
+
+**Rationale** :
+- ✅ Valide le **code réel** (IFS Client, OAuth2, gestion erreurs)
+- ✅ Valide les **données réelles** IFS (formats, relations, edge cases)
+- ✅ Détecte les **bugs d'intégration** masqués par les mocks
+- ✅ Confidence **maximale** pour le déploiement production
+
+**🔗 Roadmap détaillée complète** : Voir [PHASE_4_E2E_ROADMAP.md](./PHASE_4_E2E_ROADMAP.md) ⭐
 
 ### Objectifs
-- ✅ Tester le workflow complet utilisateur
-- ✅ Tests sur navigateurs réels (Chrome, Firefox, Safari)
+- ✅ Tester le workflow complet avec **vraies APIs IFS AST**
+- ✅ Tests sur navigateurs réels (Chromium, Firefox, Webkit)
 - ✅ Screenshots et vidéos en cas d'échec
-- ✅ Prêt pour Azure Playwright Cloud
-- ✅ **Tests avec Azure APIM mocké** (pas d'appels réels en E2E)
+- ✅ **29 tests E2E** couvrant 6 niveaux de validation
+- ✅ **Pas de mocks** : Tests avec données IFS réelles uniquement
 
-### ⚠️ Stratégie E2E avec Azure APIM
+### 📊 Structure Phase 4 (6 Niveaux de tests)
 
-**Architecture choisie : Tests E2E avec APIM Test Environment (AST) - RECOMMANDÉ ✅**
+| Niveau | Tests | Durée | Criticité | Status |
+|--------|-------|-------|-----------|--------|
+| **1. Health Checks** | 4 tests | ~30s | ⭐⭐⭐⭐⭐ | 📋 À créer |
+| **2. API Unit Tests** | 6 tests | ~40s | ⭐⭐⭐⭐ | 📋 À créer |
+| **3. Workflow Tests** | 5 tests | ~3min | ⭐⭐⭐⭐⭐ | 📋 À créer |
+| **4. Business Validation** | 5 tests | ~50s | ⭐⭐⭐⭐ | 📋 À créer |
+| **5. Performance Tests** | 5 tests | ~2.5min | ⭐⭐⭐ | 📋 À créer |
+| **6. Cross-browser** | 4 tests | ~2min | ⭐⭐⭐ | 📋 À créer |
+| **TOTAL** | **29 tests** | **~9 min** | - | **0% complété** |
 
+### 🗓️ Planning Phase 4 (5 semaines)
+
+| Semaine | Objectif | Durée | Tests créés | Status |
+|---------|----------|-------|-------------|--------|
+| **Semaine 1** | Fondations E2E | 2 jours | 0 tests | 🔄 En cours |
+| **Semaine 2** | Niveaux 1-2 | 3 jours | 10 tests | 📋 Planifié |
+| **Semaine 3** | Niveau 3 | 3 jours | 5 tests | 📋 Planifié |
+| **Semaine 4** | Niveaux 4-5 | 3 jours | 10 tests | 📋 Planifié |
+| **Semaine 5** | Niveau 6 + Doc | 2 jours | 4 tests | 📋 Planifié |
+| **TOTAL** | Phase 4 complète | 13 jours | **29 tests** | **0% complété** |
+
+### 🎯 Données de test IFS AST validées
+
+| Order No | Serial Number | DOP ID | Usage | Status |
+|----------|---------------|--------|-------|--------|
+| **100563** | JY6MB0019 | 38 | Happy Path principal | ✅ Validé Phase 1-3 |
+| **100949** | LX6MA0116 | 48 | Test alternatif | ✅ Validé Phase 1-3 |
+| **97277** | LG5MA0114 | 95 | Test alternatif | ✅ Validé Phase 1-3 |
+| **101043** | LX6MA0115 | 54 | Test DOP composé | ✅ Validé Phase 1-3 |
+| **999999** | - | - | Test "Not Found" | ✅ Pour tests erreur |
+
+### 🛠️ Configuration technique
+
+**Variables d'environnement (.env.local)** :
+```bash
+# IFS Cloud AST - Vraies APIs
+IFS_BASE_URL=https://beneteau-group-ast.ifs.cloud/main/ifsapplications/projection/v1
+IFS_CLIENT_ID=your_ifs_client_id_here
+IFS_CLIENT_SECRET=your_ifs_client_secret_here
+IFS_TOKEN_URL=https://beneteau-group-ast.ifs.cloud/auth/realms/beneast1/protocol/openid-connect/token
+IFS_SCOPE=openid microprofile-jwt
 ```
-Browser (Playwright)
-    ↓
-Next.js App (localhost:3000 ou staging)
-    ↓
-API Routes
-    ↓
-Services
-    ↓
-IFS Client
-    ↓
-[Azure APIM - Test Environment] ✅
-    ↓
-[IFS Cloud - AST] ✅ (Environnement de test dédié)
-```
 
-**Justification:**
-
-❌ **Problème avec Mock MSW pour E2E:**
-- Les mocks ne testent pas le **code réel** (IFS Client, authentification OAuth2, gestion erreurs APIM)
-- Les mocks ne testent pas la **data réelle** (formats IFS, edge cases, relations entre entités)
-- Faux sentiment de sécurité : tests passent mais bugs en production
-
-✅ **Avantages APIM Test Environment (AST):**
-- Teste le **workflow complet** : App → APIM → IFS Cloud
-- Teste avec de la **vraie donnée IFS** (Shop Orders, Serial Numbers, Customer Orders réels)
-- Teste l'**authentification OAuth2 réelle** Azure AD
-- Teste la **gestion d'erreurs APIM** (rate limiting, timeouts, 500, etc.)
-- Environnement **AST dédié aux tests** (pas de risque impact production)
-- **Détecte les bugs d'intégration** que les mocks masquent
-
-**Configuration :**
-
+**Playwright Configuration** :
 ```typescript
 // playwright.config.ts
 export default defineConfig({
   testDir: './tests/boat-configuration/e2e',
+  timeout: 60000, // 60s par test (APIs IFS réelles)
+  expect: { timeout: 15000 }, // 15s pour assertions
   
   use: {
-    // ✅ APIM Test Environment (AST)
-    baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
-    
-    // Pas de mock MSW pour E2E
-    // NEXT_PUBLIC_MSW_ENABLED: false (par défaut)
+    baseURL: 'http://localhost:3000',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure'
   },
   
   webServer: {
     command: 'pnpm run dev',
     url: 'http://localhost:3000',
-    env: {
-      // Variables APIM Test Environment (AST)
-      IFS_BASE_URL: process.env.IFS_TEST_APIM_URL,
-      IFS_CLIENT_ID: process.env.IFS_TEST_CLIENT_ID,
-      IFS_CLIENT_SECRET: process.env.IFS_TEST_CLIENT_SECRET,
-      IFS_TOKEN_URL: process.env.AZURE_AD_TEST_TOKEN_URL,
-      IFS_SCOPE: process.env.IFS_TEST_SCOPE,
-    },
-  },
-})
-```
-
-**Variables d'environnement E2E (AST):**
-
-```bash
-# .env.e2e (APIM Test Environment - AST)
-IFS_BASE_URL=https://gbenapimgtaiscommondev.azure-api.net/IFS/Manufacturing
-IFS_CLIENT_ID=<ast_client_id>
-IFS_CLIENT_SECRET=<ast_secret>
-IFS_TOKEN_URL=https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token
-IFS_SCOPE=api://api.IFS.dev/.default
-
-# Playwright Cloud
-PLAYWRIGHT_SERVICE_ACCESS_TOKEN=<your_token>
-PLAYWRIGHT_SERVICE_URL=https://playwright.microsoft.com/...
-```
-
-**Gestion des données de test AST:**
-
-Pour éviter la pollution de l'environnement AST, utiliser des **données de test dédiées** :
-
-```typescript
-// tests/boat-configuration/e2e/fixtures/ast-test-data.ts
-
-/**
- * Données de test validées sur environnement AST
- * ⚠️ Ces Shop Orders existent réellement sur IFS Cloud AST
- */
-export const AST_TEST_DATA = {
-  shopOrders: {
-    withSerialNumber: {
-      orderNo: '563',        // ✅ Existe sur AST
-      releaseNo: '1',
-      sequenceNo: '10',
-      expectedSerial: 'JY6MB0019',
-      expectedDopId: '34'
-    },
-    
-    withoutSerialNumber: {
-      orderNo: '888',        // ✅ Existe sur AST (sans DOP)
-      releaseNo: '1',
-      sequenceNo: '10',
-      expectedSerial: null
-    },
-    
-    notFound: {
-      orderNo: '999999',     // ❌ N'existe pas (test erreur 404)
-      releaseNo: '1',
-      sequenceNo: '10'
-    }
-  },
-  
-  customerOrders: {
-    valid: {
-      hullNumber: 'LG5MA0114',  // ✅ Existe sur AST
-      site: 'FR05A',
-      expectedOrderNo: 'C1000038587'
-    },
-    
-    notFound: {
-      hullNumber: 'UNKNOWN123',  // ❌ N'existe pas
-      site: 'FR05A'
-    }
-  }
-}
-```
-
-**Stratégie de tests :**
-
-1. **Tests Unitaires** → Mock IFS Client (isolation services)
-2. **Tests Intégration** → Mock APIM MSW (isolation API Routes)
-3. **Tests E2E** → **APIM Test Environment (AST)** ✅ (workflow complet réel)
-
-**Risques & Mitigations :**
-
-| Risque | Mitigation |
-|--------|------------|
-| **AST indisponible** | Retry automatique (2x), fallback sur staging |
-| **Données AST changent** | Validation fixtures avant chaque run, alertes |
-| **Rate limiting APIM** | Limiter parallélisation (workers=2), throttling |
-| **Tests lents** | Parallélisation Playwright Cloud, cache intelligent |
-| **Pollution données** | Utiliser données read-only, pas de modifications |
-
-**Durée tests E2E (AST) :**
-- ~15-20 minutes (vs 5-8 min avec mocks)
-- Mais **100x plus fiables** pour détecter bugs réels
-
-### 4.0 Configuration APIM Test Environment (AST)
-
-**⚠️ CONFIGURATION OBLIGATOIRE : Tests E2E avec environnement IFS réel**
-
-**Fichier:** `tests/boat-configuration/e2e/config/ast-environment.ts`
-
-```typescript
-/**
- * Configuration APIM Test Environment (AST - IFS Cloud)
- * 
- * Environnement dédié aux tests E2E avec vraie donnée IFS
- * ⚠️ NE PAS utiliser l'environnement PRODUCTION
- */
-
-export const AST_APIM_CONFIG = {
-  // Azure APIM Test Environment
-  baseUrl: process.env.IFS_TEST_APIM_URL || 'https://gbenapimgtaiscommondev.azure-api.net/IFS/Manufacturing',
-  
-  // Azure AD OAuth2
-  clientId: process.env.IFS_TEST_CLIENT_ID,
-  clientSecret: process.env.IFS_TEST_CLIENT_SECRET,
-  tokenUrl: process.env.AZURE_AD_TEST_TOKEN_URL || 'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token',
-  scope: process.env.IFS_TEST_SCOPE || 'api://api.IFS.dev/.default',
-  
-  // Rate limiting
-  maxRequestsPerMinute: 100,
-  retryAttempts: 3,
-  retryDelay: 2000, // ms
-}
-
-/**
- * Valider la configuration avant de lancer les tests
- */
-export function validateASTConfiguration() {
-  const required = ['IFS_TEST_APIM_URL', 'IFS_TEST_CLIENT_ID', 'IFS_TEST_CLIENT_SECRET']
-  const missing = required.filter(key => !process.env[key])
-  
-  if (missing.length > 0) {
-    throw new Error(
-      `❌ Missing AST configuration: ${missing.join(', ')}\n` +
-      `Please configure these environment variables in .env.e2e`
-    )
-  }
-  
-  console.log('✅ AST APIM Configuration validated')
-  console.log(`   Base URL: ${AST_APIM_CONFIG.baseUrl}`)
-}
-```
-
-**Fichier:** `.env.e2e` (à créer)
-
-```bash
-# ===== Azure APIM - Test Environment (AST) =====
-# ⚠️ Environnement IFS Cloud dédié aux tests (PAS PRODUCTION)
-
-IFS_TEST_APIM_URL=https://gbenapimgtaiscommondev.azure-api.net/IFS/Manufacturing
-IFS_TEST_CLIENT_ID=<obtenir_du_devops>
-IFS_TEST_CLIENT_SECRET=<obtenir_du_devops>
-AZURE_AD_TEST_TOKEN_URL=https://login.microsoftonline.com/<tenant_id>/oauth2/v2.0/token
-IFS_TEST_SCOPE=api://api.IFS.dev/.default
-
-# ===== Playwright Cloud =====
-PLAYWRIGHT_SERVICE_ACCESS_TOKEN=<your_token>
-PLAYWRIGHT_SERVICE_URL=https://playwright.microsoft.com/workspaces/...
-
-# ===== Configuration App =====
-E2E_BASE_URL=http://localhost:3000
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=test_secret_for_e2e_min_32_chars_long
-```
-
-**Configuration Playwright (mise à jour) :**
-
-```typescript
-// playwright.config.ts
-import { defineConfig, devices } from '@playwright/test'
-import { validateASTConfiguration } from './tests/boat-configuration/e2e/config/ast-environment'
-
-// ✅ Valider configuration AST avant de lancer les tests
-if (process.env.CI || process.env.E2E_USE_AST === 'true') {
-  validateASTConfiguration()
-}
-
-export default defineConfig({
-  testDir: './tests/boat-configuration/e2e',
-  fullyParallel: false, // ⚠️ Séquentiel pour éviter rate limiting APIM
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 1, // Retry car APIM peut être instable
-  workers: process.env.CI ? 2 : 1, // ⚠️ Max 2 workers pour rate limiting APIM
-  timeout: 60000, // 60s timeout (APIM peut être lent)
-  
-  reporter: [
-    ['html'],
-    ['junit', { outputFile: 'test-results/junit.xml' }],
-    ['list'] // Afficher progression en console
-  ],
-  
-  use: {
-    baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    
-    // ⚠️ Timeout plus long pour appels APIM réels
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    reuseExistingServer: true
   },
   
   projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    // ⚠️ Safari désactivé pour tests AST (instable)
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-    
-    // Tests sur mobile
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-  ],
-  
-  webServer: {
-    command: 'pnpm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000, // 2 min timeout
-    
-    // ✅ Variables APIM AST injectées
-    env: {
-      IFS_BASE_URL: process.env.IFS_TEST_APIM_URL,
-      IFS_CLIENT_ID: process.env.IFS_TEST_CLIENT_ID,
-      IFS_CLIENT_SECRET: process.env.IFS_TEST_CLIENT_SECRET,
-      IFS_TOKEN_URL: process.env.AZURE_AD_TEST_TOKEN_URL,
-      IFS_SCOPE: process.env.IFS_TEST_SCOPE,
-    },
-  },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } }
+  ]
 })
 ```
 
-**Commande de lancement :**
+### 📝 Commandes de test
 
 ```bash
-# Lancer E2E avec APIM AST
-export $(cat .env.e2e | xargs)
+# Lancer tous les tests E2E (headless)
 pnpm run test:e2e
 
-# Ou avec env-cmd
-pnpm add -D env-cmd
-pnpm run test:e2e:ast  # Script: env-cmd -f .env.e2e playwright test
+# Lancer en mode UI (interactif - recommandé)
+pnpm run test:e2e:ui
+
+# Lancer un niveau spécifique
+pnpm exec playwright test health-checks.spec.ts
+
+# Debug un test
+pnpm exec playwright test --debug workflows/happy-path.spec.ts
+
+# Rapport HTML
+pnpm exec playwright show-report
 ```
 
-**Durée estimée:** 1 jour (configuration + validation)
+### 🎯 Critères de succès Phase 4
+
+#### Obligatoires (Must Have)
+- ✅ **29 tests E2E** créés et fonctionnels
+- ✅ **100% tests utilisent vraies APIs IFS AST** (pas de mocks)
+- ✅ **3 navigateurs** testés (Chromium, Firefox, Webkit)
+- ✅ **4 Shop Orders réels** testés (100563, 100949, 97277, 101043)
+- ✅ **Workflow complet validé** : Entry → Print (5 étapes)
+- ✅ **Documentation complète** : Guide d'exécution
+
+#### Optionnels (Nice to Have)
+- 🔲 CI/CD GitHub Actions : Tests automatiques sur commit
+- 🔲 Test reporting : Rapports HTML automatiques
+- 🔲 Parallel execution : Tests en parallèle
+- 🔲 Mobile testing : Tests sur viewports mobile
+
+### 📊 Status Phase 4
+
+| Métrique | Cible | Actuel | Progress |
+|----------|-------|--------|----------|
+| **Tests créés** | 29 tests | 0 tests | 🔴 0% |
+| **Tests passants** | 100% | - | 🔴 - |
+| **Navigateurs** | 3 browsers | 0 | 🔴 0% |
+| **Shop Orders testés** | 4 orders | 0 | 🔴 0% |
+| **Durée totale** | < 10 min | - | - |
+| **Documentation** | 100% | 80% | 🟢 En cours |
+
+### 🚀 Prochaines étapes immédiates
+
+**Semaine 1 - Jour 1-2 : Fondations** (🔄 En cours)
+1. [x] ✅ Supprimer tests E2E mockés non fonctionnels
+2. [x] ✅ Créer roadmap Phase 4 dédiée ([PHASE_4_E2E_ROADMAP.md](./PHASE_4_E2E_ROADMAP.md))
+3. [ ] 📋 Créer structure de dossiers E2E propre
+4. [ ] 📋 Configurer Playwright pour APIs IFS réelles
+5. [ ] 📋 Créer utilitaires de test (helpers, fixtures)
+6. [ ] 📋 Premier test de santé : App accessibility
+
+**Livrable Semaine 1** :
+- Structure `tests/boat-configuration/e2e/` complète
+- Configuration Playwright fonctionnelle
+- 4 tests Health Checks créés et passants
 
 ---
 
-### 4.1 Test: Happy Path (Workflow nominal avec APIM AST)
+**📚 Pour plus de détails** : Consultez [PHASE_4_E2E_ROADMAP.md](./PHASE_4_E2E_ROADMAP.md)
 
-**Fichier:** `tests/boat-configuration/e2e/workflows/happy-path.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-import { AST_TEST_DATA } from '../fixtures/ast-test-data'
-
-test.describe('Boat Configuration - Happy Path (APIM AST - IFS Cloud)', () => {
-  test('Complete workflow: search → confirm → customer order → select → print', async ({ page }) => {
-    // ⚠️ Ce test utilise de vraies données IFS sur environnement AST
-    const testData = AST_TEST_DATA.shopOrders.withSerialNumber
-    
-    // ===== Step 1: Navigation =====
-    await page.goto('/boat-configuration')
-    await expect(page.getByRole('heading', { name: 'Boat Configuration Editor' })).toBeVisible()
-
-    // ===== Step 2: Saisie Shop Order (vraie donnée AST) =====
-    await page.fill('input[name="orderNo"]', testData.orderNo)
-    await page.fill('input[name="releaseNo"]', testData.releaseNo)
-    await page.fill('input[name="sequenceNo"]', testData.sequenceNo)
-    
-    // Cliquer sur Rechercher (appel APIM AST réel)
-    await page.click('button:has-text("Rechercher")')
-
-    // Attendre la navigation (peut être lent avec APIM réel)
-    await page.waitForURL('**/boat-configuration?step=confirmation', { timeout: 30000 })
-
-    // ===== Step 3: Vérifier Serial Number (depuis IFS AST réel) =====
-    await expect(page.getByText('Serial Number:')).toBeVisible()
-    await expect(page.getByText(testData.expectedSerial)).toBeVisible()
-    
-    // Vérifier DOP ID affiché
-    await expect(page.getByText('DOP ID:')).toBeVisible()
-    await expect(page.getByText(testData.expectedDopId)).toBeVisible()
-
-    // ===== Step 4: Confirmer =====
-    await page.click('button:has-text("Oui, Continuer")')
-    await page.waitForURL('**/boat-configuration?step=customer-order', { timeout: 30000 })
-
-    // ===== Step 5: Vérifier Customer Order (depuis IFS AST réel) =====
-    await expect(page.getByText('Customer Order')).toBeVisible()
-    
-    // ⚠️ Données Customer Order peuvent varier sur AST
-    // On vérifie juste la présence, pas la valeur exacte
-    await expect(page.locator('[data-testid="customer-order-number"]')).toBeVisible()
-    
-    // Confirmer Customer Order
-    await page.click('button:has-text("Confirmer")')
-    await page.waitForURL('**/boat-configuration?step=selection', { timeout: 30000 })
-
-    // ===== Step 6: Sélection Imprimante et Langue =====
-    // Attendre chargement des dropdowns (appels APIM AST réels)
-    await expect(page.locator('select[name="printer"]')).toBeVisible({ timeout: 15000 })
-    await expect(page.locator('select[name="language"]')).toBeVisible()
-    
-    // ⚠️ Les imprimantes disponibles viennent de l'IFS réel
-    const printerSelect = page.locator('select[name="printer"]')
-    const printerOptions = await printerSelect.locator('option').allTextContents()
-    
-    // Vérifier qu'on a au moins une imprimante
-    expect(printerOptions.length).toBeGreaterThan(1)
-    
-    // Sélectionner première imprimante disponible
-    await printerSelect.selectOption({ index: 1 })
-    await page.selectOption('select[name="language"]', 'en')
-    
-    // Vérifier bouton activé
-    const printButton = page.getByRole('button', { name: 'Print Document' })
-    await expect(printButton).toBeEnabled()
-    
-    // Cliquer Print (workflow 4 étapes APIM AST réel)
-    await printButton.click()
-
-    // ===== Step 7: Vérifier confirmation =====
-    // ⚠️ Le print peut prendre du temps avec IFS réel
-    await page.waitForURL('**/boat-configuration?step=print-result', { timeout: 60000 })
-    await expect(page.getByText(/Print.*success/i)).toBeVisible()
-
-    // ===== Step 8: Bouton New Print =====
-    await expect(page.getByRole('button', { name: 'New Print' })).toBeVisible()
-    
-    // Cliquer New Print pour recommencer
-    await page.click('button:has-text("New Print")')
-    await expect(page).toHaveURL('**/boat-configuration?step=entry')
-  })
-  
-  test('Should display shop order details in sidebar with real IFS data', async ({ page }) => {
-    const testData = AST_TEST_DATA.shopOrders.withSerialNumber
-    
-    await page.goto('/boat-configuration')
-    
-    // Workflow jusqu'à confirmation (vraies données AST)
-    await page.fill('input[name="orderNo"]', testData.orderNo)
-    await page.fill('input[name="releaseNo"]', testData.releaseNo)
-    await page.fill('input[name="sequenceNo"]', testData.sequenceNo)
-    await page.click('button:has-text("Rechercher")')
-    
-    await page.waitForURL('**/boat-configuration?step=confirmation', { timeout: 30000 })
-    
-    // Vérifier sidebar contextuel avec données IFS réelles
-    const sidebar = page.locator('.contextual-sidebar')
-    await expect(sidebar.getByText(`Order No: ${testData.orderNo}`)).toBeVisible()
-    await expect(sidebar.getByText(`Serial Number: ${testData.expectedSerial}`)).toBeVisible()
-    
-    // ⚠️ Part No peut varier sur AST, on vérifie juste la présence
-    await expect(sidebar.getByText(/Part No:/)).toBeVisible()
-  })
-})
-```
-
-**Durée estimée:** 1.5 jours
-
----
-
-### 4.2 Test: Shop Order Not Found
-
-**Fichier:** `tests/boat-configuration/e2e/workflows/shop-order-not-found.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-import { AST_TEST_DATA } from '../fixtures/ast-test-data'
-
-test.describe('Boat Configuration - Shop Order Not Found (APIM AST)', () => {
-  test('Should show error message when shop order not found in IFS AST', async ({ page }) => {
-    const testData = AST_TEST_DATA.shopOrders.notFound
-    
-    await page.goto('/boat-configuration')
-
-    // Saisir Shop Order inexistant (vraie recherche IFS AST)
-    await page.fill('input[name="orderNo"]', testData.orderNo)
-    await page.fill('input[name="releaseNo"]', testData.releaseNo)
-    await page.fill('input[name="sequenceNo"]', testData.sequenceNo)
-    await page.click('button:has-text("Rechercher")')
-
-    // Vérifier message d'erreur (peut prendre du temps avec APIM réel)
-    await expect(page.getByText(/Shop Order not found/i)).toBeVisible({ timeout: 30000 })
-    
-    // Vérifier qu'on reste sur la page entry
-    await expect(page).toHaveURL('**/boat-configuration?step=entry')
-    
-    // Vérifier que les champs sont toujours remplis
-    await expect(page.locator('input[name="orderNo"]')).toHaveValue(testData.orderNo)
-  })
-  
-  test('Should allow retry after error with real IFS data', async ({ page }) => {
-    const notFoundData = AST_TEST_DATA.shopOrders.notFound
-    const validData = AST_TEST_DATA.shopOrders.withSerialNumber
-    
-    await page.goto('/boat-configuration')
-    
-    // Premier essai - erreur (vraie recherche IFS AST)
-    await page.fill('input[name="orderNo"]', notFoundData.orderNo)
-    await page.fill('input[name="releaseNo"]', notFoundData.releaseNo)
-    await page.fill('input[name="sequenceNo"]', notFoundData.sequenceNo)
-    await page.click('button:has-text("Rechercher")')
-    
-    await expect(page.getByText(/Shop Order not found/i)).toBeVisible({ timeout: 30000 })
-    
-    // Deuxième essai - succès (vraie donnée IFS AST)
-    await page.fill('input[name="orderNo"]', validData.orderNo)
-    await page.fill('input[name="releaseNo"]', validData.releaseNo)
-    await page.fill('input[name="sequenceNo"]', validData.sequenceNo)
-    await page.click('button:has-text("Rechercher")')
-    
-    // Devrait réussir avec données IFS réelles
-    await page.waitForURL('**/boat-configuration?step=confirmation', { timeout: 30000 })
-    await expect(page.getByText('Serial Number:')).toBeVisible()
-    await expect(page.getByText(validData.expectedSerial)).toBeVisible()
-  })
-})
-```
-
-**Durée estimée:** 0.5 jour
-
----
-
-### 4.3 Test: No Serial Number (Shop Order sans DOP)
-
-**Fichier:** `tests/boat-configuration/e2e/workflows/no-serial-number.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-
-test.describe('Boat Configuration - No Serial Number', () => {
-  test('Should handle shop order without serial number (no DOP)', async ({ page }) => {
-    await page.goto('/boat-configuration')
-
-    // Saisir Shop Order sans DOP (mock APIM)
-    await page.fill('input[name="orderNo"]', '888')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-
-    await page.waitForURL('**/boat-configuration?step=confirmation')
-
-    // Vérifier affichage N/A pour Serial Number
-    await expect(page.getByText('Serial Number:')).toBeVisible()
-    await expect(page.getByText('N/A')).toBeVisible()
-
-    // Warning badge affiché
-    await expect(page.locator('.badge-warning')).toBeVisible()
-    await expect(page.getByText(/No serial number found/i)).toBeVisible()
-
-    // Confirmer quand même
-    await page.click('button:has-text("Oui, Continuer")')
-
-    // Devrait passer directement à la sélection (skip customer order si pas de serial)
-    await page.waitForURL('**/boat-configuration?step=selection')
-  })
-})
-```
-
-**Durée estimée:** 0.5 jour
-
----
-
-### 4.4 Test: Confirmation Cancel
-
-**Fichier:** `tests/boat-configuration/e2e/workflows/confirmation-cancel.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-
-test.describe('Boat Configuration - Cancel Workflow', () => {
-  test('Should return to entry when user clicks No', async ({ page }) => {
-    await page.goto('/boat-configuration')
-
-    // Workflow jusqu'à confirmation
-    await page.fill('input[name="orderNo"]', '563')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-
-    await page.waitForURL('**/boat-configuration?step=confirmation')
-
-    // Cliquer "Non, Recommencer"
-    await page.click('button:has-text("Non, Recommencer")')
-
-    // Retour à l'entry
-    await expect(page).toHaveURL('**/boat-configuration?step=entry')
-    await expect(page.getByRole('heading', { name: /Step 1/i })).toBeVisible()
-    
-    // Champs réinitialisés
-    await expect(page.locator('input[name="orderNo"]')).toHaveValue('')
-  })
-})
-```
-
-**Durée estimée:** 0.5 jour
-
----
-
-### 4.5 Test: Printer Selection Validation
-
-**Fichier:** `tests/boat-configuration/e2e/workflows/printer-validation.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-
-test.describe('Boat Configuration - Printer Validation', () => {
-  test('Print button should be disabled until printer and language selected', async ({ page }) => {
-    await page.goto('/boat-configuration')
-    
-    // Workflow jusqu'à sélection
-    await page.fill('input[name="orderNo"]', '563')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    
-    await page.waitForURL('**/boat-configuration?step=confirmation')
-    await page.click('button:has-text("Oui, Continuer")')
-    
-    await page.waitForURL('**/boat-configuration?step=customer-order')
-    await page.click('button:has-text("Confirmer")')
-    
-    await page.waitForURL('**/boat-configuration?step=selection')
-
-    // Vérifier bouton désactivé initialement
-    const printButton = page.getByRole('button', { name: 'Print Document' })
-    await expect(printButton).toBeDisabled()
-
-    // Sélectionner seulement l'imprimante
-    await page.selectOption('select[name="printer"]', 'PDF_PRINTER')
-    await expect(printButton).toBeDisabled()
-
-    // Sélectionner la langue
-    await page.selectOption('select[name="language"]', 'en')
-    await expect(printButton).toBeEnabled()
-  })
-  
-  test('Should display printer list from APIM', async ({ page }) => {
-    await page.goto('/boat-configuration')
-    
-    // Workflow jusqu'à sélection
-    await page.fill('input[name="orderNo"]', '563')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    await page.waitForURL('**/boat-configuration?step=confirmation')
-    await page.click('button:has-text("Oui, Continuer")')
-    await page.waitForURL('**/boat-configuration?step=customer-order')
-    await page.click('button:has-text("Confirmer")')
-    await page.waitForURL('**/boat-configuration?step=selection')
-    
-    // Vérifier dropdown imprimantes
-    const printerSelect = page.locator('select[name="printer"]')
-    await expect(printerSelect).toBeVisible()
-    
-    // Vérifier options (mockées par APIM)
-    const options = await printerSelect.locator('option').allTextContents()
-    expect(options.length).toBeGreaterThan(1) // Au moins une option + placeholder
-  })
-})
-```
-
-**Durée estimée:** 1 jour
-
----
-
-### 4.6 Test: Stepper Navigation
-
-**Fichier:** `tests/boat-configuration/e2e/workflows/stepper-navigation.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-
-test.describe('Boat Configuration - Stepper UI', () => {
-  test('Vertical stepper should show current step correctly', async ({ page }) => {
-    await page.goto('/boat-configuration')
-
-    // Step 1 actif
-    const step1 = page.locator('.stepper-step').filter({ hasText: 'Entry' })
-    await expect(step1).toHaveClass(/active/)
-
-    // Workflow vers Step 2
-    await page.fill('input[name="orderNo"]', '563')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    await page.waitForURL('**/boat-configuration?step=confirmation')
-
-    // Step 2 actif, Step 1 completed
-    const step2 = page.locator('.stepper-step').filter({ hasText: 'Confirmation' })
-    await expect(step2).toHaveClass(/active/)
-    await expect(step1).toHaveClass(/completed/)
-    
-    // Continuer vers Step 3
-    await page.click('button:has-text("Oui, Continuer")')
-    await page.waitForURL('**/boat-configuration?step=customer-order')
-    
-    const step3 = page.locator('.stepper-step').filter({ hasText: 'Customer Order' })
-    await expect(step3).toHaveClass(/active/)
-  })
-})
-```
-
-**Durée estimée:** 0.5 jour
-
----
-
-### 4.7 Test: Error Handling APIM
-
-**Fichier:** `tests/boat-configuration/e2e/workflows/apim-errors.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-
-test.describe('Boat Configuration - APIM Error Handling', () => {
-  test('Should handle APIM timeout gracefully', async ({ page }) => {
-    // Note: Ce test nécessite de configurer MSW pour simuler timeout
-    await page.goto('/boat-configuration')
-    
-    await page.fill('input[name="orderNo"]', 'TIMEOUT_TEST')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    
-    // Vérifier message d'erreur timeout
-    await expect(page.getByText(/Connection timeout/i)).toBeVisible({ timeout: 30000 })
-  })
-  
-  test('Should handle APIM 401 Unauthorized', async ({ page }) => {
-    // Simuler erreur auth Azure AD
-    await page.goto('/boat-configuration')
-    
-    await page.fill('input[name="orderNo"]', 'AUTH_ERROR_TEST')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    
-    // Vérifier message d'erreur auth
-    await expect(page.getByText(/Authentication failed/i)).toBeVisible()
-  })
-  
-  test('Should handle APIM 500 Internal Server Error', async ({ page }) => {
-    await page.goto('/boat-configuration')
-    
-    await page.fill('input[name="orderNo"]', '500_ERROR_TEST')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    
-    // Vérifier message d'erreur serveur
-    await expect(page.getByText(/Server error|Something went wrong/i)).toBeVisible()
-  })
-})
-```
-
-**Durée estimée:** 1 jour
-
----
-
-### 4.8 Tests Cross-Browser & Mobile
-
-**Fichier:** `tests/boat-configuration/e2e/workflows/cross-platform.spec.ts`
-
-```typescript
-import { test, expect } from '@playwright/test'
-
-test.describe('Boat Configuration - Cross-Browser Compatibility', () => {
-  test('Should work on all browsers (Chrome, Firefox, Safari)', async ({ page, browserName }) => {
-    console.log(`Testing on ${browserName}`)
-    
-    await page.goto('/boat-configuration')
-    
-    // Workflow complet
-    await page.fill('input[name="orderNo"]', '563')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    
-    await page.waitForURL('**/boat-configuration?step=confirmation')
-    await expect(page.getByText('Serial Number:')).toBeVisible()
-  })
-})
-
-test.describe('Boat Configuration - Mobile Compatibility', () => {
-  test('Should work on mobile devices', async ({ page }) => {
-    await page.goto('/boat-configuration')
-    
-    // Vérifier responsive design
-    const heading = page.getByRole('heading', { name: 'Boat Configuration Editor' })
-    await expect(heading).toBeVisible()
-    
-    // Workflow sur mobile
-    await page.fill('input[name="orderNo"]', '563')
-    await page.fill('input[name="releaseNo"]', '*')
-    await page.fill('input[name="sequenceNo"]', '*')
-    await page.click('button:has-text("Rechercher")')
-    
-    await page.waitForURL('**/boat-configuration?step=confirmation')
-    await expect(page.getByText('Serial Number:')).toBeVisible()
-  })
-})
-```
-
-**Durée estimée:** 0.5 jour
-
----
-
-**📊 Résumé Phase 4:**
-- **Durée totale:** 7 jours (au lieu de 6 - configuration AST + fixtures)
-- **Fichiers de tests:** 8
-- **Tests estimés:** ~20-25 tests E2E
-- **Navigateurs:** Chrome, Firefox (Safari désactivé pour AST)
-- **Mobile:** Pixel 5
-- **Couverture:** 100% des workflows critiques + gestion erreurs APIM
-- **⚠️ IMPORTANT:** Tests avec **APIM Test Environment (AST) + vraies données IFS**
-- **Performance:** ~15-20 minutes (vs 5-8 min avec mocks, mais **100x plus fiable**)
-- **Prérequis:** Configuration `.env.e2e` avec credentials AST
-
----
 
 ## ☁️ Phase 5 : CI/CD Azure DevOps (Semaine 3-4 - 4 jours)
 

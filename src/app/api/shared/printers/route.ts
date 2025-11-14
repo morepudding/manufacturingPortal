@@ -14,9 +14,9 @@ import { getErrorService } from '@/tools/part-printer/services/error-service'
 import { ErrorCode } from '@/tools/part-printer/types/error'
 
 interface IFSPrinter {
-  LogicalPrinter: string
+  PrinterId: string      // ✅ Nom correct du champ IFS (pas LogicalPrinter)
   Description: string
-  PhysicalPrinter: string
+  // Note: PhysicalPrinter n'existe pas dans LogicalPrinterSet
 }
 
 interface IFSODataResponse {
@@ -31,8 +31,9 @@ export async function GET(request: NextRequest) {
   try {
     const client = getIFSClient()
 
+    // ✅ Utiliser LogicalPrintersHandling (configuré dans Azure APIM)
     const response = await client.get<IFSODataResponse>(
-      'PrintDialog.svc/LogicalPrinterSet'
+      'LogicalPrintersHandling.svc/LogicalPrinterSet'
     )
 
     // ⚠️ PP_W003: Aucune imprimante trouvée (WARNING)

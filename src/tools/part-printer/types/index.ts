@@ -201,12 +201,12 @@ export interface ShopOrderFilterParams {
 export type PrintMode = 'listing-only' | 'labels-only' | 'listing-and-labels'
 
 /**
- * Imprimante IFS (LogicalPrinter)
+ * Imprimante IFS (LogicalPrintersHandling.svc/LogicalPrinterSet)
  */
 export interface IFSPrinter {
-  LogicalPrinter: string    // ID de l'imprimante logique (ex: "PRINTER_01")
+  PrinterId: string         // ✅ ID de l'imprimante logique (ex: "PRTBX040")
   Description: string       // Description (ex: "Imprimante Production Line 1")
-  PhysicalPrinter: string   // Imprimante physique associée
+  // Note: PhysicalPrinter n'existe pas dans LogicalPrinterSet
 }
 
 // ============================================================================

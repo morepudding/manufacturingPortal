@@ -140,8 +140,13 @@ async function getAccessToken(): Promise<string> {
   }
 
   // 3. Valider la config
-  if (!config.clientId || !config.clientSecret || !config.tenantId) {
-    throw new Error('Configuration Azure Print OAuth2 incomplète dans .env.local')
+  const missingVars: string[] = []
+  if (!config.clientId) missingVars.push('AZURE_PRINT_CLIENT_ID')
+  if (!config.clientSecret) missingVars.push('AZURE_PRINT_CLIENT_SECRET')
+  if (!config.tenantId) missingVars.push('AZURE_PRINT_TENANT_ID')
+  
+  if (missingVars.length > 0) {
+    throw new Error(`Variables d'environnement manquantes: ${missingVars.join(', ')}`)
   }
 
   // 4. Préparer la requête OAuth2
@@ -248,14 +253,18 @@ export async function printLabels(
   }
 
   // 2. Configuration
-  const apiUrl = process.env.AZURE_PRINT_API_URL!
-  const subscriptionKey = process.env.AZURE_PRINT_SUBSCRIPTION_KEY!
+  const apiUrl = process.env.AZURE_PRINT_API_URL
+  const subscriptionKey = process.env.AZURE_PRINT_SUBSCRIPTION_KEY
   const printModel = options.printModel || 'BEN_MA_FO_CR_184.rdl'
   const maxRetries = options.retryAttempts || 3
   const baseDelay = options.retryDelayMs || 1000
 
-  if (!apiUrl || !subscriptionKey) {
-    throw new Error('Configuration Azure Print API incomplète dans .env.local')
+  const missingVars: string[] = []
+  if (!apiUrl) missingVars.push('AZURE_PRINT_API_URL')
+  if (!subscriptionKey) missingVars.push('AZURE_PRINT_SUBSCRIPTION_KEY')
+  
+  if (missingVars.length > 0) {
+    throw new Error(`Variables d'environnement manquantes: ${missingVars.join(', ')}`)
   }
 
   // 3. Générer le payload

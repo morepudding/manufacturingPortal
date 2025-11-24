@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BoatCarousel } from '@/shared/components/organisms/BoatCarousel'
+import { getCurrentVersion, getEnvironmentName } from '@/core/config/version'
 
 type Language = 'fr' | 'en'
 
@@ -78,6 +79,9 @@ export default function Home() {
   const [particles, setParticles] = useState<Particle[]>([])
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const t = TRANSLATIONS[lang]
+  
+  const version = getCurrentVersion()
+  const environment = getEnvironmentName()
 
   // Générer particules flottantes au montage
   useEffect(() => {
@@ -105,6 +109,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-gray-900 overflow-hidden">
+      {/* Version Badge - En haut à gauche */}
+      <div className="fixed top-6 left-6 z-50">
+        <div className="px-4 py-2 rounded-lg bg-gray-800/90 backdrop-blur-sm border border-gray-700 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${
+                environment === 'PRD' ? 'bg-green-500' : 
+                environment === 'PPD' ? 'bg-yellow-500' : 
+                'bg-blue-500'
+              } animate-pulse`} />
+              <span className="text-xs font-medium text-gray-400">{environment}</span>
+            </div>
+            <div className="h-4 w-px bg-gray-700" />
+            <span className="text-sm font-semibold text-white">v{version}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Language Switcher - Plus sobre */}
       <div className="fixed top-24 right-6 z-50 flex gap-2">
         <button

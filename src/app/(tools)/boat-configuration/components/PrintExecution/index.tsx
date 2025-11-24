@@ -160,8 +160,8 @@ export function PrintExecution({
         <div className="space-y-6">
           <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">
             <h3 className="font-semibold text-cyan-300 mb-3 flex items-center gap-2">
-              <Printer className="w-5 h-5" />
-              Sélection Imprimante & Langue
+              <FileText className="w-5 h-5" />
+              Configuration d'impression PDF
             </h3>
 
             {loadingData ? (
@@ -170,10 +170,20 @@ export function PrintExecution({
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Sélection Imprimante */}
+                {/* Info Impression PDF */}
+                <div className="bg-blue-950/50 border border-blue-800/50 rounded-md p-3">
+                  <p className="text-sm text-blue-200 flex items-start gap-2">
+                    <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Le document sera généré en PDF et téléchargé automatiquement sur votre ordinateur.</span>
+                  </p>
+                </div>
+
+                {/* Sélection Imprimante (pour IFS) */}
                 <div>
                   <Label htmlFor="printer" className="text-gray-200 mb-2 block">
-                    Imprimante *
+                    Imprimante IFS (technique) *
                   </Label>
                   <Select value={selectedPrinter} onValueChange={setSelectedPrinter}>
                     <SelectTrigger id="printer" className="bg-gray-900/50 border-gray-600 text-white h-12">
@@ -192,7 +202,7 @@ export function PrintExecution({
                 {/* Sélection Langue */}
                 <div>
                   <Label htmlFor="language" className="text-gray-200 mb-2 block">
-                    Langue *
+                    Langue du document *
                   </Label>
                   <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                     <SelectTrigger id="language" className="bg-gray-900/50 border-gray-600 text-white h-12">
@@ -206,6 +216,9 @@ export function PrintExecution({
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-gray-400 mt-1.5">
+                    Le document contiendra les informations en français et en anglais
+                  </p>
                 </div>
               </div>
             )}

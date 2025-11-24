@@ -10,35 +10,49 @@ export const APP_VERSION = {
 } as const
 
 /**
+ * Détecte l'environnement à partir de l'URL
+ */
+function detectEnvironmentFromURL(): 'dev' | 'ppd' | 'prd' {
+  if (typeof window === 'undefined') {
+    return 'dev'
+  }
+
+  const hostname = window.location.hostname
+
+  // https://manufacturingportal.beneteau-group.com = PRD
+  if (hostname === 'manufacturingportal.beneteau-group.com') {
+    return 'prd'
+  }
+
+  // https://int.manufacturingportal.beneteau-group.com = PPD
+  if (hostname === 'int.manufacturingportal.beneteau-group.com') {
+    return 'ppd'
+  }
+
+  // https://dev.manufacturingportal.beneteau-group.com = DEV
+  // localhost = DEV (par défaut)
+  return 'dev'
+}
+
+/**
  * Récupère la version actuelle selon l'environnement
  */
 export function getCurrentVersion(): string {
-  const env = process.env.NEXT_PUBLIC_ENV || process.env.NODE_ENV || 'dev'
-  
-  // Mapper les environnements
-  if (env === 'production' || env === 'prd') {
-    return APP_VERSION.prd
-  }
-  
-  if (env === 'preprod' || env === 'ppd' || env === 'preview') {
-    return APP_VERSION.ppd
-  }
-  
-  // Par défaut: dev
-  return APP_VERSION.dev
+  const env = detectEnvironmentFromURL()
+  return APP_VERSION[env]
 }
 
 /**
  * Récupère le nom de l'environnement actuel
  */
 export function getEnvironmentName(): string {
-  const env = process.env.NEXT_PUBLIC_ENV || process.env.NODE_ENV || 'dev'
+  const env = detectEnvironmentFromURL()
   
-  if (env === 'production' || env === 'prd') {
+  if (env === 'prd') {
     return 'PRD'
   }
   
-  if (env === 'preprod' || env === 'ppd' || env === 'preview') {
+  if (env === 'ppd') {
     return 'PPD'
   }
   

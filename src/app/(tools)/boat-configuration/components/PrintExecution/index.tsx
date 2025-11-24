@@ -7,11 +7,9 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/shared/components/atoms/Button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/atoms/Select'
-import { Label } from '@/shared/components/atoms/Label'
-import { Download, ArrowLeft, CheckCircle, XCircle, Loader2, FileText, Printer } from 'lucide-react'
+import { Download, CheckCircle, XCircle, Loader2, FileText, ArrowLeft } from 'lucide-react'
 
 interface PrintExecutionProps {
   orderNo: string
@@ -19,74 +17,21 @@ interface PrintExecutionProps {
   onReset: () => void
 }
 
-interface LogicalPrinter {
-  PrinterId: string
-  Description: string
-}
-
-interface Language {
-  LanguageCode: string
-  Description: string
-}
-
 export function PrintExecution({
   orderNo,
   serialNumber,
   onReset,
 }: PrintExecutionProps) {
-  const [printers, setPrinters] = useState<LogicalPrinter[]>([])
-  const [languages, setLanguages] = useState<Language[]>([])
-  const [selectedPrinter, setSelectedPrinter] = useState<string>('')
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('')
-  const [loadingData, setLoadingData] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [pdfFileName, setPdfFileName] = useState<string>('')
 
-  // Charger les imprimantes et langues au montage
-  useEffect(() => {
-    const loadData = async () => {
-      setLoadingData(true)
-      try {
-        const [printersRes, languagesRes] = await Promise.all([
-          fetch('/api/shared/printers'),
-          fetch('/api/shared/languages')
-        ])
-
-        if (printersRes.ok) {
-          const printersData = await printersRes.json()
-          setPrinters(printersData.data || [])
-          // Sélectionner la première imprimante par défaut
-          if (printersData.data && printersData.data.length > 0) {
-            setSelectedPrinter(printersData.data[0].PrinterId)
-          }
-        }
-
-        if (languagesRes.ok) {
-          const languagesData = await languagesRes.json()
-          setLanguages(languagesData.data || [])
-          // Sélectionner la première langue par défaut
-          if (languagesData.data && languagesData.data.length > 0) {
-            setSelectedLanguage(languagesData.data[0].LanguageCode)
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load printers/languages:', err)
-      } finally {
-        setLoadingData(false)
-      }
-    }
-
-    loadData()
-  }, [])
+  // Valeurs par défaut fixes
+  const selectedPrinter = 'PDF_PRINTER'
+  const selectedLanguage = 'en'
 
   const handleDownloadPDF = async () => {
-    if (!selectedPrinter || !selectedLanguage) {
-      setError('Veuillez sélectionner une imprimante et une langue')
-      return
-    }
-
     setLoading(true)
     setError(null)
     setSuccess(false)
@@ -161,67 +106,28 @@ export function PrintExecution({
           <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">
             <h3 className="font-semibold text-cyan-300 mb-3 flex items-center gap-2">
               <FileText className="w-5 h-5" />
-              Configuration d'impression PDF
+              Impression PDF
             </h3>
 
-            {loadingData ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Info Impression PDF */}
-                <div className="bg-blue-950/50 border border-blue-800/50 rounded-md p-3">
+            <div className="space-y-3">
+              {/* Info Impression PDF */}
+              <div className="bg-blue-950/50 border border-blue-800/50 rounded-md p-4">
+                <div className="space-y-2">
                   <p className="text-sm text-blue-200 flex items-start gap-2">
                     <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
-                    <span>Le document sera généré en PDF et téléchargé automatiquement sur votre ordinateur.</span>
+                    <span><strong>Format :</strong> Le document sera généré en PDF et téléchargé automatiquement sur votre ordinateur.</span>
                   </p>
-                </div>
-
-                {/* Sélection Imprimante (pour IFS) */}
-                <div>
-                  <Label htmlFor="printer" className="text-gray-200 mb-2 block">
-                    Imprimante IFS (technique) *
-                  </Label>
-                  <Select value={selectedPrinter} onValueChange={setSelectedPrinter}>
-                    <SelectTrigger id="printer" className="bg-gray-900/50 border-gray-600 text-white h-12">
-                      <SelectValue placeholder="Sélectionnez une imprimante" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {printers.map((printer) => (
-                        <SelectItem key={printer.PrinterId} value={printer.PrinterId}>
-                          {printer.Description || printer.PrinterId}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Sélection Langue */}
-                <div>
-                  <Label htmlFor="language" className="text-gray-200 mb-2 block">
-                    Langue du document *
-                  </Label>
-                  <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                    <SelectTrigger id="language" className="bg-gray-900/50 border-gray-600 text-white h-12">
-                      <SelectValue placeholder="Sélectionnez une langue" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languages.map((language) => (
-                        <SelectItem key={language.LanguageCode} value={language.LanguageCode}>
-                          {language.Description || language.LanguageCode}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-400 mt-1.5">
-                    Le document contiendra les informations en français et en anglais
+                  <p className="text-sm text-blue-200 flex items-start gap-2">
+                    <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg>
+                    <span><strong>Langues :</strong> Le document contiendra les informations en français et en anglais.</span>
                   </p>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">

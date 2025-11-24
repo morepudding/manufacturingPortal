@@ -109,46 +109,45 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-gray-900 overflow-hidden">
-      {/* Version Badge - En haut à gauche */}
-      <div className="fixed top-6 left-6 z-50">
-        <div className="px-4 py-2 rounded-lg bg-gray-800/90 backdrop-blur-sm border border-gray-700 shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${
-                environment === 'PRD' ? 'bg-green-500' : 
-                environment === 'PPD' ? 'bg-yellow-500' : 
-                'bg-blue-500'
-              } animate-pulse`} />
-              <span className="text-xs font-medium text-gray-400">{environment}</span>
-            </div>
-            <div className="h-4 w-px bg-gray-700" />
-            <span className="text-sm font-semibold text-white">v{version}</span>
+      {/* Language Switcher + Version Badge */}
+      <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+        {/* Version Badge */}
+        <div className="px-3 py-1.5 rounded-md bg-gray-800/90 backdrop-blur-sm border border-gray-700 shadow-lg">
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${
+              environment === 'PRD' ? 'bg-green-500' : 
+              environment === 'PPD' ? 'bg-yellow-500' : 
+              'bg-blue-500'
+            } animate-pulse`} />
+            <span className="text-xs font-medium text-gray-400">{environment}</span>
+            <div className="h-3 w-px bg-gray-700" />
+            <span className="text-xs font-semibold text-white">v{version}</span>
           </div>
         </div>
-      </div>
 
-      {/* Language Switcher - Plus sobre */}
-      <div className="fixed top-24 right-6 z-50 flex gap-2">
-        <button
-          onClick={() => setLang('fr')}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
-            lang === 'fr'
-              ? 'bg-blue-600 text-white shadow-lg'
-              : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700'
-          }`}
-        >
-          🇫🇷 FR
-        </button>
-        <button
-          onClick={() => setLang('en')}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
-            lang === 'en'
-              ? 'bg-blue-600 text-white shadow-lg'
-              : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700'
-          }`}
-        >
-          🇬🇧 EN
-        </button>
+        {/* Language Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setLang('fr')}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
+              lang === 'fr'
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700'
+            }`}
+          >
+            🇫🇷 FR
+          </button>
+          <button
+            onClick={() => setLang('en')}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
+              lang === 'en'
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700'
+            }`}
+          >
+            🇬🇧 EN
+          </button>
+        </div>
       </div>
 
       <main className="relative pt-20 pb-16 px-4">

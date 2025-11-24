@@ -5,19 +5,17 @@
  * Ambiance: Océan/Maritime (tons bleus)
  */
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/shared/components/atoms/Button'
 import { Input } from '@/shared/components/atoms/Input'
 import { Label } from '@/shared/components/atoms/Label'
 
-import { CustomerOrderValidation, type CustomerOrderData } from '@/app/(tools)/boat-configuration/components/CustomerOrderValidation'
 import { PrintExecution } from '@/app/(tools)/boat-configuration/components/PrintExecution'
-import { PrinterLanguageSelection } from '@/app/(tools)/boat-configuration/components/PrinterLanguageSelection'
 import { ContextualSidebar } from '@/app/(tools)/boat-configuration/components/ContextualSidebar'
 import { VerticalStepper } from '@/app/(tools)/boat-configuration/components/VerticalStepper'
-import { Search, CheckCircle, XCircle, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
+import { Search, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
-type Step = 'entry' | 'confirmation' | 'customer-order' | 'selection' | 'print'
+type Step = 'entry' | 'confirmation' | 'print'
 
 interface ShopOrderData {
   orderNo: string
@@ -53,10 +51,6 @@ export default function BoatConfigurationPage() {
   const [searchResult, setSearchResult] = useState<ShopOrderResult | null>(null)
   const [serialNumber, setSerialNumber] = useState<string>('N/A')
   const [dopHeaderId, setDopHeaderId] = useState<string>('N/A')
-  const [customerOrder, setCustomerOrder] = useState<CustomerOrderData | null>(null)
-  const [printerId, setPrinterId] = useState<string>('')
-  const [languageCode, setLanguageCode] = useState<string>('')
-  const [loadingCustomerOrder, setLoadingCustomerOrder] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -64,9 +58,7 @@ export default function BoatConfigurationPage() {
   const stepMapping: Record<Step, number> = {
     'entry': 1,
     'confirmation': 2,
-    'customer-order': 3,
-    'selection': 4,
-    'print': 5,
+    'print': 3,
   }
 
   const currentStepNumber = stepMapping[currentStep]
@@ -75,9 +67,7 @@ export default function BoatConfigurationPage() {
   const stepperSteps = [
     { id: 1, label: 'Entry', completed: currentStepNumber > 1, active: currentStepNumber === 1 },
     { id: 2, label: 'Confirm', completed: currentStepNumber > 2, active: currentStepNumber === 2 },
-    { id: 3, label: 'Customer', completed: currentStepNumber > 3, active: currentStepNumber === 3 },
-    { id: 4, label: 'Selection', completed: currentStepNumber > 4, active: currentStepNumber === 4 },
-    { id: 5, label: 'Download', completed: currentStepNumber > 5, active: currentStepNumber === 5 },
+    { id: 3, label: 'Print', completed: currentStepNumber > 3, active: currentStepNumber === 3 },
   ]
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -111,99 +101,9 @@ export default function BoatConfigurationPage() {
     }
   }
 
-  const handleConfirmYes = async () => {
-    // ⭐ MÉTHODE OPTIMALE : Charger Customer Order directement via HullNumber + Site
-    if (serialNumber && serialNumber !== 'N/A') {
-      setLoadingCustomerOrder(true)
-      setError(null)
-
-      try {
-        console.log('🚀 Loading Customer Order via Hull Number (optimal method)...')
-        
-        // ⚡ STRATÉGIE: Essayer avec CustomerNo communs, sinon sans filtre
-        const commonSites = ['FR05A', 'FR02A', 'FR01A']
-        
-        let customerOrder = null
-        let attempts = 0
-        
-        // Tentative 1: Essayer les sites courants avec filtre (rapide)
-        for (const site of commonSites) {
-          attempts++
-          console.log(`   🔍 Tentative ${attempts}: Site ${site}...`)
-          
-          try {
-            const response = await fetch(
-              `/api/boat-configuration/customer-orders?hullNumber=${serialNumber}&site=${site}`
-            )
-            const data = await response.json()
-            
-            if (response.ok && data.success && data.data?.customerOrder) {
-              customerOrder = data.data.customerOrder
-              console.log(`   ✅ Trouvé sur site ${site} !`)
-              break
-            }
-          } catch (err) {
-            console.log(`   ⚠️  Échec site ${site}`)
-          }
-        }
-        
-        // Tentative 2: Si rien trouvé, recherche sans filtre (plus lent mais exhaustif)
-        if (!customerOrder) {
-          console.log(`   🔍 Tentative ${attempts + 1}: Recherche sans filtre site (peut être lent)...`)
-          const response = await fetch(
-            `/api/boat-configuration/customer-orders?hullNumber=${serialNumber}`
-          )
-          const data = await response.json()
-          
-          if (response.ok && data.success && data.data?.customerOrder) {
-            customerOrder = data.data.customerOrder
-            console.log(`   ✅ Trouvé sans filtre site`)
-          }
-        }
-        
-        if (customerOrder) {
-          console.log('✅ Customer Order loaded successfully')
-          setCustomerOrder(customerOrder)
-          setCurrentStep('customer-order')
-        } else {
-          // Pas de Customer Order trouvé
-          console.log('ℹ️ No Customer Order found, skipping to printer selection')
-          setCurrentStep('selection')
-        }
-      } catch (err) {
-        console.warn('⚠️ Failed to load Customer Order, continuing without it:', err)
-        // En cas d'erreur, passer directement à la sélection imprimante/langue
-        setCurrentStep('selection')
-      } finally {
-        setLoadingCustomerOrder(false)
-      }
-    } else {
-      // Pas de Serial Number, passer directement à la sélection imprimante/langue
-      setCurrentStep('selection')
-    }
-  }
-
-  const handleCustomerOrderConfirm = () => {
-    setCurrentStep('selection')
-  }
-
-  const handleCustomerOrderCancel = () => {
-    setCurrentStep('confirmation')
-    setCustomerOrder(null)
-  }
-
-  const handlePrinterLanguageConfirm = (printerId: string, languageCode: string) => {
-    setPrinterId(printerId)
-    setLanguageCode(languageCode)
+  const handleConfirmYes = () => {
+    // Passer directement à l'étape d'impression
     setCurrentStep('print')
-  }
-
-  const handlePrinterLanguageCancel = () => {
-    if (customerOrder) {
-      setCurrentStep('customer-order')
-    } else {
-      setCurrentStep('confirmation')
-    }
   }
 
   const handleConfirmNo = () => {
@@ -218,9 +118,6 @@ export default function BoatConfigurationPage() {
     setSearchResult(null)
     setSerialNumber('N/A')
     setDopHeaderId('N/A')
-    setCustomerOrder(null)
-    setPrinterId('')
-    setLanguageCode('')
     setError(null)
   }
 
@@ -238,7 +135,6 @@ export default function BoatConfigurationPage() {
         partNo={searchResult?.shopOrder?.PartNo}
         partDescription={searchResult?.shopOrder?.PartDescription}
         contract={searchResult?.shopOrder?.Contract}
-        customerOrderNo={customerOrder?.orderNo}
       />
 
       {/* Contenu principal avec décalage pour stepper gauche et sidebar droite */}
@@ -259,8 +155,8 @@ export default function BoatConfigurationPage() {
             <p className="text-xl text-cyan-200 font-light">Gestion des ordres de fabrication</p>
           </div>
 
-        {/* Step 1: Entry */}
-        {currentStep === 'entry' && (
+          {/* Step 1: Entry */}
+          {currentStep === 'entry' && (
           <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-8">
             <h2 className="text-3xl font-bold text-white mb-8">Step 1: Enter Shop Order Details</h2>
             <form onSubmit={handleSearch} className="space-y-8">
@@ -326,8 +222,8 @@ export default function BoatConfigurationPage() {
           </div>
         )}
 
-        {/* Step 2: Confirmation */}
-        {currentStep === 'confirmation' && searchResult && (
+          {/* Step 2: Confirmation */}
+          {currentStep === 'confirmation' && searchResult && (
           <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Step 2: Confirm Serial Number</h2>
             <div className="space-y-4 mb-6">
@@ -353,18 +249,11 @@ export default function BoatConfigurationPage() {
             <div className="space-y-4">
               <p className="text-center font-medium text-white text-2xl mb-6">Confirmez-vous ce numéro de série ?</p>
               <div className="flex gap-6">
-                <Button onClick={handleConfirmYes} disabled={loadingCustomerOrder} className="flex-1 h-24 text-2xl font-bold bg-teal-600 hover:bg-teal-500 transition-all hover:scale-105 active:scale-95 shadow-lg rounded-xl">
-                  {loadingCustomerOrder ? (
-                    <span className="flex items-center justify-center gap-3">
-                      <Loader2 className="w-10 h-10 animate-spin" />
-                      <span>Chargement...</span>
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-3">
-                      <CheckCircle className="w-10 h-10" />
-                      <span>Oui, Continuer</span>
-                    </span>
-                  )}
+                <Button onClick={handleConfirmYes} className="flex-1 h-24 text-2xl font-bold bg-teal-600 hover:bg-teal-500 transition-all hover:scale-105 active:scale-95 shadow-lg rounded-xl">
+                  <span className="flex items-center justify-center gap-3">
+                    <CheckCircle className="w-10 h-10" />
+                    <span>Oui, Continuer</span>
+                  </span>
                 </Button>
                 <Button onClick={handleConfirmNo} variant="outline" className="flex-1 h-24 text-2xl font-bold border-2 border-gray-600 text-gray-300 hover:bg-gray-700 transition-all hover:scale-105 active:scale-95 rounded-xl">
                   <span className="flex items-center justify-center gap-3">
@@ -377,40 +266,13 @@ export default function BoatConfigurationPage() {
           </div>
         )}
 
-        {/* Step 3: Customer Order Validation */}
-        {currentStep === 'customer-order' && customerOrder && (
+          {/* Step 3: Print */}
+          {currentStep === 'print' && (
           <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
-            <CustomerOrderValidation
-              customerOrder={customerOrder}
-              serialNumber={serialNumber}
-              serialNumberMatch={customerOrder.chullNumber === serialNumber}
-              onConfirm={handleCustomerOrderConfirm}
-              onCancel={handleCustomerOrderCancel}
-              isLoading={false}
-            />
-          </div>
-        )}
-
-        {/* Step 4: Printer & Language Selection */}
-        {currentStep === 'selection' && (
-          <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Step 4: Sélection Imprimante & Langue</h2>
-            <PrinterLanguageSelection
-              onConfirm={handlePrinterLanguageConfirm}
-              onCancel={handlePrinterLanguageCancel}
-            />
-          </div>
-        )}
-
-        {/* Step 5: Download PDF */}
-        {currentStep === 'print' && (
-          <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Step 5: Download PDF</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">Step 3: Print</h2>
             <PrintExecution
-              orderNo={customerOrder?.orderNo || searchResult?.shopOrder?.CustomerOrderNo || 'UNKNOWN'}
+              orderNo={searchResult?.shopOrder?.CustomerOrderNo || 'UNKNOWN'}
               serialNumber={serialNumber}
-              printerId={printerId}
-              languageCode={languageCode}
               onReset={handleReset}
             />
           </div>

@@ -38,6 +38,9 @@ export default defineConfig({
     // Base URL (port 3002 car 3000/3001 sont occupés)
     baseURL: process.env.BASE_URL || 'http://localhost:3002',
     
+    // Toujours afficher le navigateur (même en mode UI)
+    headless: false,
+    
     // Trace en cas d'échec
     trace: 'on-first-retry',
     
@@ -51,12 +54,12 @@ export default defineConfig({
     actionTimeout: 10000,
   },
   
-  // Timeout global des tests (augmenté pour APIs IFS réelles)
-  timeout: 90000, // 90s pour permettre les appels IFS lents
+  // Timeout global des tests (augmenté pour APIs IFS réelles + slowMo)
+  timeout: 180000, // 180s (3 minutes) pour permettre slowMo + appels IFS lents
   
-  // Timeout pour expect (augmenté pour attendre les réponses IFS)
+  // Timeout pour expect (augmenté pour attendre les réponses IFS + slowMo)
   expect: {
-    timeout: 15000, // 15s pour les assertions avec vraies APIs
+    timeout: 30000, // 30s pour les assertions avec vraies APIs + slowMo
   },
   
   // Projets de test (navigateurs)
@@ -66,6 +69,9 @@ export default defineConfig({
       use: { 
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
+        launchOptions: {
+          slowMo: 2000, // Ralentir à 0.25x vitesse (2000ms entre actions)
+        },
       },
     },
     {
@@ -73,6 +79,9 @@ export default defineConfig({
       use: { 
         ...devices['Desktop Firefox'],
         viewport: { width: 1920, height: 1080 },
+        launchOptions: {
+          slowMo: 2000,
+        },
       },
     },
     {
@@ -80,6 +89,9 @@ export default defineConfig({
       use: { 
         ...devices['Desktop Safari'],
         viewport: { width: 1920, height: 1080 },
+        launchOptions: {
+          slowMo: 2000,
+        },
       },
     },
   ],

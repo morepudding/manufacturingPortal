@@ -8,7 +8,7 @@
 import { CheckCircle, Circle } from 'lucide-react'
 import { cn } from '@/shared/utils/utils'
 
-type Step = 'entry' | 'confirmation' | 'customer-order' | 'selection' | 'print'
+type Step = 'entry' | 'confirmation' | 'print'
 
 interface StepperStep {
   id: number

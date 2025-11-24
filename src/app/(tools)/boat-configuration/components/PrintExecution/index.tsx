@@ -7,31 +7,86 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/shared/components/atoms/Button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/atoms/Select'
+import { Label } from '@/shared/components/atoms/Label'
 import { Download, ArrowLeft, CheckCircle, XCircle, Loader2, FileText, Printer } from 'lucide-react'
 
 interface PrintExecutionProps {
   orderNo: string
   serialNumber: string
-  printerId: string
-  languageCode: string
   onReset: () => void
+}
+
+interface LogicalPrinter {
+  PrinterId: string
+  Description: string
+}
+
+interface Language {
+  LanguageCode: string
+  Description: string
 }
 
 export function PrintExecution({
   orderNo,
   serialNumber,
-  printerId,
-  languageCode,
   onReset,
 }: PrintExecutionProps) {
+  const [printers, setPrinters] = useState<LogicalPrinter[]>([])
+  const [languages, setLanguages] = useState<Language[]>([])
+  const [selectedPrinter, setSelectedPrinter] = useState<string>('')
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('')
+  const [loadingData, setLoadingData] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [pdfFileName, setPdfFileName] = useState<string>('')
 
+  // Charger les imprimantes et langues au montage
+  useEffect(() => {
+    const loadData = async () => {
+      setLoadingData(true)
+      try {
+        const [printersRes, languagesRes] = await Promise.all([
+          fetch('/api/shared/printers'),
+          fetch('/api/shared/languages')
+        ])
+
+        if (printersRes.ok) {
+          const printersData = await printersRes.json()
+          setPrinters(printersData.data || [])
+          // Sélectionner la première imprimante par défaut
+          if (printersData.data && printersData.data.length > 0) {
+            setSelectedPrinter(printersData.data[0].PrinterId)
+          }
+        }
+
+        if (languagesRes.ok) {
+          const languagesData = await languagesRes.json()
+          setLanguages(languagesData.data || [])
+          // Sélectionner la première langue par défaut
+          if (languagesData.data && languagesData.data.length > 0) {
+            setSelectedLanguage(languagesData.data[0].LanguageCode)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load printers/languages:', err)
+      } finally {
+        setLoadingData(false)
+      }
+    }
+
+    loadData()
+  }, [])
+
   const handleDownloadPDF = async () => {
+    if (!selectedPrinter || !selectedLanguage) {
+      setError('Veuillez sélectionner une imprimante et une langue')
+      return
+    }
+
     setLoading(true)
     setError(null)
     setSuccess(false)
@@ -43,8 +98,8 @@ export function PrintExecution({
         body: JSON.stringify({
           orderNo,
           reportId: 'PROFORMA_INVOICE_REP',
-          printerId,
-          languageCode,
+          printerId: selectedPrinter,
+          languageCode: selectedLanguage,
           layoutName: 'BEN_Boat_configuration_for_production.rdl',
           downloadPdf: true,
         }),
@@ -100,33 +155,80 @@ export function PrintExecution({
 
   return (
     <div className="space-y-6">
-      <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">
-        <h3 className="font-semibold text-cyan-300 mb-3 flex items-center gap-2">
-          <FileText className="w-5 h-5" />
-          Configuration PDF
-        </h3>
-        <div className="grid grid-cols-2 gap-3 text-sm text-gray-300">
-          <div>
-            <span className="font-medium text-cyan-400">Customer Order:</span>
-            <div className="text-white font-semibold">{orderNo}</div>
+      {/* Sélection Imprimante & Langue */}
+      {!success && (
+        <div className="space-y-6">
+          <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">
+            <h3 className="font-semibold text-cyan-300 mb-3 flex items-center gap-2">
+              <Printer className="w-5 h-5" />
+              Sélection Imprimante & Langue
+            </h3>
+
+            {loadingData ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Sélection Imprimante */}
+                <div>
+                  <Label htmlFor="printer" className="text-gray-200 mb-2 block">
+                    Imprimante *
+                  </Label>
+                  <Select value={selectedPrinter} onValueChange={setSelectedPrinter}>
+                    <SelectTrigger id="printer" className="bg-gray-900/50 border-gray-600 text-white h-12">
+                      <SelectValue placeholder="Sélectionnez une imprimante" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {printers.map((printer) => (
+                        <SelectItem key={printer.PrinterId} value={printer.PrinterId}>
+                          {printer.Description || printer.PrinterId}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Sélection Langue */}
+                <div>
+                  <Label htmlFor="language" className="text-gray-200 mb-2 block">
+                    Langue *
+                  </Label>
+                  <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                    <SelectTrigger id="language" className="bg-gray-900/50 border-gray-600 text-white h-12">
+                      <SelectValue placeholder="Sélectionnez une langue" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languages.map((language) => (
+                        <SelectItem key={language.LanguageCode} value={language.LanguageCode}>
+                          {language.Description || language.LanguageCode}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
           </div>
-          <div>
-            <span className="font-medium text-cyan-400">Serial Number:</span>
-            <div className="text-white font-semibold">{serialNumber}</div>
-          </div>
-          <div>
-            <span className="font-medium text-cyan-400">Imprimante:</span>
-            <div className="text-white font-semibold flex items-center gap-2">
-              <Printer className="w-4 h-4" />
-              {printerId}
+
+          <div className="bg-blue-900/30 border border-blue-700/50 rounded-md p-4">
+            <h3 className="font-semibold text-cyan-300 mb-3 flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Configuration PDF
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-sm text-gray-300">
+              <div>
+                <span className="font-medium text-cyan-400">Customer Order:</span>
+                <div className="text-white font-semibold">{orderNo}</div>
+              </div>
+              <div>
+                <span className="font-medium text-cyan-400">Serial Number:</span>
+                <div className="text-white font-semibold">{serialNumber}</div>
+              </div>
             </div>
           </div>
-          <div>
-            <span className="font-medium text-cyan-400">Langue:</span>
-            <div className="text-white font-semibold">{languageCode}</div>
-          </div>
         </div>
-      </div>
+      )}
 
       {!success && !loading && (
         <div className="space-y-4">

@@ -117,7 +117,7 @@ export async function filterShopOrders(
       'ShopOrderHandling.svc/ShopOrds',
       {
         $filter: odataFilter,
-        $select: 'OrderNo,ReleaseNo,SequenceNo,Contract,PartNo,PartDescription,Objstate,RevisedStartDate,CBlockDates,ProductionLine',
+        $select: 'OrderNo,ReleaseNo,SequenceNo,Contract,PartNo,PartDescription,Objstate,RevisedStartDate,CBlockDates,ProductionLine,SentToCuttingSystem',
         $orderby: orderBy,
         $top: topLimit
       }
@@ -131,51 +131,43 @@ export async function filterShopOrders(
     )
     logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec Objstate='Released'`)
 
-    // Filtrage local côté code pour date et CBlockDates
+    // ✅ STEP 1: Filtrage par date (TOUJOURS actif selon SFD)
+    // Selon les specs: Start Date est mandatory et filtre toujours les Shop Orders
     const targetDate = startDate
-    
-    // ✅ Step 5: Filtrage Block Date (si enabled)
+    logger.debug(`🔍 [Shop Order Filter] Filtrage par date=${targetDate}`)
+    shopOrders = shopOrders.filter(order => {
+      const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
+      return orderDate === targetDate
+    })
+    logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate}`)
+
+    // ✅ STEP 2: Filtrage Block Date (si enabled)
+    // Ce filtre est INDÉPENDANT et filtre uniquement sur CBlockDates
     if (blockDateEnabled) {
-      logger.debug(`🔍 [DEBUG] Block Date enabled=${blockDateEnabled}, value=${blockDateValue} - Recherche date=${targetDate}`)
-      logger.debug(`🔍 [DEBUG] Premiers Shop Orders (3 exemples):`)
-      shopOrders.slice(0, 3).forEach(order => {
-        const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-        logger.debug(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate}, CBlockDates=${order.CBlockDates}`)
-      })
-      
-      shopOrders = shopOrders.filter(order => {
-        const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-        return orderDate === targetDate && order.CBlockDates === blockDateValue
-      })
-      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} et CBlockDates=${blockDateValue}`)
+      logger.debug(`🔍 [Shop Order Filter] Filtrage CBlockDates=${blockDateValue}`)
+      shopOrders = shopOrders.filter(order => order.CBlockDates === blockDateValue)
+      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec CBlockDates=${blockDateValue}`)
     } else {
-      // Block Date inactif: pas de filtre sur CBlockDates
-      logger.debug(`🔍 [DEBUG] Block Date disabled - Recherche date=${targetDate}, tous CBlockDates`)
-      logger.debug(`🔍 [DEBUG] Premiers Shop Orders (10 exemples):`)
-      shopOrders.slice(0, 10).forEach(order => {
-        const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-        const dateCheck = orderDate === targetDate
-        logger.debug(`  - ${order.OrderNo}: PartNo=${order.PartNo}, Date=${orderDate} (${dateCheck ? '✅' : '❌'}), CBlockDates=${order.CBlockDates}`)
-      })
-      
-      shopOrders = shopOrders.filter(order => {
-        const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-        return orderDate === targetDate
-      })
-      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate} (tous CBlockDates)`)
+      logger.debug(`📊 [Shop Order Filter] Block Date désactivé: tous les CBlockDates acceptés`)
     }
 
-    // ✅ Step 6: Filtrage Sent to Cutting System (si enabled)
-    // Note: Ce champ peut ne pas exister dans tous les environnements IFS
+    // ✅ STEP 3: Filtrage Sent to Cutting System (si enabled)
+    // Ce filtre est INDÉPENDANT et filtre uniquement sur SentToCuttingSystem
     if (sentToCuttingEnabled) {
-      logger.debug(`🔍 [Shop Order Filter] Filtrage Sent to Cutting System: ${sentToCuttingValue}`)
+      logger.debug(`🔍 [Shop Order Filter] Filtrage SentToCuttingSystem=${sentToCuttingValue}`)
+      logger.debug(`🔍 [DEBUG] Premiers SO avant filtre (5 exemples):`, shopOrders.slice(0, 5).map(o => ({ 
+        OrderNo: o.OrderNo, 
+        SentToCuttingSystem: (o as any).SentToCuttingSystem 
+      })))
+      
       shopOrders = shopOrders.filter(order => {
-        // Assumer que le champ s'appelle "SentToCuttingSystem" dans IFS
-        // Si le champ n'existe pas, on filtre comme si c'était false
         const sentValue = (order as any).SentToCuttingSystem ?? false
         return sentValue === sentToCuttingValue
       })
+      
       logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec SentToCuttingSystem=${sentToCuttingValue}`)
+    } else {
+      logger.debug(`📊 [Shop Order Filter] Sent to Cutting désactivé: tous les SentToCuttingSystem acceptés`)
     }
 
     // ✅ RÉACTIVÉ (17 oct 2025) : Filtrage côté code pour OperationBlockId

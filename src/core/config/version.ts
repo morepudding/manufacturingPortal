@@ -5,7 +5,7 @@
 
 export const APP_VERSION = {
   dev: '2.1.0',
-  ppd: '2.0.0',
+  ppd: '2.1.0',
   prd: '2.0.0',
 } as const
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import HeaderWrapper from "@/shared/components/organisms/HeaderWrapper";
+import { LanguageProvider } from "@/contexts/language";
 
 // ⚠️ AUTHENTIFICATION DÉSACTIVÉE - Décommenter pour réactiver
 // import { getServerSession } from "next-auth/next";
@@ -21,8 +22,10 @@ export default async function RootLayout({
     return (
         <html lang="en">
             <body>
-                <HeaderWrapper />
-                {children}
+                <LanguageProvider>
+                    <HeaderWrapper />
+                    {children}
+                </LanguageProvider>
             </body>
         </html>
     );

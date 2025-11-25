@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { BoatCarousel } from '@/shared/components/organisms/BoatCarousel'
+import { useLanguage } from '@/contexts/language'
 import { getCurrentVersion, getEnvironmentName } from '@/core/config/version'
 
 type Language = 'fr' | 'en'
@@ -75,7 +76,7 @@ const TRANSLATIONS = {
 }
 
 export default function Home() {
-  const [lang, setLang] = useState<Language>('en')  // Défaut: anglais
+  const { lang } = useLanguage()
   const [particles, setParticles] = useState<Particle[]>([])
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const t = TRANSLATIONS[lang]
@@ -109,47 +110,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-gray-900 overflow-hidden">
-      {/* Language Switcher + Version Badge */}
-      <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
-        {/* Version Badge */}
-        <div className="px-3 py-1.5 rounded-md bg-gray-800/90 backdrop-blur-sm border border-gray-700 shadow-lg">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              environment === 'PRD' ? 'bg-green-500' : 
-              environment === 'PPD' ? 'bg-yellow-500' : 
-              'bg-blue-500'
-            } animate-pulse`} />
-            <span className="text-xs font-medium text-gray-400">{environment}</span>
-            <div className="h-3 w-px bg-gray-700" />
-            <span className="text-xs font-semibold text-white">v{version}</span>
-          </div>
-        </div>
-
-        {/* Language Buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setLang('fr')}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
-              lang === 'fr'
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700'
-            }`}
-          >
-            🇫🇷 FR
-          </button>
-          <button
-            onClick={() => setLang('en')}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
-              lang === 'en'
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700'
-            }`}
-          >
-            🇬🇧 EN
-          </button>
-        </div>
-      </div>
-
       <main className="relative pt-20 pb-16 px-4">
         {/* Animated Background avec Parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

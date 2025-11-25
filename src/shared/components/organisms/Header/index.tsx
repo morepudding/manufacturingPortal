@@ -10,10 +10,15 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getCurrentVersion, getEnvironmentName } from '@/core/config/version';
+import { useLanguage } from '@/contexts/language';
 import AuthenticatedNav from "./AuthenticatedNav";
 
 export default function Header() {
     const pathname = usePathname();
+    const version = getCurrentVersion();
+    const environment = getEnvironmentName();
+    const { lang, setLang } = useLanguage();
     
     // Déterminer le gradient selon la route
     const getGradientClass = () => {
@@ -88,7 +93,45 @@ export default function Header() {
             </NavigationMenu>
 
             {/* User Section */}
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-3">
+                {/* Version Badge */}
+                <div className="px-3 py-1.5 rounded-md bg-gray-800/90 backdrop-blur-sm border border-gray-700/50">
+                    <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                            environment === 'PRD' ? 'bg-green-500' : 
+                            environment === 'PPD' ? 'bg-yellow-500' : 
+                            'bg-blue-500'
+                        } animate-pulse`} />
+                        <span className="text-xs font-medium text-gray-400">{environment}</span>
+                        <div className="h-3 w-px bg-gray-700" />
+                        <span className="text-xs font-semibold text-white">v{version}</span>
+                    </div>
+                </div>
+
+                {/* Language Buttons */}
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setLang('fr')}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
+                            lang === 'fr'
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700/50'
+                        }`}
+                    >
+                        🇫🇷 FR
+                    </button>
+                    <button
+                        onClick={() => setLang('en')}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active:scale-95 ${
+                            lang === 'en'
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700/80 backdrop-blur-sm border border-gray-700/50'
+                        }`}
+                    >
+                        🇬🇧 EN
+                    </button>
+                </div>
+                
                 <AuthenticatedNav />
             </div>
         </div>

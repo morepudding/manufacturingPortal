@@ -4,6 +4,8 @@
 **Status** : ✅ En production (Boat Config) | 🚧 En développement (Part Printer)  
 **Dernière mise à jour** : 13 octobre 2025
 
+<!-- Test push Azure DevOps - 25 novembre 2025 -->
+
 ---
 
 ## 📋 Vue d'ensemble

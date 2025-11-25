@@ -131,15 +131,25 @@ export async function filterShopOrders(
     )
     logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec Objstate='Released'`)
 
-    // ✅ STEP 1: Filtrage par date (TOUJOURS actif selon SFD)
+    // ✅ STEP 1: Filtrage par date (TOUJOURS actif selon SFD, sauf si Block ID spécifique)
     // Selon les specs: Start Date est mandatory et filtre toujours les Shop Orders
-    const targetDate = startDate
-    logger.debug(`🔍 [Shop Order Filter] Filtrage par date=${targetDate}`)
-    shopOrders = shopOrders.filter(order => {
-      const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
-      return orderDate === targetDate
-    })
-    logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate}`)
+    // SAUF si un Block ID spécifique est renseigné
+    const isSpecificBlockId = !['all', 'empty', 'not-empty'].includes(operationBlockIdFilter)
+    
+    if (startDate && startDate.trim() !== '') {
+      const targetDate = startDate
+      logger.debug(`🔍 [Shop Order Filter] Filtrage par date=${targetDate}`)
+      shopOrders = shopOrders.filter(order => {
+        const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
+        return orderDate === targetDate
+      })
+      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate}`)
+    } else if (isSpecificBlockId) {
+      logger.debug(`🔍 [Shop Order Filter] Pas de filtrage par date (Block ID spécifique renseigné)`)
+    } else {
+      // Should be caught by validation, but just in case
+      logger.warn(`⚠️ [Shop Order Filter] Pas de date et pas de Block ID spécifique !`)
+    }
 
     // ✅ STEP 2: Filtrage Block Date (si enabled)
     // Ce filtre est INDÉPENDANT et filtre uniquement sur CBlockDates
@@ -192,7 +202,7 @@ export async function filterShopOrders(
 }
 
 /**
- * ✅ NOUVEAU (17 oct 2025) : Filtrer par OperationBlockId (vide ou non-vide)
+ * ✅ NOUVEAU (17 oct 2025) : Filtrer par OperationBlockId (vide, non-vide, ou spécifique)
  * 
  * Utilise l'endpoint ShopOrderHandling.svc/ShopOrds/.../OperationArray
  * pour récupérer l'OP10 de chaque Shop Order et filtrer par OperationBlockId.
@@ -201,12 +211,12 @@ export async function filterShopOrders(
  * Peut être lent avec beaucoup de résultats (optimisé avec Promise.all)
  * 
  * @param shopOrders - Shop Orders à filtrer
- * @param filter - 'empty' ou 'not-empty'
+ * @param filter - 'empty', 'not-empty', ou une valeur spécifique (ex: "B89")
  * @returns Shop Orders filtrés selon OperationBlockId
  */
 async function filterByOperationBlockId(
   shopOrders: IFSShopOrderExtended[],
-  filter: 'empty' | 'not-empty'
+  filter: 'empty' | 'not-empty' | string
 ): Promise<IFSShopOrderExtended[]> {
   logger.debug(`🔍 [Shop Order Filter] Filtrage ${shopOrders.length} Shop Orders par OperationBlockId (${filter})...`)
 
@@ -233,18 +243,31 @@ async function filterByOperationBlockId(
         }
 
         const hasBlockId = op10.OperationBlockId && op10.OperationBlockId.trim() !== ''
+        const blockIdValue = op10.OperationBlockId ? op10.OperationBlockId.trim() : ''
 
         // Logique de filtrage
-        if (filter === 'empty' && !hasBlockId) {
-          logger.debug(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId vide`)
-          return order
-        } else if (filter === 'not-empty' && hasBlockId) {
-          logger.debug(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId = ${op10.OperationBlockId}`)
-          return order
+        if (filter === 'empty') {
+          if (!hasBlockId) {
+            logger.debug(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId vide`)
+            return order
+          }
+        } else if (filter === 'not-empty') {
+          if (hasBlockId) {
+            logger.debug(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId = ${blockIdValue}`)
+            return order
+          }
         } else {
-          logger.debug(`⏭️ [Shop Order Filter] ${order.OrderNo}: Filtré (OperationBlockId = ${op10.OperationBlockId || 'NULL'})`)
-          return null
+          // Specific Block ID filter
+          if (blockIdValue === filter) {
+            logger.debug(`✅ [Shop Order Filter] ${order.OrderNo}: OperationBlockId = ${blockIdValue} (Match)`)
+            return order
+          }
         }
+        
+        // Si on arrive ici, c'est que le filtre ne correspond pas
+        // logger.debug(`⏭️ [Shop Order Filter] ${order.OrderNo}: Filtré (OperationBlockId = ${blockIdValue || 'NULL'})`)
+        return null
+        
       } catch (error) {
         logger.error(`❌ [Shop Order Filter] Erreur OP10 pour ${order.OrderNo}:`, error)
         return null // En cas d'erreur, on exclut ce Shop Order
@@ -303,8 +326,35 @@ export function validateFilterParams(params: ShopOrderFilterParams): void {
   }
 
   // ✅ CORRIGÉ (17 oct 2025) : Validation operationBlockIdFilter
-  if (!['all', 'empty', 'not-empty'].includes(params.operationBlockIdFilter)) {
-    throw new Error('OperationBlockIdFilter must be "all", "empty", or "not-empty"')
+  // Peut être 'all', 'empty', 'not-empty' OU une chaîne spécifique (Block ID)
+  if (['all', 'empty', 'not-empty'].includes(params.operationBlockIdFilter)) {
+    // Valid preset
+  } else if (typeof params.operationBlockIdFilter === 'string' && params.operationBlockIdFilter.trim() !== '') {
+    // Valid specific Block ID
+  } else {
+    // Invalid
+    throw new Error('OperationBlockIdFilter must be "all", "empty", "not-empty" or a specific Block ID')
+  }
+
+  // ✅ Spec: Start Date is mandatory UNLESS a specific Block ID is provided
+  const isSpecificBlockId = !['all', 'empty', 'not-empty'].includes(params.operationBlockIdFilter)
+  
+  if (!isSpecificBlockId) {
+    if (!params.startDate || params.startDate.trim() === '') {
+      throw new Error('Start date is required (unless specific Block ID is provided)')
+    }
+    
+    // Validation format date ISO 8601 (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+    if (!dateRegex.test(params.startDate)) {
+      throw new Error('Invalid date format. Expected YYYY-MM-DD')
+    }
+
+    // Validation date valide
+    const date = new Date(params.startDate)
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date')
+    }
   }
 
   logger.debug('✅ [Shop Order Filter] Paramètres validés')

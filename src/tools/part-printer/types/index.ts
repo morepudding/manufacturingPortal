@@ -183,8 +183,12 @@ export interface ShopOrderFilterParams {
   sentToCuttingEnabled: boolean          // true = filtrer par SentToCutting, false = pas de filtre
   sentToCuttingValue: boolean            // true = SentToCutting=true, false = SentToCutting=false (si sentToCuttingEnabled=true)
   
-  // Filtre OperationBlockId (conservé)
-  operationBlockIdFilter: 'all' | 'empty' | 'not-empty'  // all = tous, empty = vide uniquement, not-empty = non-vide uniquement
+  // Filtre OperationBlockId
+  // 'all' = tous (pas de filtre)
+  // 'empty' = vide uniquement (OperationBlockId is null or empty)
+  // 'not-empty' = non-vide uniquement (OperationBlockId is not null and not empty)
+  // string specific = filtrer sur une valeur exacte (ex: "B89")
+  operationBlockIdFilter: 'all' | 'empty' | 'not-empty' | string  
 }
 
 // ============================================================================

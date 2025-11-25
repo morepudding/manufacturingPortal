@@ -31,9 +31,19 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
   const [site, setSite] = useState('')
   const [productionLine, setProductionLine] = useState('')
   const [startDate, setStartDate] = useState('')
-  const [blockDate, setBlockDate] = useState(true)
-  // ✅ CORRIGÉ (17 oct 2025) : Utilise le nouveau type union (all/empty/not-empty)
-  const [operationBlockIdFilter, setOperationBlockIdFilter] = useState<'all' | 'empty' | 'not-empty'>('all')
+  
+  // ✅ Step 5: Block Date (Enabled + Value)
+  const [blockDateEnabled, setBlockDateEnabled] = useState(true)
+  const [blockDateValue, setBlockDateValue] = useState(true)
+
+  // ✅ Step 6: Sent to Cutting System (Enabled + Value)
+  const [sentToCuttingEnabled, setSentToCuttingEnabled] = useState(false)
+  const [sentToCuttingValue, setSentToCuttingValue] = useState(false)
+
+  // ✅ Block ID Filter (Text box or Preset)
+  // 'all' | 'empty' | 'not-empty' are presets. If user types in text box, we use that value.
+  const [operationBlockIdFilter, setOperationBlockIdFilter] = useState<'all' | 'empty' | 'not-empty' | string>('all')
+  const [specificBlockId, setSpecificBlockId] = useState('')
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -45,8 +55,10 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
       newErrors.site = 'Le site est requis'
     }
 
-    if (!startDate || startDate.trim() === '') {
-      newErrors.startDate = 'La date est requise'
+    // ✅ Spec: "If a value is filled (Block ID), the field start date... switch to not mandatory."
+    const isBlockIdFilled = specificBlockId.trim() !== ''
+    if (!isBlockIdFilled && (!startDate || startDate.trim() === '')) {
+      newErrors.startDate = 'La date est requise (sauf si Block ID renseigné)'
     }
 
     setErrors(newErrors)
@@ -58,11 +70,20 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
       return
     }
 
+    // Determine effective Block ID filter
+    let effectiveBlockIdFilter = operationBlockIdFilter
+    if (specificBlockId.trim() !== '') {
+      effectiveBlockIdFilter = specificBlockId.trim()
+    }
+
     const params: ShopOrderFilterParams = {
       site,
       startDate,
-      blockDate,
-      operationBlockIdFilter, // ✅ CORRIGÉ : Utilise le nouveau filtre
+      blockDateEnabled,
+      blockDateValue,
+      sentToCuttingEnabled,
+      sentToCuttingValue,
+      operationBlockIdFilter: effectiveBlockIdFilter,
     }
 
     if (productionLine) {
@@ -77,8 +98,16 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
     setSite('')
     setProductionLine('')
     setStartDate('')
-    setBlockDate(true)
-    setOperationBlockIdFilter('all') // ✅ CORRIGÉ : Reset vers 'all'
+    
+    setBlockDateEnabled(true)
+    setBlockDateValue(true)
+    
+    setSentToCuttingEnabled(false)
+    setSentToCuttingValue(false)
+    
+    setOperationBlockIdFilter('all')
+    setSpecificBlockId('')
+    
     setErrors({})
   }
 
@@ -117,7 +146,7 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
         {/* Date de début */}
         <div>
           <label className="block text-sm font-medium mb-2">
-            Date de début <span className="text-red-500">*</span>
+            Date de début <span className={specificBlockId ? "text-gray-400" : "text-red-500"}>*</span>
           </label>
           <input
             type="date"
@@ -136,10 +165,21 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
         {/* Filtres de blocage */}
         <div className="md:col-span-2">
           <BlockFilters
-            blockDate={blockDate}
-            onBlockDateChange={setBlockDate}
+            blockDateEnabled={blockDateEnabled}
+            onBlockDateEnabledChange={setBlockDateEnabled}
+            blockDateValue={blockDateValue}
+            onBlockDateValueChange={setBlockDateValue}
+            
+            sentToCuttingEnabled={sentToCuttingEnabled}
+            onSentToCuttingEnabledChange={setSentToCuttingEnabled}
+            sentToCuttingValue={sentToCuttingValue}
+            onSentToCuttingValueChange={setSentToCuttingValue}
+
             operationBlockIdFilter={operationBlockIdFilter}
             onOperationBlockIdFilterChange={setOperationBlockIdFilter}
+            specificBlockId={specificBlockId}
+            onSpecificBlockIdChange={setSpecificBlockId}
+            
             disabled={loading}
           />
         </div>
@@ -175,7 +215,7 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
       </div>
 
       {/* Résumé des filtres actifs */}
-      {site && startDate && (
+      {site && (startDate || specificBlockId) && (
         <div className="mt-4 p-4 bg-blue-50 rounded-md">
           <p className="text-sm font-medium text-blue-900 mb-1">
             Filtres actifs :
@@ -183,10 +223,19 @@ export function FilterPanel({ onSearch, loading }: FilterPanelProps) {
           <ul className="text-sm text-blue-700 space-y-1">
             <li>• Site : <strong>{site}</strong></li>
             {productionLine && <li>• Ligne : <strong>{productionLine}</strong></li>}
-            <li>• Date : <strong>{startDate}</strong></li>
-            <li>• Block Date : <strong>{blockDate ? 'Actif (CBlockDates=true)' : 'Inactif'}</strong></li>
+            {startDate && <li>• Date : <strong>{startDate}</strong></li>}
+            
+            <li>• Block Date : <strong>
+              {blockDateEnabled ? `Actif (${blockDateValue})` : 'Inactif'}
+            </strong></li>
+            
+            <li>• Sent to Cutting : <strong>
+              {sentToCuttingEnabled ? `Actif (${sentToCuttingValue})` : 'Inactif'}
+            </strong></li>
+
             <li>• OP10 Block ID : <strong>
-              {operationBlockIdFilter === 'all' ? 'Tous' : 
+              {specificBlockId ? `Spécifique "${specificBlockId}"` :
+               operationBlockIdFilter === 'all' ? 'Tous' : 
                operationBlockIdFilter === 'empty' ? 'Vides uniquement' : 
                'Non-vides uniquement'}
             </strong></li>

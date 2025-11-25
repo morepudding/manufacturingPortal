@@ -72,19 +72,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing languageCode' }, { status: 400 })
     }
 
-    // ⚠️ VALIDATION CRITIQUE : Vérifier que orderNo n'est pas "UNKNOWN"
-    if (body.orderNo === 'UNKNOWN' || body.orderNo.trim() === '') {
-      console.log('❌ Tentative d\'impression sans Customer Order valide')
-      return NextResponse.json(
-        {
-          error: 'Customer Order manquant',
-          details: 'Ce Shop Order n\'a pas de Customer Order associé dans IFS. L\'impression n\'est pas possible.',
-          hint: 'Vérifiez que le Shop Order est correctement lié à un Customer Order dans IFS Cloud.'
-        },
-        { status: 400 }
-      )
-    }
-
     // 🔥 CONFIGURATION PRODUCTION - Layout validé
     // ⚠️ ATTENTION : Le layout DOIT avoir un "layout type owner" (printing solution) défini dans IFS
     // Sinon erreur : ORA-20110: PrintJobContents.MISSINGOWNER

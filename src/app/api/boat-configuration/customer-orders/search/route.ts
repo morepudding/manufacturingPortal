@@ -1,21 +1,27 @@
 /**
  * API Route : Customer Order Search by Serial Number
  * 
- * Recherche un Customer Order à partir du Serial Number (CHullNumber)
- * Cette route est utilisée quand le Shop Order ne retourne pas CustomerOrderNo/LineNo
- */
-
-import { NextRequest, NextResponse } from 'next/server'
-import { getCustomerOrderLineBySerial, getCustomerOrderHeader } from '@/tools/boat-configuration/services/customer-order-service'
-
-/**
- * GET /api/customer-orders/search
+ * Recherche un Customer Order selon les specs business (section 8):
+ * Serial Number → Customer Order Line (Site=FR05A) → Customer Order
+ * 
+ * Note: OrderType=BAT est dans CustomerOrder header, pas dans CustomerOrderLine
  * 
  * Query params:
  * - serialNumber: Serial Number (CHullNumber) à rechercher
  * 
  * @example
- * GET /api/customer-orders/search?serialNumber=LG5MA0114
+ * GET /api/boat-configuration/customer-orders/search?serialNumber=LG5MA0114
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+import { getCustomerOrderByHullNumber } from '@/tools/boat-configuration/services/customer-order-service'
+
+/**
+ * GET /api/boat-configuration/customer-orders/search
+ * 
+ * Recherche selon specs (section 8):
+ * - Hull Number = Serial Number
+ * - Site = FR05A
  */
 export async function GET(request: NextRequest) {
   try {
@@ -34,63 +40,29 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log(`🔍 API: Searching Customer Order by Serial Number: ${serialNumber}`)
+    console.log(`🔍 API: Searching Customer Order by Serial Number (specs section 8)`)
+    console.log(`   Serial Number: ${serialNumber}`)
+    console.log(`   Filters: Site=FR05A`)
 
-    // Étape 1 : Rechercher la Customer Order Line par CHullNumber
-    const customerOrderLine = await getCustomerOrderLineBySerial(serialNumber)
+    // Rechercher selon les specs (section 8)
+    const customerOrderInfo = await getCustomerOrderByHullNumber(serialNumber)
 
-    if (!customerOrderLine) {
-      console.log('❌ Customer Order Line not found')
+    if (!customerOrderInfo) {
+      console.log('❌ Customer Order not found (specs filters applied)')
       return NextResponse.json(
         {
           success: false,
           error: 'No Customer Order found for this Serial Number',
+          hint: 'Vérifiez que le Serial Number est lié à un Customer Order avec Site=FR05A',
         },
         { status: 404 }
       )
     }
 
-    console.log(`✅ Customer Order Line found: ${customerOrderLine.OrderNo} - Line ${customerOrderLine.LineNo}`)
-
-    // Étape 2 : Récupérer le Customer Order Header (pour le nom du client)
-    let customerName: string | undefined
-    let customerPoNo: string | undefined
-    let internalPoNo: string | undefined
-
-    try {
-      const header = await getCustomerOrderHeader(customerOrderLine.OrderNo)
-      customerName = header.CustomerName
-      customerPoNo = header.CustomerPoNo
-      internalPoNo = header.InternalPoNo
-      console.log(`   👤 Customer: ${customerName}`)
-    } catch (error) {
-      console.warn('⚠️  Could not fetch Customer Order Header, continuing without it')
-    }
-
-    // Étape 3 : Construire l'objet de réponse
-    const customerOrderInfo = {
-      orderNo: customerOrderLine.OrderNo,
-      lineNo: customerOrderLine.LineNo,
-      partNo: customerOrderLine.PartNo,
-      catalogDesc: customerOrderLine.CatalogDesc || 'N/A',
-      chullNumber: customerOrderLine.CHullNumber,
-      customerNo: customerOrderLine.CustomerNo,
-      customerName,
-      configurationId: customerOrderLine.ConfigurationId,
-      status: customerOrderLine.Objstate,
-      quantity: customerOrderLine.BuyQtyDue || customerOrderLine.QtyOrdered || 1,
-      contract: customerOrderLine.Contract,
-      plannedDeliveryDate: customerOrderLine.PlannedDeliveryDate,
-      wantedDeliveryDate: customerOrderLine.WantedDeliveryDate,
-      customerPoNo,
-      internalPoNo,
-    }
+    console.log(`✅ Customer Order found: ${customerOrderInfo.orderNo}`)
 
     // Validation Serial Number
-    const serialNumberMatch = customerOrderLine.CHullNumber === serialNumber
-
-    console.log('✅ Customer Order retrieved successfully')
-    console.log(`   Serial Number: ${serialNumberMatch ? '✅ Match' : '⚠️ Mismatch'}`)
+    const serialNumberMatch = customerOrderInfo.chullNumber === serialNumber
 
     return NextResponse.json({
       success: true,
@@ -99,7 +71,7 @@ export async function GET(request: NextRequest) {
         validation: {
           serialNumberMatch,
           expectedSerial: serialNumber,
-          foundSerial: customerOrderLine.CHullNumber,
+          foundSerial: customerOrderInfo.chullNumber,
         },
       },
     })

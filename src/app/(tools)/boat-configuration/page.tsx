@@ -41,6 +41,24 @@ interface ShopOrderResult {
   error?: string
 }
 
+interface CustomerOrderInfo {
+  orderNo: string
+  lineNo: string
+  partNo: string
+  catalogDesc: string
+  chullNumber: string
+  customerNo: string
+  customerName?: string
+  configurationId: string
+  status: string
+  quantity: number
+  contract: string
+  plannedDeliveryDate: string
+  wantedDeliveryDate: string
+  customerPoNo?: string
+  internalPoNo?: string
+}
+
 export default function BoatConfigurationPage() {
   const [currentStep, setCurrentStep] = useState<Step>('entry')
   const [shopOrder, setShopOrder] = useState<ShopOrderData>({
@@ -51,7 +69,9 @@ export default function BoatConfigurationPage() {
   const [searchResult, setSearchResult] = useState<ShopOrderResult | null>(null)
   const [serialNumber, setSerialNumber] = useState<string>('N/A')
   const [dopHeaderId, setDopHeaderId] = useState<string>('N/A')
+  const [customerOrder, setCustomerOrder] = useState<CustomerOrderInfo | null>(null)
   const [loading, setLoading] = useState(false)
+  const [loadingCustomerOrder, setLoadingCustomerOrder] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Mapping des steps pour le stepper
@@ -101,14 +121,42 @@ export default function BoatConfigurationPage() {
     }
   }
 
-  const handleConfirmYes = () => {
-    // Passer directement à l'étape d'impression
-    setCurrentStep('print')
+  const handleConfirmYes = async () => {
+    // Rechercher Customer Order en arrière-plan (selon specs section 8)
+    setLoadingCustomerOrder(true)
+    setError(null)
+
+    try {
+      const response = await fetch(
+        `/api/boat-configuration/customer-orders/search?serialNumber=${serialNumber}`
+      )
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        console.warn('⚠️ Customer Order not found:', data.error)
+        setError(data.error || 'Customer Order not found')
+        setLoadingCustomerOrder(false)
+        return
+      }
+
+      setCustomerOrder(data.data.customerOrder)
+      console.log('✅ Customer Order found:', data.data.customerOrder.orderNo)
+      
+      // Passer directement à l'étape d'impression (specs: 3 écrans seulement)
+      setCurrentStep('print')
+    } catch (err) {
+      console.error('❌ Error fetching Customer Order:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setLoadingCustomerOrder(false)
+    }
   }
 
   const handleConfirmNo = () => {
     setCurrentStep('entry')
     setSearchResult(null)
+    setCustomerOrder(null)
     setError(null)
   }
 
@@ -118,6 +166,7 @@ export default function BoatConfigurationPage() {
     setSearchResult(null)
     setSerialNumber('N/A')
     setDopHeaderId('N/A')
+    setCustomerOrder(null)
     setError(null)
   }
 
@@ -248,14 +297,27 @@ export default function BoatConfigurationPage() {
             </div>
             <div className="space-y-4">
               <p className="text-center font-medium text-white text-2xl mb-6">Confirmez-vous ce numéro de série ?</p>
+              {error && (
+                <div className="bg-red-900/50 border-2 border-red-700 text-red-200 rounded-xl p-6">
+                  <p className="font-semibold text-lg">Erreur</p>
+                  <p className="text-base">{error}</p>
+                </div>
+              )}
               <div className="flex gap-6">
-                <Button onClick={handleConfirmYes} className="flex-1 h-24 text-2xl font-bold bg-teal-600 hover:bg-teal-500 transition-all hover:scale-105 active:scale-95 shadow-lg rounded-xl">
-                  <span className="flex items-center justify-center gap-3">
-                    <CheckCircle className="w-10 h-10" />
-                    <span>Oui, Continuer</span>
-                  </span>
+                <Button onClick={handleConfirmYes} disabled={loadingCustomerOrder} className="flex-1 h-24 text-2xl font-bold bg-teal-600 hover:bg-teal-500 transition-all hover:scale-105 active:scale-95 shadow-lg rounded-xl">
+                  {loadingCustomerOrder ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <Loader2 className="w-10 h-10 animate-spin" />
+                      <span>Recherche Customer Order...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-3">
+                      <CheckCircle className="w-10 h-10" />
+                      <span>Oui, Continuer</span>
+                    </span>
+                  )}
                 </Button>
-                <Button onClick={handleConfirmNo} variant="outline" className="flex-1 h-24 text-2xl font-bold border-2 border-gray-600 text-gray-300 hover:bg-gray-700 transition-all hover:scale-105 active:scale-95 rounded-xl">
+                <Button onClick={handleConfirmNo} disabled={loadingCustomerOrder} variant="outline" className="flex-1 h-24 text-2xl font-bold border-2 border-gray-600 text-gray-300 hover:bg-gray-700 transition-all hover:scale-105 active:scale-95 rounded-xl">
                   <span className="flex items-center justify-center gap-3">
                     <XCircle className="w-10 h-10" />
                     <span>Non, Recommencer</span>
@@ -271,7 +333,7 @@ export default function BoatConfigurationPage() {
           <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Step 3: Print</h2>
             <PrintExecution
-              orderNo={searchResult?.shopOrder?.CustomerOrderNo || 'UNKNOWN'}
+              orderNo={customerOrder?.orderNo || 'UNKNOWN'}
               serialNumber={serialNumber}
               onReset={handleReset}
             />

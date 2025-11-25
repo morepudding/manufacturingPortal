@@ -62,15 +62,6 @@ export function PrintExecution({
           )
         }
         
-        // Gestion pour Customer Order manquant (400 - UNKNOWN)
-        if (response.status === 400 && errorData.error?.includes('Customer Order manquant')) {
-          throw new Error(
-            `⚠️ Impossible d'imprimer\n\n` +
-            `${errorData.details}\n\n` +
-            `💡 ${errorData.hint}`
-          )
-        }
-        
         throw new Error(errorData.error || 'PDF generation failed')
       }
       

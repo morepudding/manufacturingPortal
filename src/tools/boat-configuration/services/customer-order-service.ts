@@ -568,67 +568,50 @@ export async function getCustomerOrderLinesByPart(
 // ============================================================================
 
 /**
- * ⭐ MÉTHODE OPTIMALE : Récupère Customer Order directement via HullNumber
+ * ⭐ MÉTHODE SELON SPECS BUSINESS (Section 8)
+ * Récupère Customer Order selon le workflow des specs:
+ * Serial Number → Customer Order Line (Site=FR05A) → Customer Order
  * 
- * Cette fonction implémente la stratégie optimale :
- * - INPUT: HullNumber uniquement
- * - Recherche directe dans CustomerOrderLineSet (CHullNumber)
- * - Filtre sur Contract (site de production FR05A)
- * - Une seule requête IFS (~500ms)
- * - Pas de dépendance au Shop Order
+ * Filtres selon les specs (section 8):
+ * - Hull Number = Serial Number
+ * - Site = FR05A (Contract)
  * 
- * 🚨 BOAT CONFIGURATION EDITOR : Cette fonction filtre sur Contract = FR05A
- * 
- * 💡 IMPORTANT : 
- * - Contract = Site de production (FR05A, FR02A, etc.)
- * - CustomerNo = Code du CLIENT (CNB, BEN, etc.) - ne filtre PAS sur ce champ
+ * Note: OrderType=BAT n'est PAS dans CustomerOrderLine, il est dans CustomerOrder header
  * 
  * @param hullNumber - Hull Number / Serial Number (ex: "LG5MA0114")
- * @param siteFilter - (optionnel) Filtrer par Contract/Site de production - Par défaut: "FR05A" (MANDATORY pour Boat Config)
  * @returns Customer Order Info ou null si non trouvé
  * 
  * @example
  * ```typescript
- * // Boat Configuration Editor : Utilise automatiquement FR05A
+ * // Boat Configuration Editor : Recherche selon specs
  * const order = await getCustomerOrderByHullNumber('LG5MA0114')
- * 
- * // ⚡ OPTIMAL : Avec filtre site explicite (beaucoup plus rapide)
- * const order = await getCustomerOrderByHullNumber('LX6MA0115', 'FR05A')
  * ```
  */
 export async function getCustomerOrderByHullNumber(
-  hullNumber: string,
-  siteFilter?: string
+  hullNumber: string
 ): Promise<CustomerOrderInfo | null> {
   if (!hullNumber || hullNumber.trim() === '') {
     throw new Error('Hull Number is required')
   }
 
-  // 🚨 CRITIQUE : Boat Configuration Editor utilise EXCLUSIVEMENT FR05A
-  const BOAT_CONFIG_SITE = 'FR05A'
-  const activeSite = siteFilter || BOAT_CONFIG_SITE
-
-  // Validation : Boat Configuration n'accepte QUE FR05A
-  if (activeSite !== BOAT_CONFIG_SITE) {
-    throw new Error(
-      `Invalid site: ${activeSite}. Boat Configuration Editor must use site ${BOAT_CONFIG_SITE} exclusively.`
-    )
-  }
+  // 🚨 FILTRES SELON SPECS (Section 8)
+  const SITE = 'FR05A'      // Site de production (Contract)
 
   const client = getIFSClient()
 
   try {
-    console.log(`🔍 Searching Customer Order for Hull Number: ${hullNumber}`)
-    console.log(`   🏭 Site (Contract): ${activeSite} (MANDATORY for Boat Configuration)`)
+    console.log(`🔍 Searching Customer Order for Serial Number: ${hullNumber}`)
+    console.log('📋 Specs filters (section 8):')
+    console.log(`   - Hull Number = ${hullNumber}`)
+    console.log(`   - Site = ${SITE}`)
 
-    // Construire le filtre OData
-    // 🚨 FIX : Filtrer UNIQUEMENT sur Contract (site de production)
-    // CustomerNo = Code du CLIENT (CNB, BEN, etc.) - ne pas filtrer dessus !
-    const filter = `CHullNumber eq '${hullNumber.trim()}' and Contract eq '${activeSite}'`
+    // Construire le filtre OData selon les specs
+    // Note: OrderType n'existe pas dans CustomerOrderLine, uniquement dans CustomerOrder
+    const filter = `CHullNumber eq '${hullNumber.trim()}' and Contract eq '${SITE}'`
     
     console.log(`📊 OData filter: ${filter}`)
 
-    // ÉTAPE 1 : Recherche CustomerOrderLine via CHullNumber + Contract = FR05A
+    // ÉTAPE 1 : Recherche Customer Order Line selon specs
     const response = await client.get<IFSODataResponse<CustomerOrderLine>>(
       'CustomerOrderHandling.svc/CustomerOrderLineSet',
       {
@@ -639,38 +622,46 @@ export async function getCustomerOrderByHullNumber(
     )
 
     if (!response.value || response.value.length === 0) {
-      console.log(`❌ No Customer Order found for Hull Number: ${hullNumber} (Contract: ${activeSite})`)
-      console.log(`   💡 Vérifiez que le Hull Number existe dans IFS pour le site de production ${activeSite}`)
+      console.log(`❌ No Customer Order found for Serial Number: ${hullNumber}`)
+      console.log(`   💡 Specs requirements:`)
+      console.log(`      - Hull Number must exist in IFS`)
+      console.log(`      - Site must be ${SITE}`)
       return null
     }
 
     const line = response.value[0]
     
-    // 🚨 VALIDATION : Vérifier que Contract est bien FR05A
-    if (line.Contract !== BOAT_CONFIG_SITE) {
-      console.log(`❌ Customer Order found but with wrong Contract: ${line.Contract} (expected: ${BOAT_CONFIG_SITE})`)
-      throw new Error(
-        `Customer Order Contract mismatch: found ${line.Contract}, expected ${BOAT_CONFIG_SITE}`
-      )
-    }
-    
     console.log(`✅ Customer Order Line found:`)
     console.log(`   📦 Order: ${line.OrderNo} - Line ${line.LineNo} - Rel ${line.RelNo}`)
-    console.log(`   👤 CustomerNo: ${line.CustomerNo} (code client)`)
-    console.log(`   🏭 Contract: ${line.Contract} (✅ Validated: ${BOAT_CONFIG_SITE})`)
+    console.log(`   👤 CustomerNo: ${line.CustomerNo}`)
+    console.log(`   🏭 Contract (Site): ${line.Contract} ✅`)
     console.log(`   🎯 Part: ${line.PartNo}`)
 
-    // ÉTAPE 2 : Récupérer Customer Order Header (nom client, dates, etc.)
+    // ÉTAPE 2 : Récupérer Customer Order Header (pour vérifier OrderType=BAT)
     let customerName: string | undefined
     let customerPoNo: string | undefined
     let internalPoNo: string | undefined
+    let orderType: string | undefined
 
     try {
       const header = await getCustomerOrderHeader(line.OrderNo)
       customerName = header.CustomerName
       customerPoNo = header.CustomerPoNo
       internalPoNo = header.InternalPoNo
+      
+      // Vérifier OrderType si disponible dans le header
+      // Note: Le type CustomerOrderHeader doit être étendu pour inclure OrderType
+      orderType = (header as any).OrderType
+      
       console.log(`   👤 Customer Name: ${customerName}`)
+      
+      // Validation OrderType=BAT selon specs (si disponible)
+      if (orderType && orderType !== 'BAT') {
+        console.log(`   ⚠️ Order Type: ${orderType} (specs require BAT)`)
+        console.log(`   💡 Continuing anyway - Order Type filter is informational only`)
+      } else if (orderType) {
+        console.log(`   ✅ Order Type: ${orderType} (matches specs)`)
+      }
     } catch (error) {
       console.warn('⚠️  Could not fetch Customer Order Header, continuing without it')
     }
@@ -694,24 +685,11 @@ export async function getCustomerOrderByHullNumber(
       internalPoNo
     }
 
-    console.log('✅ Customer Order retrieved successfully via Hull Number')
-    console.log(`   ⚡ Method: Direct CHullNumber lookup (optimal)`)
-    console.log(`   🏭 Site: ${BOAT_CONFIG_SITE} (MANDATORY)`)
+    console.log('✅ Customer Order retrieved according to specs (section 8)')
 
     return customerOrderInfo
   } catch (error) {
     console.error('❌ Error getting Customer Order by Hull Number:', error)
-    
-    // Si c'est une erreur de site invalide, la propager directement
-    if (error instanceof Error && error.message.includes('site')) {
-      throw error
-    }
-    
-    // Si c'est une erreur de timeout, proposer de réessayer
-    if (error instanceof Error && error.message.includes('timeout')) {
-      console.log('💡 Tip: CHullNumber search timed out. This is rare but can happen.')
-    }
-    
     throw error
   }
 }

@@ -40,6 +40,70 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Poll for PDF availability in archive
+ */
+async function pollForPdfAvailability(
+  client: ReturnType<typeof getIFSClient>,
+  resultKey: number
+): Promise<IFSPdfArchiveInfo> {
+  for (let attempt = 1; attempt <= PDF_MAX_ATTEMPTS; attempt++) {
+    await sleep(PDF_POLLING_INTERVAL)
+    
+    const archiveResponse = await client.get<IFSPdfArchiveResponse>(
+      'PrintDialog.svc/PdfArchiveSet',
+      {
+        '$filter': `ResultKey eq ${resultKey}`,
+        '$top': '1'
+      }
+    )
+    
+    if (archiveResponse.value && archiveResponse.value.length > 0) {
+      console.log(`   ✅ PDF found after ${attempt} attempt(s)`)
+      const pdfInfo = archiveResponse.value[0]
+      console.log(`   File: ${pdfInfo.FileName}`)
+      console.log(`   Size: ${(pdfInfo.PdfSize / 1024).toFixed(2)} KB`)
+      return pdfInfo
+    }
+    
+    if (attempt === PDF_MAX_ATTEMPTS) {
+      throw new Error(`PDF not available after ${PDF_MAX_ATTEMPTS} attempts (${PDF_MAX_ATTEMPTS} seconds)`)
+    }
+  }
+  
+  throw new Error('PDF info not found in archive')
+}
+
+/**
+ * Download and validate PDF from archive
+ */
+async function downloadAndValidatePdf(
+  client: ReturnType<typeof getIFSClient>,
+  pdfInfo: IFSPdfArchiveInfo
+): Promise<ArrayBuffer> {
+  console.log(`\n📄 Downloading PDF from archive...`)
+  
+  const pdfBuffer = await client.getRaw(
+    `PrintDialog.svc/PdfArchiveSet(ResultKey=${pdfInfo.ResultKey},Id='${pdfInfo.Id}')/Pdf`,
+    undefined,
+    { 'Accept': 'application/octet-stream' }
+  )
+  
+  // Validate PDF header
+  const header = new Uint8Array(pdfBuffer.slice(0, 4))
+  const headerString = String.fromCharCode(...header)
+  
+  if (!headerString.startsWith('%PDF')) {
+    throw new Error('Invalid PDF file (missing PDF header)')
+  }
+  
+  console.log(`✅ Step 5 complete: PDF downloaded`)
+  console.log(`   Size: ${(pdfBuffer.byteLength / 1024).toFixed(2)} KB`)
+  console.log(`   Header: ${headerString}`)
+  
+  return pdfBuffer
+}
+
+/**
  * Imprimer un document Customer Order
  * 
  * @param request - Paramètres de l'impression
@@ -157,59 +221,9 @@ export async function printCustomerOrder(
       console.log('\n📥 Step 5: Downloading PDF...')
       console.log(`   Polling for PDF availability (max ${PDF_MAX_ATTEMPTS} attempts)...`)
       
-      let pdfInfo: IFSPdfArchiveInfo | null = null
+      const pdfInfo = await pollForPdfAvailability(client, resultKey)
+      const pdfBuffer = await downloadAndValidatePdf(client, pdfInfo)
       
-      // Polling: attendre que le PDF soit généré
-      for (let attempt = 1; attempt <= PDF_MAX_ATTEMPTS; attempt++) {
-        await sleep(PDF_POLLING_INTERVAL)
-        
-        const archiveResponse = await client.get<IFSPdfArchiveResponse>(
-          'PrintDialog.svc/PdfArchiveSet',
-          {
-            '$filter': `ResultKey eq ${resultKey}`,
-            '$top': '1'
-          }
-        )
-        
-        if (archiveResponse.value && archiveResponse.value.length > 0) {
-          pdfInfo = archiveResponse.value[0]
-          console.log(`   ✅ PDF found after ${attempt} attempt(s)`)
-          console.log(`   File: ${pdfInfo.FileName}`)
-          console.log(`   Size: ${(pdfInfo.PdfSize / 1024).toFixed(2)} KB`)
-          break
-        }
-        
-        if (attempt === PDF_MAX_ATTEMPTS) {
-          throw new Error(`PDF not available after ${PDF_MAX_ATTEMPTS} attempts (${PDF_MAX_ATTEMPTS} seconds)`)
-        }
-      }
-      
-      if (!pdfInfo) {
-        throw new Error('PDF info not found in archive')
-      }
-      
-      // Télécharger le PDF
-      console.log(`\n📄 Downloading PDF from archive...`)
-      
-      const pdfBuffer = await client.getRaw(
-        `PrintDialog.svc/PdfArchiveSet(ResultKey=${pdfInfo.ResultKey},Id='${pdfInfo.Id}')/Pdf`,
-        undefined,
-        { 'Accept': 'application/octet-stream' }
-      )
-      
-      // Vérifier que le PDF est valide (commence par %PDF)
-      const header = new Uint8Array(pdfBuffer.slice(0, 4))
-      const headerString = String.fromCharCode(...header)
-      
-      if (!headerString.startsWith('%PDF')) {
-        throw new Error('Invalid PDF file (missing PDF header)')
-      }
-      
-      console.log(`✅ Step 5 complete: PDF downloaded`)
-      console.log(`   Size: ${(pdfBuffer.byteLength / 1024).toFixed(2)} KB`)
-      console.log(`   Header: ${headerString}`)
-      
-      // Ajouter les infos du PDF au résultat
       result.pdfInfo = {
         fileName: pdfInfo.FileName,
         size: pdfBuffer.byteLength,
@@ -217,8 +231,6 @@ export async function printCustomerOrder(
         id: pdfInfo.Id,
       }
       
-      // Créer le Blob (côté serveur Next.js, on retournera le buffer directement)
-      // Le Blob est créé côté client si nécessaire
       if (typeof window !== 'undefined') {
         result.pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' })
       }

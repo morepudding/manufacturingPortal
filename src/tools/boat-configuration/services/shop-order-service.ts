@@ -29,6 +29,83 @@ import type {
 } from '@/shared/types/ifs'
 
 /**
+ * Create an empty shop order result for error/not found cases
+ */
+function createEmptyResult(
+  orderNo: string,
+  releaseNo: string,
+  sequenceNo: string,
+  error: string
+): ShopOrderSearchResult {
+  return {
+    shopOrder: {
+      OrderNo: orderNo,
+      ReleaseNo: releaseNo,
+      SequenceNo: sequenceNo,
+      DopId: null,
+      PartNo: '',
+      PartDescription: '',
+      Contract: '',
+    },
+    found: false,
+    error,
+  }
+}
+
+/**
+ * Find exact match from shop orders list
+ */
+function findExactMatch(
+  orders: IFSShopOrder[],
+  orderNo: string,
+  releaseNo: string,
+  sequenceNo: string
+): IFSShopOrder | undefined {
+  return orders.find(order => {
+    const orderNoMatch = order.OrderNo === orderNo.trim()
+    const releaseNoMatch = !releaseNo || releaseNo === '*' || order.ReleaseNo === releaseNo.trim()
+    const sequenceNoMatch = !sequenceNo || sequenceNo === '*' || order.SequenceNo === sequenceNo.trim()
+    return orderNoMatch && releaseNoMatch && sequenceNoMatch
+  })
+}
+
+/**
+ * Fetch serial number for a shop order with DOP ID
+ */
+async function fetchSerialNumber(
+  shopOrder: IFSShopOrder
+): Promise<ShopOrderSearchResult> {
+  const mainDopId = extractMainDopId(shopOrder.DopId!)
+  console.log(`📋 Main DOP ID: ${mainDopId}`)
+
+  try {
+    const serialNumber = await getFirstSerialNumberFromDop(mainDopId)
+    
+    if (serialNumber) {
+      console.log(`✅ Serial Number found: ${serialNumber}`)
+    } else {
+      console.log(`ℹ️ No Serial Number found for DOP ID: ${mainDopId}`)
+    }
+
+    return {
+      shopOrder,
+      found: true,
+      serialNumber: serialNumber || null,
+      dopHeaderId: shopOrder.DopId,
+    }
+  } catch (error) {
+    console.error(`❌ Error fetching Serial Number:`, error)
+    return {
+      shopOrder,
+      found: true,
+      serialNumber: null,
+      dopHeaderId: shopOrder.DopId,
+      error: `Failed to fetch Serial Number: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    }
+  }
+}
+
+/**
  * Rechercher un Shop Order et récupérer son Serial Number
  * 
  * @param params - Paramètres de recherche (orderNo, releaseNo, sequenceNo)
@@ -57,166 +134,69 @@ export async function searchShopOrder(
 
   // Validation des paramètres
   if (!orderNo || !releaseNo || !sequenceNo) {
-    return {
-      shopOrder: {
-        OrderNo: orderNo || '',
-        ReleaseNo: releaseNo || '',
-        SequenceNo: sequenceNo || '',
-        DopId: null,
-        PartNo: '',
-        PartDescription: '',
-        Contract: '',
-      },
-      found: false,
-      error: 'Missing required parameters: orderNo, releaseNo, sequenceNo',
-    }
+    return createEmptyResult(
+      orderNo || '',
+      releaseNo || '',
+      sequenceNo || '',
+      'Missing required parameters: orderNo, releaseNo, sequenceNo'
+    )
   }
 
   console.log('🔍 Searching Shop Order...')
-
   const client = getIFSClient()
 
   try {
-    // Construire le filtre OData
-    // Note: Utiliser contains() car eq avec strings pose problème de type
-    // Filtrage exact sera fait côté code après récupération
     const filter = `contains(OrderNo,'${orderNo.trim()}')`
-
     console.log(`📊 OData filter: ${filter}`)
 
-    // Requête IFS
     const response = await client.get<IFSODataResponse<IFSShopOrder>>(
       'ShopOrderHandling.svc/ShopOrds',
       {
         $filter: filter,
         $select: 'OrderNo,ReleaseNo,SequenceNo,DopId,PartNo,PartDescription,Contract,CustomerOrderNo,CustomerLineNo',
-        $top: '10', // Limiter le nombre de résultats
+        $top: '10',
       }
     )
 
-    // Vérifier si des résultats ont été trouvés
     if (!response.value || response.value.length === 0) {
       console.log(`ℹ️ No Shop Order found for Order No: ${orderNo}`)
-      return {
-        shopOrder: {
-          OrderNo: orderNo,
-          ReleaseNo: releaseNo,
-          SequenceNo: sequenceNo,
-          DopId: null,
-          PartNo: '',
-          PartDescription: '',
-          Contract: '',
-        },
-        found: false,
-        error: 'Shop Order not found',
-      }
+      return createEmptyResult(orderNo, releaseNo, sequenceNo, 'Shop Order not found')
     }
 
     console.log(`📊 Found ${response.value.length} Shop Order(s), filtering for exact match...`)
 
-    // Filtrer pour correspondance exacte (éviter 101043 quand on cherche 1043)
-    const exactMatch = response.value.find(order => {
-      const orderNoMatch = order.OrderNo === orderNo.trim()
-      const releaseNoMatch = !releaseNo || releaseNo === '*' || order.ReleaseNo === releaseNo.trim()
-      const sequenceNoMatch = !sequenceNo || sequenceNo === '*' || order.SequenceNo === sequenceNo.trim()
-
-      return orderNoMatch && releaseNoMatch && sequenceNoMatch
-    })
+    const exactMatch = findExactMatch(response.value, orderNo, releaseNo, sequenceNo)
 
     if (!exactMatch) {
       console.log(`ℹ️ No exact match found for Order No: ${orderNo}`)
-      return {
-        shopOrder: {
-          OrderNo: orderNo,
-          ReleaseNo: releaseNo,
-          SequenceNo: sequenceNo,
-          DopId: null,
-          PartNo: '',
-          PartDescription: '',
-          Contract: '',
-        },
-        found: false,
-        error: 'No exact match found',
-      }
+      return createEmptyResult(orderNo, releaseNo, sequenceNo, 'No exact match found')
     }
 
     console.log(`✅ Shop Order found: ${exactMatch.OrderNo}`)
 
-    // Logger les infos Customer Order si disponibles
+    // Log Customer Order info if available
     if (exactMatch.CustomerOrderNo) {
       console.log(`📦 Customer Order found: ${exactMatch.CustomerOrderNo} - Line ${exactMatch.CustomerLineNo || 'N/A'}`)
     } else {
       console.log(`ℹ️ No Customer Order linked to this Shop Order`)
     }
 
-    // Si le Shop Order a un DOP ID, récupérer le Serial Number
-    if (exactMatch.DopId) {
-      console.log(`📋 DOP ID found: ${exactMatch.DopId}`)
-
-      // Parser le DOP ID (gestion des formats composés "54 - 1035" → "54")
-      const mainDopId = extractMainDopId(exactMatch.DopId)
-      console.log(`📋 Main DOP ID: ${mainDopId}`)
-
-      // Récupérer le Serial Number
-      try {
-        const serialNumber = await getFirstSerialNumberFromDop(mainDopId)
-
-        if (serialNumber) {
-          console.log(`✅ Serial Number found: ${serialNumber}`)
-
-          return {
-            shopOrder: exactMatch,
-            found: true,
-            serialNumber: serialNumber,
-            dopHeaderId: exactMatch.DopId,
-          }
-        } else {
-          console.log(`ℹ️ No Serial Number found for DOP ID: ${mainDopId}`)
-
-          return {
-            shopOrder: exactMatch,
-            found: true,
-            serialNumber: null,
-            dopHeaderId: exactMatch.DopId,
-          }
-        }
-      } catch (error) {
-        console.error(`❌ Error fetching Serial Number:`, error)
-
-        // Retourner le Shop Order même si la récupération du Serial Number échoue
-        return {
-          shopOrder: exactMatch,
-          found: true,
-          serialNumber: null,
-          dopHeaderId: exactMatch.DopId,
-          error: `Failed to fetch Serial Number: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        }
-      }
-    } else {
+    // Return early if no DOP ID
+    if (!exactMatch.DopId) {
       console.log(`ℹ️ Shop Order has no DOP ID`)
-
-      return {
-        shopOrder: exactMatch,
-        found: true,
-        serialNumber: null,
-        dopHeaderId: null,
-      }
+      return { shopOrder: exactMatch, found: true, serialNumber: null, dopHeaderId: null }
     }
+
+    console.log(`📋 DOP ID found: ${exactMatch.DopId}`)
+    return fetchSerialNumber(exactMatch)
+
   } catch (error) {
     console.error(`❌ Failed to search Shop Order:`, error)
-
-    return {
-      shopOrder: {
-        OrderNo: orderNo,
-        ReleaseNo: releaseNo,
-        SequenceNo: sequenceNo,
-        DopId: null,
-        PartNo: '',
-        PartDescription: '',
-        Contract: '',
-      },
-      found: false,
-      error: `Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    }
+    return createEmptyResult(
+      orderNo,
+      releaseNo,
+      sequenceNo,
+      `Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
   }
 }

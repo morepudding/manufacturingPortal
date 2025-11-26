@@ -50,6 +50,42 @@ interface ShopOrderResult {
   error?: string
 }
 
+/**
+ * Fetch customer order using OrderNo + LineNo (fast path)
+ */
+async function fetchCustomerOrderByOrderInfo(
+  orderNo: string,
+  lineNo: string,
+  serialNumber: string
+): Promise<CustomerOrderData | null> {
+  console.log('🔍 Loading Customer Order from Shop Order data...')
+  const response = await fetch(
+    `/api/boat-configuration/customer-orders?orderNo=${orderNo}&lineNo=${lineNo}&serialNumber=${serialNumber}`
+  )
+  const data = await response.json()
+  
+  if (!response.ok) throw new Error(data.error || 'Failed to fetch Customer Order')
+  
+  return data.success && data.data?.customerOrder ? data.data.customerOrder : null
+}
+
+/**
+ * Fetch customer order using Serial Number only (fallback, slower)
+ */
+async function fetchCustomerOrderBySerial(
+  serialNumber: string
+): Promise<CustomerOrderData | null> {
+  console.log('🔍 Loading Customer Order via Serial Number...')
+  const response = await fetch(
+    `/api/boat-configuration/customer-orders?serialNumber=${serialNumber}`
+  )
+  const data = await response.json()
+  
+  if (!response.ok) throw new Error(data.error || 'Failed to fetch Customer Order')
+  
+  return data.success && data.data?.customerOrder ? data.data.customerOrder : null
+}
+
 export default function BoatConfigurationPage() {
   const [currentStep, setCurrentStep] = useState<Step>('entry')
   const [shopOrder, setShopOrder] = useState<ShopOrderData>({
@@ -103,59 +139,45 @@ export default function BoatConfigurationPage() {
   }
 
   const handleConfirmYes = async () => {
-    // Charger le Customer Order via Serial Number (toujours, même si Shop Order n'a pas les champs)
-    if (serialNumber && serialNumber !== 'N/A') {
-      setLoadingCustomerOrder(true)
-      setError(null)
-
-      try {
-        // Essayer d'abord avec OrderNo + LineNo si disponibles
-        if (searchResult?.shopOrder?.CustomerOrderNo && searchResult?.shopOrder?.CustomerLineNo) {
-          console.log('🔍 Loading Customer Order from Shop Order data...')
-          const response = await fetch(
-            `/api/boat-configuration/customer-orders?orderNo=${searchResult.shopOrder.CustomerOrderNo}&lineNo=${searchResult.shopOrder.CustomerLineNo}&serialNumber=${serialNumber}`
-          )
-
-          const data = await response.json()
-
-          if (!response.ok) throw new Error(data.error || 'Failed to fetch Customer Order')
-
-          if (data.success && data.data?.customerOrder) {
-            setCustomerOrder(data.data.customerOrder)
-            setCurrentStep('customer-order')
-            setLoadingCustomerOrder(false)
-            return
-          }
-        }
-
-        // Fallback: Chercher via Serial Number (plus lent mais fonctionne toujours)
-        console.log('🔍 Loading Customer Order via Serial Number...')
-        const response = await fetch(
-          `/api/boat-configuration/customer-orders?serialNumber=${serialNumber}`
-        )
-
-        const data = await response.json()
-
-        if (!response.ok) throw new Error(data.error || 'Failed to fetch Customer Order')
-
-        if (data.success && data.data?.customerOrder) {
-          setCustomerOrder(data.data.customerOrder)
-          setCurrentStep('customer-order')
-        } else {
-          // Pas de Customer Order trouvé, passer directement à la sélection
-          console.log('ℹ️ No Customer Order found, skipping to selection')
-          setCurrentStep('selection')
-        }
-      } catch (err) {
-        console.warn('⚠️ Failed to load Customer Order, continuing without it:', err)
-        // En cas d'erreur, passer directement à la sélection
-        setCurrentStep('selection')
-      } finally {
-        setLoadingCustomerOrder(false)
-      }
-    } else {
-      // Pas de Serial Number, passer directement à la sélection
+    // No Serial Number - skip to selection
+    if (!serialNumber || serialNumber === 'N/A') {
       setCurrentStep('selection')
+      return
+    }
+
+    setLoadingCustomerOrder(true)
+    setError(null)
+
+    try {
+      let customerOrderData: CustomerOrderData | null = null
+
+      // Try fast path: OrderNo + LineNo if available
+      const shopOrderData = searchResult?.shopOrder
+      if (shopOrderData?.CustomerOrderNo && shopOrderData?.CustomerLineNo) {
+        customerOrderData = await fetchCustomerOrderByOrderInfo(
+          shopOrderData.CustomerOrderNo,
+          shopOrderData.CustomerLineNo,
+          serialNumber
+        )
+      }
+
+      // Fallback: search by Serial Number
+      if (!customerOrderData) {
+        customerOrderData = await fetchCustomerOrderBySerial(serialNumber)
+      }
+
+      if (customerOrderData) {
+        setCustomerOrder(customerOrderData)
+        setCurrentStep('customer-order')
+      } else {
+        console.log('ℹ️ No Customer Order found, skipping to selection')
+        setCurrentStep('selection')
+      }
+    } catch (err) {
+      console.warn('⚠️ Failed to load Customer Order, continuing without it:', err)
+      setCurrentStep('selection')
+    } finally {
+      setLoadingCustomerOrder(false)
     }
   }
 

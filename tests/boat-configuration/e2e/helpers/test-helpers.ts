@@ -27,97 +27,78 @@ interface TestSummary {
   result: 'PASS' | 'FAIL'
 }
 
-/**
- * Afficher un récapitulatif visuel du test (pour testeurs métier)
- */
-export function printTestSummary(summary: TestSummary) {
-  const totalSeconds = (summary.duration / 1000).toFixed(1)
-  
-  console.log('\n')
-  console.log('╔' + '═'.repeat(100) + '╗')
-  console.log(`║ 📊 RÉCAPITULATIF DU TEST - ${summary.testName}`)
-  console.log('╚' + '═'.repeat(100) + '╝')
-  console.log('')
-  
-  // Données testées
-  if (summary.shopOrder || summary.serialNumber || summary.dopId) {
-    console.log('� DONNÉES TESTÉES:')
-    if (summary.shopOrder) {
-      console.log(`   • Shop Order testé: ${summary.shopOrder}`)
-    }
-    if (summary.serialNumber) {
-      console.log(`   • Serial Number vérifié: ${summary.serialNumber}`)
-    }
-    if (summary.dopId) {
-      console.log(`   • DOP Header ID validé: ${summary.dopId}`)
-    }
-    console.log('')
+/** Get status icon for a step */
+function getStepIcon(status: 'pass' | 'skip' | 'fail'): string {
+  const icons = { pass: '✅', skip: '⏭️', fail: '❌' }
+  return icons[status]
+}
+
+/** Get status text for a step */
+function getStatusText(status: 'pass' | 'skip' | 'fail'): string {
+  const texts = { pass: 'VALIDÉ', skip: 'IGNORÉ', fail: 'ÉCHEC' }
+  return texts[status]
+}
+
+/** Format test data section */
+function formatTestData(summary: TestSummary): string {
+  if (!summary.shopOrder && !summary.serialNumber && !summary.dopId) {
+    return ''
   }
   
-  // Étapes testées avec descriptions détaillées
-  console.log('🔍 ÉTAPES VÉRIFIÉES:')
-  console.log('')
-  summary.steps.forEach((step, index) => {
-    const icon = step.status === 'pass' ? '✅' : step.status === 'skip' ? '⏭️' : '❌'
-    const duration = (step.duration / 1000).toFixed(1)
-    const statusText = step.status === 'pass' ? 'VALIDÉ' : step.status === 'skip' ? 'IGNORÉ' : 'ÉCHEC'
-    
-    console.log(`   ${icon} Étape ${index + 1}: ${step.name}`)
-    console.log(`      ${step.description}`)
-    
-    if (step.details && step.details.length > 0) {
-      step.details.forEach(detail => {
-        console.log(`      → ${detail}`)
-      })
-    }
-    
-    console.log(`      [${statusText} en ${duration}s]`)
-    console.log('')
-  })
+  let output = '📋 DONNÉES TESTÉES:\n'
+  if (summary.shopOrder) output += `   • Shop Order testé: ${summary.shopOrder}\n`
+  if (summary.serialNumber) output += `   • Serial Number vérifié: ${summary.serialNumber}\n`
+  if (summary.dopId) output += `   • DOP Header ID validé: ${summary.dopId}\n`
+  output += '\n'
+  return output
+}
+
+/** Format a single step */
+function formatStep(step: TestSummary['steps'][0], index: number): string {
+  const icon = getStepIcon(step.status)
+  const duration = (step.duration / 1000).toFixed(1)
+  const statusText = getStatusText(step.status)
   
-  // Résultat final
-  const resultIcon = summary.result === 'PASS' ? '✅' : '❌'
-  const resultBox = '╔═══════════════════════╗'
-  const resultText = summary.result === 'PASS' 
-    ? `║  ${resultIcon} TEST RÉUSSI ✅    ║`
-    : `║  ${resultIcon} TEST ÉCHOUÉ ❌    ║`
+  let output = `   ${icon} Étape ${index + 1}: ${step.name}\n`
+  output += `      ${step.description}\n`
   
+  if (step.details?.length) {
+    step.details.forEach(detail => { output += `      → ${detail}\n` })
+  }
+  
+  output += `      [${statusText} en ${duration}s]\n\n`
+  return output
+}
+
+/** Build full output string */
+function buildOutputString(summary: TestSummary): string {
   let output = '\n'
   output += '╔' + '═'.repeat(100) + '╗\n'
   output += `║ 📊 RÉCAPITULATIF DU TEST - ${summary.testName}\n`
   output += '╚' + '═'.repeat(100) + '╝\n\n'
   
-  // Données testées
-  if (summary.shopOrder || summary.serialNumber || summary.dopId) {
-    output += '📋 DONNÉES TESTÉES:\n'
-    if (summary.shopOrder) output += `   • Shop Order testé: ${summary.shopOrder}\n`
-    if (summary.serialNumber) output += `   • Serial Number vérifié: ${summary.serialNumber}\n`
-    if (summary.dopId) output += `   • DOP Header ID validé: ${summary.dopId}\n`
-    output += '\n'
-  }
-  
-  // Étapes testées
+  output += formatTestData(summary)
   output += '🔍 ÉTAPES VÉRIFIÉES:\n\n'
-  summary.steps.forEach((step, index) => {
-    const icon = step.status === 'pass' ? '✅' : step.status === 'skip' ? '⏭️' : '❌'
-    const duration = (step.duration / 1000).toFixed(1)
-    const statusText = step.status === 'pass' ? 'VALIDÉ' : step.status === 'skip' ? 'IGNORÉ' : 'ÉCHEC'
-    
-    output += `   ${icon} Étape ${index + 1}: ${step.name}\n`
-    output += `      ${step.description}\n`
-    if (step.details && step.details.length > 0) {
-      step.details.forEach(detail => output += `      → ${detail}\n`)
-    }
-    output += `      [${statusText} en ${duration}s]\n\n`
-  })
+  summary.steps.forEach((step, index) => { output += formatStep(step, index) })
   
-  // Résultat
-  output += resultBox + '\n'
+  const resultIcon = summary.result === 'PASS' ? '✅' : '❌'
+  const resultText = summary.result === 'PASS' 
+    ? `║  ${resultIcon} TEST RÉUSSI ✅    ║`
+    : `║  ${resultIcon} TEST ÉCHOUÉ ❌    ║`
+  
+  output += '╔═══════════════════════╗\n'
   output += resultText + '\n'
   output += `║  Durée: ${summary.duration / 1000}s${' '.repeat(14 - String(summary.duration / 1000).length)}║\n`
   output += '╚═══════════════════════╝\n\n'
   
-  // Afficher console
+  return output
+}
+
+/**
+ * Afficher un récapitulatif visuel du test (pour testeurs métier)
+ */
+export function printTestSummary(summary: TestSummary) {
+  const output = buildOutputString(summary)
   console.log(output)
   
   // Sauvegarder fichier

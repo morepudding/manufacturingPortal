@@ -49,6 +49,42 @@ export default function EditTable({
     const [editMode, setEditMode] = useState<number | null>(null);
     const [editData, setEditData] = useState<Record<string, unknown>>({});
 
+    /**
+     * Build edit data from cells - extracted to reduce nesting depth
+     */
+    const buildEditDataFromCells = (
+        cells: Array<{
+            key: string;
+            isCheckbox?: boolean;
+            checkboxArgs?: { checked?: boolean };
+            value?: unknown;
+        }>
+    ): Record<string, unknown> => {
+        const data: Record<string, unknown> = {};
+        cells.forEach((champs) => {
+            data[champs.key] = champs.isCheckbox
+                ? champs.checkboxArgs?.checked
+                : champs.value;
+        });
+        return data;
+    };
+
+    /**
+     * Handle edit button click - extracted to reduce nesting depth
+     */
+    const handleEditClick = (
+        cells: Array<{
+            key: string;
+            isCheckbox?: boolean;
+            checkboxArgs?: { checked?: boolean };
+            value?: unknown;
+        }>,
+        indexMap: number
+    ) => {
+        setEditMode(editIds ? editIds[indexMap] : null);
+        setEditData(buildEditDataFromCells(cells));
+    };
+
     const [validateData, setValidateData] = useState<Record<string, string>>(
         {},
     );
@@ -271,23 +307,7 @@ export default function EditTable({
                                         isButton: true,
                                         buttonArgs: {
                                             label: "Editer",
-                                            onClick: () => {
-                                                setEditMode(
-                                                    editIds
-                                                        ? editIds[indexMap]
-                                                        : null,
-                                                );
-                                                setEditData((prev) => {
-                                                    const newEditData = structuredClone(prev);
-                                                    cells.forEach((champs) => {
-                                                        const value = champs.isCheckbox
-                                                            ? champs.checkboxArgs?.checked
-                                                            : champs.value;
-                                                        newEditData[champs.key] = value;
-                                                    });
-                                                    return newEditData;
-                                                });
-                                            },
+                                            onClick: () => handleEditClick(cells, indexMap),
                                         },
                                     },
                                 ],

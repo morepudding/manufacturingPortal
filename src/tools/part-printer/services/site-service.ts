@@ -50,7 +50,7 @@ export async function getSites(): Promise<SitesResponse> {
 
     // Convertir en format IFSSite
     const sites: IFSSite[] = Array.from(contractsSet)
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .map(contract => ({
         Contract: contract,
         Name: `Site ${contract}`,

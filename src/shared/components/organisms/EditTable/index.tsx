@@ -278,21 +278,13 @@ export default function EditTable({
                                                         : null,
                                                 );
                                                 setEditData((prev) => {
-                                                    let newEditData =
-                                                        structuredClone(prev);
-
-                                                    cells.map((champs) => {
-                                                        newEditData = {
-                                                            ...newEditData,
-                                                            [champs.key]:
-                                                                champs.isCheckbox
-                                                                    ? champs
-                                                                          .checkboxArgs
-                                                                          ?.checked
-                                                                    : champs.value,
-                                                        };
+                                                    const newEditData = structuredClone(prev);
+                                                    cells.forEach((champs) => {
+                                                        const value = champs.isCheckbox
+                                                            ? champs.checkboxArgs?.checked
+                                                            : champs.value;
+                                                        newEditData[champs.key] = value;
                                                     });
-
                                                     return newEditData;
                                                 });
                                             },

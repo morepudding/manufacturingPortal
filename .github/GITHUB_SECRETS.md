@@ -5,7 +5,7 @@ Pour que le workflow CI/CD fonctionne, vous devez configurer les secrets GitHub 
 ## 📋 Secrets Requis
 
 Aller sur GitHub : **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-
+dsgdssdg
 ### Secrets minimaux pour le build
 
 | Secret | Valeur | Description |

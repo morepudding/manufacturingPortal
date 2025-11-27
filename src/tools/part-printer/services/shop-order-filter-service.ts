@@ -79,9 +79,11 @@ export async function filterShopOrders(
 
     // Construction du filtre OData
     // NOTE: Filtrer Contract et ProductionLine dans OData
-    // Pour le mode Redébit, filtrer aussi la date dans OData pour optimiser
+    // ✅ FIX: Utiliser la syntaxe IFS pour filtrer Objstate (enum)
+    // IFS utilise la syntaxe: Objstate eq IfsApp.ShopOrderHandling.ShopOrdState'Released'
     const filters: string[] = [
-      `Contract eq '${site}'`
+      `Contract eq '${site}'`,
+      `Objstate eq IfsApp.ShopOrderHandling.ShopOrdState'Released'`  // Syntaxe enum IFS
     ]
 
     // Filtrage par ligne de production (si fourni) - peut être fait dans OData
@@ -89,6 +91,9 @@ export async function filterShopOrders(
       filters.push(`ProductionLine eq '${productionLine}'`)
       logger.debug(`📊 [Shop Order Filter] Ligne de production: ${productionLine}`)
     }
+    
+    // ⚠️ NOTE: Le filtre date en OData cause des erreurs de syntaxe IFS
+    // On garde le filtrage date côté code pour plus de fiabilité
 
     // Mode pour log et filtre OData
     const mode = blockDateEnabled && blockDateValue && operationBlockIdFilter === 'empty' ? 'Débit classique' :
@@ -117,19 +122,50 @@ export async function filterShopOrders(
       'ShopOrderHandling.svc/ShopOrds',
       {
         $filter: odataFilter,
-        $select: 'OrderNo,ReleaseNo,SequenceNo,Contract,PartNo,PartDescription,Objstate,RevisedStartDate,CBlockDates,ProductionLine,SentToCuttingSystem',
+        $select: 'OrderNo,ReleaseNo,SequenceNo,Contract,PartNo,PartDescription,Objstate,OrgStartDate,EarliestStartDate,RevisedStartDate,CBlockDates,ProductionLine,SentToCuttingSystem',
         $orderby: orderBy,
         $top: topLimit
       }
     )
 
     let shopOrders = response.value || []
+    
+    // Log pour debug
+    console.log(`🔍 [Shop Order Filter] ${shopOrders.length} SO récupérés depuis IFS (filtre: ${odataFilter})`)
+    
+    // Stats rapides pour debug - montrer les différents champs de date
+    if (shopOrders.length > 0) {
+      const first = shopOrders[0]
+      console.log(`🔍 [DEBUG] Premier SO dates:`, {
+        OrderNo: first.OrderNo,
+        OrgStartDate: (first as any).OrgStartDate?.split('T')[0],
+        EarliestStartDate: (first as any).EarliestStartDate?.split('T')[0],
+        RevisedStartDate: first.RevisedStartDate?.split('T')[0],
+        FindRevisedStartDate: (first as any).FindRevisedStartDate?.split('T')[0],
+        CBlockDates: first.CBlockDates
+      })
+    }
+    
+    const stats = {
+      total: shopOrders.length,
+      withBlockDateTrue: shopOrders.filter(o => o.CBlockDates === true).length,
+      revisedStartDates: [...new Set(shopOrders.map(o => o.RevisedStartDate?.split('T')[0]))].slice(0, 5),
+      orgStartDates: [...new Set(shopOrders.map(o => (o as any).OrgStartDate?.split('T')[0]))].slice(0, 5)
+    }
+    console.log(`🔍 [Shop Order Filter] Stats: ${stats.withBlockDateTrue} avec CBlockDates=true`)
+    console.log(`🔍 [Shop Order Filter] RevisedStartDates: ${stats.revisedStartDates.join(', ')}`)
+    console.log(`🔍 [Shop Order Filter] OrgStartDates: ${stats.orgStartDates.join(', ')}`)
 
     // Filtrage côté code pour Objstate = "Released" (production)
+    // Note: Déjà filtré dans OData, mais garde comme sécurité
     shopOrders = shopOrders.filter(order => 
       order.Objstate === 'Released'
     )
-    logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec Objstate='Released'`)
+    
+    // Log après filtre Objstate (devrait être le même nombre si OData fonctionne)
+    if (shopOrders.length === 0) {
+      console.log(`⚠️ [Shop Order Filter] Aucun SO Released trouvé`)
+    }
 
     // ✅ STEP 1: Filtrage par date (TOUJOURS actif selon SFD, sauf si Block ID spécifique)
     // Selon les specs: Start Date est mandatory et filtre toujours les Shop Orders
@@ -138,12 +174,12 @@ export async function filterShopOrders(
     
     if (startDate && startDate.trim() !== '') {
       const targetDate = startDate
-      logger.debug(`🔍 [Shop Order Filter] Filtrage par date=${targetDate}`)
+      
       shopOrders = shopOrders.filter(order => {
         const orderDate = order.RevisedStartDate ? new Date(order.RevisedStartDate).toISOString().split('T')[0] : null
         return orderDate === targetDate
       })
-      logger.debug(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate}`)
+      console.log(`✅ [Shop Order Filter] ${shopOrders.length} Shop Orders avec date=${targetDate}`)
     } else if (isSpecificBlockId) {
       logger.debug(`🔍 [Shop Order Filter] Pas de filtrage par date (Block ID spécifique renseigné)`)
     } else {

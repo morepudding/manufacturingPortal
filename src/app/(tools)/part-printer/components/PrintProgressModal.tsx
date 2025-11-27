@@ -39,7 +39,7 @@ export function PrintProgressModal({
   shopOrders,
   printer,
   printModel,
-  parallelism = 10
+  parallelism = 3 // Réduit à 3 pour éviter la surcharge Azure APIM
 }: PrintProgressModalProps) {
   const [progress, setProgress] = useState<PrintBatchProgress>({
     currentBatch: 0,

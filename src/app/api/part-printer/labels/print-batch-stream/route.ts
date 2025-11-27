@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     const batchSize = 1
-    const parallelism = body.parallelism || 10
+    const parallelism = body.parallelism || 3 // Réduit à 3 pour éviter la surcharge Azure APIM
     const totalOrders = body.shopOrders.length
     const batches = createBatches(body.shopOrders, batchSize)
     const totalBatches = batches.length
@@ -120,6 +120,11 @@ export async function POST(request: NextRequest) {
 
           // 4. Traiter par groupes en parallèle
           for (let i = 0; i < batches.length; i += parallelism) {
+            // Délai entre les groupes pour éviter rate limiting Azure APIM
+            if (i > 0) {
+              await new Promise(resolve => setTimeout(resolve, 500))
+            }
+            
             const parallelBatches = batches.slice(i, i + parallelism)
             const batchNumbers = Array.from({ length: parallelBatches.length }, (_, idx) => i + idx + 1)
 
